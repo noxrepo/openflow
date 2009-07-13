@@ -1434,6 +1434,9 @@ stats_done(void *cb_)
         if (cb->s->done) {
             cb->s->done(cb->state);
         }
+        if (cb->rq) {
+            free(cb->rq);
+        }
         free(cb);
     }
 }
