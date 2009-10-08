@@ -1833,7 +1833,7 @@ dp_genl_openflow_dumpit(struct sk_buff *skb, struct netlink_callback *cb)
 
 		if (!attrs[DP_GENL_A_DP_IDX])
 			return -EINVAL;
-		dp_idx = nla_get_u16(attrs[DP_GENL_A_DP_IDX]);
+		dp_idx = nla_get_u32(attrs[DP_GENL_A_DP_IDX]);
 		dp = dp_get_by_idx(dp_idx);
 		if (!dp)
 			return -ENOENT;
