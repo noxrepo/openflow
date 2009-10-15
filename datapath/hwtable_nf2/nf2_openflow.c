@@ -330,9 +330,9 @@ nf2_write_of_wildcard(struct net_device *dev, int row,
 
 	// Reset the stats for the row
 	val = 0;
-	nf2k_reg_write(dev, OPENFLOW_WILDCARD_LOOKUP_BYTES_HIT_BASE_REG, &val);
-	nf2k_reg_write(dev, OPENFLOW_WILDCARD_LOOKUP_PKTS_HIT_BASE_REG, &val);
-	nf2k_reg_write(dev, OPENFLOW_WILDCARD_LOOKUP_LAST_SEEN_TS_REG, &val);
+	nf2k_reg_write(dev, OPENFLOW_WILDCARD_LOOKUP_BYTES_HIT_BASE_REG + (4 * row), &val);
+	nf2k_reg_write(dev, OPENFLOW_WILDCARD_LOOKUP_PKTS_HIT_BASE_REG + (4 * row), &val);
+	nf2k_reg_write(dev, OPENFLOW_WILDCARD_LOOKUP_LAST_SEEN_TS_REG + (4 * row), &val);
 	nf2k_reg_write(dev, OPENFLOW_WILDCARD_LOOKUP_WRITE_ADDR_REG, &row);
 
 	do_gettimeofday(&t);
@@ -413,7 +413,7 @@ nf2_modify_write_of_wildcard(struct net_device *dev, int row,
 	nf2k_reg_read(dev,
 		      OPENFLOW_WILDCARD_LOOKUP_PKTS_HIT_BASE_REG + (4 * row),
 		      &pkts_reg_val);
-	nf2k_reg_read(dev, OPENFLOW_WILDCARD_LOOKUP_LAST_SEEN_TS_REG,
+	nf2k_reg_read(dev, OPENFLOW_WILDCARD_LOOKUP_LAST_SEEN_TS_REG + (4 * row),
 		      &last_reg_val);
 
 	for (i = 0; i < NF2_OF_ENTRY_WORD_LEN; ++i) {
@@ -431,11 +431,11 @@ nf2_modify_write_of_wildcard(struct net_device *dev, int row,
 			       + (4 * i), &(action->raw[i]));
 	}
 
-	nf2k_reg_write(dev, OPENFLOW_WILDCARD_LOOKUP_BYTES_HIT_BASE_REG,
+	nf2k_reg_write(dev, OPENFLOW_WILDCARD_LOOKUP_BYTES_HIT_BASE_REG + (4 * row),
 		       &bytes_reg_val);
-	nf2k_reg_write(dev, OPENFLOW_WILDCARD_LOOKUP_PKTS_HIT_BASE_REG,
+	nf2k_reg_write(dev, OPENFLOW_WILDCARD_LOOKUP_PKTS_HIT_BASE_REG + (4 * row),
 		       &pkts_reg_val);
-	nf2k_reg_write(dev, OPENFLOW_WILDCARD_LOOKUP_LAST_SEEN_TS_REG,
+	nf2k_reg_write(dev, OPENFLOW_WILDCARD_LOOKUP_LAST_SEEN_TS_REG + (4 * row),
 		       &last_reg_val);
 	nf2k_reg_write(dev, OPENFLOW_WILDCARD_LOOKUP_WRITE_ADDR_REG, &row);
 
