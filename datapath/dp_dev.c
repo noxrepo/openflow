@@ -138,7 +138,7 @@ static struct ethtool_ops dp_ethtool_ops = {
 	.get_tso = ethtool_op_get_tso,
 };
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,31)
+#ifdef HAVE_NET_DEVICE_OPS
 static const struct net_device_ops dp_netdev_ops = {
 	.ndo_init = NULL,
 	.ndo_uninit = NULL,
@@ -168,7 +168,7 @@ do_setup(struct net_device *netdev)
 {
 	ether_setup(netdev);
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,31)
+#ifdef HAVE_NET_DEVICE_OPS
 	netdev->netdev_ops = &dp_netdev_ops;
 #else
 	netdev->do_ioctl = dp_ioctl_hook;
@@ -243,7 +243,7 @@ void dp_dev_destroy(struct datapath *dp)
 
 int is_dp_dev(struct net_device *netdev) 
 {
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,31)
+#ifdef HAVE_NET_DEVICE_OPS
 	return netdev->netdev_ops->ndo_open == dp_dev_open;
 
 #else
