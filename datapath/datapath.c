@@ -1702,10 +1702,16 @@ static int port_stats_dump(struct datapath *dp, void *state,
 		struct net_device_stats *stats;
 		if (!p)
 			continue;
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,31)
-		stats = p->dev->netdev_ops->ndo_get_stats(p->dev);
+#ifdef HAVE_NET_DEVICE_OPS
+		if (!p->dev->netdev_ops || !p->dev->netdev_ops->ndo_get_stats)
+			stats = &p->dev->stats;
+		else
+			stats = p->dev->netdev_ops->ndo_get_stats(p->dev);
 #else
-		stats = p->dev->get_stats(p->dev);
+		if (!p->dev->get_stats)
+			stats = &p->dev->stats;
+		else
+			stats = p->dev->get_stats(p->dev);
 #endif
 		ops->port_no = htons(p->port_no);
 		memset(ops->pad, 0, sizeof ops->pad);
