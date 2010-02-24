@@ -4,6 +4,14 @@ AUTOMAKE_OPTIONS = foreign -Wno-syntax subdir-objects
 ACLOCAL_AMFLAGS = -I m4
 SUBDIRS = datapath
 
+if HAVE_DPKG_BUILDPACKAGE
+distcheck-hook:
+	cd $(srcdir) && dpkg-buildpackage -rfakeroot -us -uc
+	cd $(srcdir) && fakeroot ./debian/rules clean
+else
+distcheck-hook:
+endif
+
 AM_CPPFLAGS = $(SSL_CFLAGS)
 AM_CPPFLAGS += -I $(top_srcdir)/include
 AM_CPPFLAGS += -I $(top_srcdir)/lib
@@ -55,3 +63,4 @@ include udatapath/automake.mk
 include tests/automake.mk
 include include/automake.mk
 include third-party/automake.mk
+include debian/automake.mk
