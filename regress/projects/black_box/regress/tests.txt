@@ -29,6 +29,7 @@ test_drop_exact/run.pl
 ## Modify Action Tests
 test_forward_exact_modify_action/run.pl
 test_forward_wildcard_modify_action/run.pl
+test_modify_all_action/run.pl
 
 ## ICMP handling Tests
 test_forward_exact_icmp_port/run.pl
