@@ -51,8 +51,9 @@ struct nf2_of_entry {
 	uint8_t eth_dst[6];
 	uint8_t eth_src[6];
 	uint8_t src_port;
+	uint8_t pad1;
 	uint16_t vlan_id;
-	uint16_t pad;
+	uint8_t pad2;
 };
 
 typedef union nf2_of_entry_wrap {
@@ -72,9 +73,10 @@ struct nf2_of_action {
 	uint8_t eth_dst[6];
 	uint32_t ip_src;
 	uint32_t ip_dst;
+	uint8_t pad;
 	uint16_t transp_src;
 	uint16_t transp_dst;
-	uint8_t reserved[19];
+	uint8_t reserved[18];
 };
 
 #define NF2_OF_ACTION_WORD_LEN	10

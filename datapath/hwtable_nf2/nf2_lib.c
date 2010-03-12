@@ -45,6 +45,8 @@
 #include "hwtable_nf2/nf2_lib.h"
 
 #define MAX_INT_32	0xFFFFFFFF
+#define VID_BITMASK	0x0FFF
+#define NF_BCKPRT_ADJ	1
 
 struct list_head wildcard_free_list;
 struct nf2_flow *exact_free_list[OPENFLOW_NF2_EXACT_TABLE_SIZE];
@@ -57,6 +59,13 @@ static void populate_action_output(nf2_of_action_wrap *, nf2_of_entry_wrap *,
 				   uint8_t *);
 static void populate_action_set_dl_src(nf2_of_action_wrap *, uint8_t *);
 static void populate_action_set_dl_dst(nf2_of_action_wrap *, uint8_t *);
+static void populate_action_set_nw_src(nf2_of_action_wrap *, uint8_t *);
+static void populate_action_set_nw_dst(nf2_of_action_wrap *, uint8_t *);
+static void populate_action_set_tp_src(nf2_of_action_wrap *, uint8_t *);
+static void populate_action_set_tp_dst(nf2_of_action_wrap *, uint8_t *);
+static void populate_action_set_vlan_vid(nf2_of_action_wrap *, uint8_t *);
+static void populate_action_set_vlan_pcp(nf2_of_action_wrap *, uint8_t *);
+static void populate_action_strip_vlan(nf2_of_action_wrap *);
 
 struct net_device *
 nf2_get_net_device(void)
@@ -97,11 +106,22 @@ nf2_are_actions_supported(struct sw_flow *flow)
 		NF2DEBUGMSG("Action Support Chk: Len of actions    : %i\n",
 			    actions_len);
 
-		// Currently, output port(s) action, dl_src/dst rewrite actions
-		// are suported.
+		// All the modify actions are supported.
+		// Each of them can be specified once otherwise overwritten.
+		// Output action happens last.
 		if (!(ntohs(ah->type) == OFPAT_OUTPUT
 		      || ntohs(ah->type) == OFPAT_SET_DL_SRC
-		      || ntohs(ah->type) == OFPAT_SET_DL_DST)) {
+		      || ntohs(ah->type) == OFPAT_SET_DL_DST
+
+		      || ntohs(ah->type) == OFPAT_SET_NW_SRC
+		      || ntohs(ah->type) == OFPAT_SET_NW_DST
+
+		      || ntohs(ah->type) == OFPAT_SET_TP_SRC
+		      || ntohs(ah->type) == OFPAT_SET_TP_DST
+
+		      || ntohs(ah->type) == OFPAT_SET_VLAN_VID
+		      || ntohs(ah->type) == OFPAT_SET_VLAN_PCP
+		      || ntohs(ah->type) == OFPAT_STRIP_VLAN)) {
 			NF2DEBUGMSG
 				("Flow action type %#0x not supported in hardware\n",
 				 ntohs(ah->type));
@@ -353,7 +373,8 @@ nf2_populate_of_mask(nf2_of_mask_wrap *mask, struct sw_flow *flow)
 	if (OFPFW_TP_DST & flow->key.wildcards)
 		mask->entry.transp_dst = 0xFFFF;
 
-	mask->entry.pad = 0x0000;
+	mask->entry.pad1 = 0x00;
+	mask->entry.pad2 = 0x00;
 }
 
 static void
@@ -419,6 +440,60 @@ populate_action_set_dl_dst(nf2_of_action_wrap *action, uint8_t *flowact)
 	action->action.nf2_action_flag |= (1 << OFPAT_SET_DL_DST);
 }
 
+static void
+populate_action_set_nw_src(nf2_of_action_wrap *action, uint8_t *flowact)
+{
+	struct ofp_action_nw_addr  *actnw = (struct ofp_action_nw_addr *)flowact;
+	action->action.ip_src = ntohl(actnw->nw_addr);
+	action->action.nf2_action_flag |= (1 << OFPAT_SET_NW_SRC);
+}
+
+static void
+populate_action_set_nw_dst(nf2_of_action_wrap *action, uint8_t *flowact)
+{
+	struct ofp_action_nw_addr  *actnw = (struct ofp_action_nw_addr *)flowact;
+	action->action.ip_dst = ntohl(actnw->nw_addr);
+	action->action.nf2_action_flag |= (1 << OFPAT_SET_NW_DST);
+}
+
+static void
+populate_action_set_tp_src(nf2_of_action_wrap *action, uint8_t *flowact)
+{
+	struct ofp_action_tp_port  *acttp = (struct ofp_action_tp_port *)flowact;
+	action->action.transp_src = ntohs(acttp->tp_port);
+	action->action.nf2_action_flag |= (1 << (OFPAT_SET_TP_SRC + NF_BCKPRT_ADJ));
+}
+
+static void
+populate_action_set_tp_dst(nf2_of_action_wrap *action, uint8_t *flowact)
+{
+	struct ofp_action_tp_port  *acttp = (struct ofp_action_tp_port *)flowact;
+	action->action.transp_dst = ntohs(acttp->tp_port);
+	action->action.nf2_action_flag |= (1 << (OFPAT_SET_TP_DST + NF_BCKPRT_ADJ));
+}
+
+static void
+populate_action_set_vlan_vid(nf2_of_action_wrap *action, uint8_t *flowact)
+{
+	struct ofp_action_vlan_vid *actvlan = (struct ofp_action_vlan_vid *)flowact;
+	action->action.vlan_id = ntohs(actvlan->vlan_vid) & VID_BITMASK;
+	action->action.nf2_action_flag |= (1 << OFPAT_SET_VLAN_VID);
+}
+
+static void
+populate_action_set_vlan_pcp(nf2_of_action_wrap *action, uint8_t *flowact)
+{
+	struct ofp_action_vlan_pcp *actvlan = (struct ofp_action_vlan_pcp *)flowact;
+	action->action.vlan_pcp = actvlan->vlan_pcp;
+	action->action.nf2_action_flag |= (1 << OFPAT_SET_VLAN_PCP);
+}
+
+static void
+populate_action_strip_vlan(nf2_of_action_wrap *action)
+{
+	action->action.nf2_action_flag |= (1 << OFPAT_STRIP_VLAN);
+}
+
 /* Populate an nf2_of_action_wrap. */
 void
 nf2_populate_of_action(nf2_of_action_wrap *action, nf2_of_entry_wrap *entry,
@@ -450,6 +525,20 @@ nf2_populate_of_action(nf2_of_action_wrap *action, nf2_of_entry_wrap *entry,
 			populate_action_set_dl_src(action, p);
 		} else if (acth->type == htons(OFPAT_SET_DL_DST)) {
 			populate_action_set_dl_dst(action, p);
+		} else if (acth->type == htons(OFPAT_SET_NW_SRC)) {
+			populate_action_set_nw_src(action, p);
+		} else if (acth->type == htons(OFPAT_SET_NW_DST)) {
+			populate_action_set_nw_dst(action, p);
+		} else if (acth->type == htons(OFPAT_SET_TP_SRC)) {
+			populate_action_set_tp_src(action, p);
+		} else if (acth->type == htons(OFPAT_SET_TP_DST)) {
+			populate_action_set_tp_dst(action, p);
+		} else if (acth->type == htons(OFPAT_SET_VLAN_VID)) {
+			populate_action_set_vlan_vid(action, p);
+		} else if (acth->type == htons(OFPAT_SET_VLAN_PCP)) {
+			populate_action_set_vlan_pcp(action, p);
+		} else if (acth->type == htons(OFPAT_STRIP_VLAN)) {
+			populate_action_strip_vlan(action);
 		}
 		p += len;
 		actions_len -= len;
@@ -639,7 +728,8 @@ nf2_build_and_write_flow(struct sw_flow *flow)
 			return 1;
 		}
 		// set the active bit on this entry
-		key.entry.pad = 0x8000;
+		key.entry.pad1 = 0x00;
+		key.entry.pad2 = 0x80;
 		nf2_write_of_exact(dev, sfw->pos, &key, &action);
 		flow->private = (void *)sfw;
 		break;
@@ -788,7 +878,8 @@ nf2_modify_acts(struct sw_table *swt, struct sw_flow *flow)
 	case NF2_TABLE_EXACT:
 		nf2_populate_of_entry(&key, flow);
 		nf2_populate_of_action(&action, &key, NULL, flow);
-		key.entry.pad = 0x8000;
+		key.entry.pad1 = 0x00;
+		key.entry.pad2 = 0x80;
 		nf2_modify_write_of_exact(dev, sfw->pos, &action);
 		break;
 
