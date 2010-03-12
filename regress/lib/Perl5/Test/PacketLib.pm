@@ -1430,12 +1430,24 @@ use Carp;
 use strict;
 
 use constant IP_Ethertype => 0x0800;
-use constant ETH_HDR_LEN => 6 + 6 + 2;
 use constant IP_HDR_LEN => 5 * 4;
-#use constant MIN_LEN => ETH_HDR_LEN + IP_HDR_LEN;
 use constant PROTO_RESERVED => 255;
 
-sub MIN_LEN {ETH_HDR_LEN + IP_HDR_LEN;}
+sub ETH_HDR_LEN
+{
+  my (%arg) = @_;
+  if (defined ($arg{'VLAN_ID'})) {
+    return 6+6+4+2;
+  } else {
+    return 6+6+2;
+  }
+}
+
+sub MIN_LEN
+  {
+  my (%arg) = @_;
+  return ETH_HDR_LEN(%arg) + IP_HDR_LEN;
+  }
 
 sub new   # Ethernet_hdr
   {
@@ -1444,17 +1456,22 @@ sub new   # Ethernet_hdr
     my $force = defined($arg{'force'}) && $arg{'force'};
 
     $arg{'Ethertype'} = IP_Ethertype if (!$force || !defined($arg{'Ethertype'}));
-    $arg{'len'} = MIN_LEN if (!defined($arg{'len'}));
-    $arg{'dgram_len'} = $arg{'len'} - ETH_HDR_LEN if (!$force || !defined($arg{'dgram_len'}));
+    $arg{'len'} = MIN_LEN(%arg) if (!defined($arg{'len'}));
+    $arg{'dgram_len'} = $arg{'len'} - ETH_HDR_LEN(%arg) if (!$force || !defined($arg{'dgram_len'}));
     if ($arg{'dgram_len'} < IP_HDR_LEN && !$force) {
-      die "IP packet length $arg{'dgram_len'} is too small. Must be at least " . MIN_LEN . " bytes\n";
+      die "IP packet length $arg{'dgram_len'} is too small. Must be at least " . MIN_LEN(%arg) . " bytes\n";
     }
     my $payloadLen = $arg{'dgram_len'} - IP_HDR_LEN;
     $payloadLen = 0 if $payloadLen < 0;
     $arg{'proto'} = PROTO_RESERVED if (!defined($arg{'proto'}));
 
     # Create the various PDUs
-    my $Ethernet_hdr = new NF2::Ethernet_hdr(%arg);
+    my $Ethernet_hdr;
+    if (defined ($arg{'VLAN_ID'})) {
+        $Ethernet_hdr = new NF2::VLAN_hdr(%arg);
+    } else {
+        $Ethernet_hdr = new NF2::Ethernet_hdr(%arg);
+    }
     my $IP_hdr = new NF2::IP_hdr(%arg);
     my $payload = new NF2::PDU($payloadLen);
     $payload->set_bytes(map {int(rand(256))} (0..($payloadLen - 1)) );
@@ -1538,10 +1555,10 @@ sub set {
 
   # Change the IP header if appropriate options are set
   if (defined($arg{'len'}) || defined($arg{'dgram_len'})) {
-    $arg{'len'} = $arg{'dgram_len'} + ETH_HDR_LEN if (!defined($arg{'len'}));
-    $arg{'dgram_len'} = $arg{'len'} - ETH_HDR_LEN if (!$force && !defined($arg{'dgram_len'}));
+    $arg{'len'} = $arg{'dgram_len'} + ETH_HDR_LEN(%arg) if (!defined($arg{'len'}));
+    $arg{'dgram_len'} = $arg{'len'} - ETH_HDR_LEN(%arg) if (!$force && !defined($arg{'dgram_len'}));
     if ($arg{'dgram_len'} < IP_HDR_LEN && !$force) {
-      die "IP packet length $arg{'length'} is too small. Must be at least " . MIN_LEN . " bytes\n";
+      die "IP packet length $arg{'length'} is too small. Must be at least " . MIN_LEN(%arg) . " bytes\n";
     }
     my $payloadLen = $arg{'dgram_len'} - IP_HDR_LEN;
     $payloadLen = 0 if ($payloadLen < 0);
