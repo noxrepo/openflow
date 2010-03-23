@@ -1707,12 +1707,15 @@ static int port_stats_dump(struct datapath *dp, void *state,
 			stats = &p->dev->stats;
 		else
 			stats = p->dev->netdev_ops->ndo_get_stats(p->dev);
-#else
+#elif LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,22)
 		if (!p->dev->get_stats)
 			stats = &p->dev->stats;
 		else
 			stats = p->dev->get_stats(p->dev);
+#else
+		stats = p->dev->get_stats(p->dev);
 #endif
+
 		ops->port_no = htons(p->port_no);
 		memset(ops->pad, 0, sizeof ops->pad);
 		ops->rx_packets   = cpu_to_be64(stats->rx_packets);
