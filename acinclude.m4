@@ -67,9 +67,10 @@ AC_DEFUN([OFP_CHECK_LINUX], [
     if test "2.$patchlevel" != '$2'; then
        AC_ERROR([Linux kernel source in $path is not version $2])
     fi
-    if ! test -e $KBLD26/include/linux/version.h || \
-       ! test -e $KBLD26/include/linux/autoconf.h; then
-       AC_MSG_ERROR([Linux kernel source in $path is not configured])
+    if test ! -e $KBLD26/include/linux/version.h || \
+       (test ! -e $KBLD26/include/linux/autoconf.h && \
+        test ! -e $KBLD26/include/generated/autoconf.h); then
+	  AC_MSG_ERROR([Linux kernel source in $path is not configured])
     fi
     m4_if($2, [2.6], [OFP_CHECK_LINUX26_COMPAT])
   fi
