@@ -47,6 +47,9 @@
 
 #include "compat.h"
 
+#ifdef CONFIG_NET_NS
+#include <net/net_namespace.h>
+#endif
 
 /* Strings to describe the manufacturer, hardware, and software.  This data 
  * is queriable through the switch description stats message. */
@@ -259,8 +262,12 @@ send_openflow_skb(const struct datapath *dp,
 		  struct sk_buff *skb, const struct sender *sender)
 {
 	return (sender
-		? genlmsg_unicast(skb, sender->pid)
-		: genlmsg_multicast(skb, 0, dp_mc_group(dp), GFP_ATOMIC));
+#ifdef CONFIG_NET_NS
+               ? genlmsg_unicast(&init_net, skb, sender->pid)
+#else
+               ? genlmsg_unicast(skb, sender->pid)
+#endif
+               : genlmsg_multicast(skb, 0, dp_mc_group(dp), GFP_ATOMIC));
 }
 
 /* Retrieves the datapath id, which is the MAC address of the "of" device. */
