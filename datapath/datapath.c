@@ -262,7 +262,7 @@ send_openflow_skb(const struct datapath *dp,
 		  struct sk_buff *skb, const struct sender *sender)
 {
 	return (sender
-#ifdef CONFIG_NET_NS
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,32)
                ? genlmsg_unicast(&init_net, skb, sender->pid)
 #else
                ? genlmsg_unicast(skb, sender->pid)
