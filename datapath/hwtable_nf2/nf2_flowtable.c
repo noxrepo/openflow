@@ -118,6 +118,7 @@ nf2_install_flow(struct sw_table *flowtab, struct sw_flow *flow)
 	}
 
 	atomic_inc(&nf2flowtab->num_flows);
+	flow->serial = nf2flowtab->next_serial++;
 	list_add_rcu(&flow->node, &nf2flowtab->flows);
 	list_add_rcu(&flow->iter_node, &nf2flowtab->iter_flows);
 	return 1;
@@ -291,7 +292,7 @@ nf2_iterate_flowtable(struct sw_table *flowtab, const struct sw_flow_key *key,
 		    && flow_has_out_port(flow, out_port)) {
 			error = callback(flow, private);
 			if (error != 0) {
-				position->private[0] = ~flow->serial;
+				position->private[0] = ~(flow->serial-1);
 				return error;
 			}
 		}
