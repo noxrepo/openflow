@@ -119,6 +119,7 @@ nf2_install_flow(struct sw_table *flowtab, struct sw_flow *flow)
 	}
 
 	nf2flowtab->num_flows++;
+	flow->serial = nf2flowtab->next_serial++;
 	list_push_front(&nf2flowtab->flows, &flow->node);
 	list_push_front(&nf2flowtab->iter_flows, &flow->iter_node);
 
@@ -338,7 +339,7 @@ nf2_iterate_flowtable(struct sw_table *flowtab, const struct sw_flow_key *key,
 		    && flow_has_out_port(flow, out_port)) {
 			error = callback(flow, private);
 			if (error != 0) {
-				position->private[0] = ~flow->serial;
+				position->private[0] = ~(flow->serial-1);
 				return error;
 			}
 		}
