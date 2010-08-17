@@ -75,6 +75,14 @@ If no wildcards are set, then the \verb|ofp_match| exactly describes a flow, ove
 \\\\
 The source and destination netmasks are each specified with a 6-bit number in the wildcard description. It is interpreted similar to the CIDR suffix, but with the opposite meaning, since this is being used to indicate which bits in the IP address should be treated as ``wild". For example, a CIDR suffix of "24" means to use a netmask of ``255.255.255.0". However, a wildcard mask value of ``24" means that the least-significant 24-bits are wild, so it forms a netmask of ``255.0.0.0". 
 
+\subsubsection{Flow Instruction Structures}
+Flow instructions associated with a flow table entry are executed when a flow matches the entry. The list of instructions that are currently defined are:
+
+\input{enum/ofp_instruction_type}
+The instruction set is described in section \ref{ft:instructions}. All instructions may not be supported by any or all flow tables.
+
+\input{struct/ofp_instruction}
+
 \subsubsection{Flow Action Structures}
 A number of actions may be associated with flows or packets.  The currently defined action types are:
 
@@ -181,6 +189,10 @@ reserved and must not be used.  It is required that when \verb|command| is
 \verb|OFPC_MODIFY| or \verb|OFPC_MODIFY_STRICT| that matched flows have
 their \verb|cookie| field updated appropriately.
 \\\\
+The \verb|table_id| field specifies the table to put the flow into. Lower
+numbered tables are consulted earlier. Table Id 0 signifies the first table 
+in the pipeline.
+\\\\
 The \verb|command| field must be one of the following:
 
 \input{enum/ofp_flow_mod_command}
@@ -192,7 +204,7 @@ If the \verb|idle_timeout| is set and the \verb|hard_timeout| is zero, the entry
 \\\\
 If both \verb|idle_timeout| and \verb|hard_timeout| are set, the flow will timeout after \verb|idle_timeout| seconds with no traffic, or \verb|hard_timeout| seconds, whichever comes first.  If both \verb|idle_timeout| and \verb|hard_timeout| are zero, the entry is considered permanent and will never time out.  It can still be removed with a \verb|flow_mod| message of type \verb|OFPFC_DELETE|. 
 \\\\
-The \verb|priority| field is only relevant for flow entries with wildcard fields.  The priority field indicates table priority, where higher numbers are higher priorities; the switch must keep the highest-priority wildcard entries in the lowest-numbered (fastest) wildcard table, to ensure correctness.  It is the responsibility of each switch implementer to ensure that exact entries always match before wildcards entries, regardless of the table configuration.  
+The \verb|priority| field is relevant for all flow entries.  The priority field indicates priority within the specific flow table. Higher numbers indicate higher priorities.
 \\\\
 The \verb|buffer_id| refers to a buffered packet sent by the \verb|OFPT_PACKET_IN| message.
 \\\\

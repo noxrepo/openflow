@@ -459,7 +459,7 @@ enum ofp_flow_mod_command {
     OFPFC_MODIFY,           /* Modify all matching flows. */
     OFPFC_MODIFY_STRICT,    /* Modify entry strictly matching wildcards */
     OFPFC_DELETE,           /* Delete all matching flows. */
-    OFPFC_DELETE_STRICT    /* Strictly match wildcards and priority. */
+    OFPFC_DELETE_STRICT     /* Strictly match wildcards and priority. */
 };
 
 /* Flow wildcards. */
@@ -491,8 +491,10 @@ enum ofp_flow_wildcards {
     OFPFW_DL_VLAN_PCP = 1 << 20,  /* VLAN priority. */
     OFPFW_NW_TOS = 1 << 21,  /* IP ToS (DSCP field, 6 bits). */
 
+    OFPFW_METADATA = 1 << 22, /* Metadata field */
+
     /* Wildcard all fields. */
-    OFPFW_ALL = ((1 << 22) - 1)
+    OFPFW_ALL = ((1 << 23) - 1)
 };
 
 /* The wildcards for ICMP type and code fields use the transport source
@@ -534,8 +536,9 @@ struct ofp_match {
     uint32_t nw_dst;           /* IP destination address. */
     uint16_t tp_src;           /* TCP/UDP source port. */
     uint16_t tp_dst;           /* TCP/UDP destination port. */
+    uint64_t metadata;         /* Metadata between tables */
 };
-OFP_ASSERT(sizeof(struct ofp_match) == 40);
+OFP_ASSERT(sizeof(struct ofp_match) == 48);
 
 /* The match fields for ICMP type and code use the transport source and
  * destination port fields, respectively. */
@@ -548,6 +551,29 @@ OFP_ASSERT(sizeof(struct ofp_match) == 40);
 
 /* By default, choose a priority in the middle. */
 #define OFP_DEFAULT_PRIORITY 0x8000
+
+enum ofp_instruction_type {
+    OFPI_GOTO_TABLE = 1,        /* Setup the next table in the lookup
+                                   pipeline */
+    OFPI_WRITE_METADATA = 2,    /* Setup the metadata field for use in later
+                                   pipelines */
+    OFPI_WRITE_ACTIONS = 3,     /* Write the action(s) onto the datapath action
+                                   set */
+    OFPI_APPLY_ACTIONS = 4,     /* Applies the action(s) immediately */
+    OFPI_CLEAR_ACTIONS = 5      /* Clears all actions from the datapath
+                                   action set */
+};
+
+struct ofp_instruction {
+    uint16_t type;              /* one of OFPI_* */
+    uint8_t table_id;           /* table id for OFPI_GOTO_TABLE */
+    uint8_t pad;
+    uint64_t metadata;          /* metadata for OFPI_WRITE_METADATA */
+    struct ofp_action_header actions[0];        /* actions associated with
+                                                   OFPI_WRITE_ACTIONS and
+                                                   OFPI_APPLY_ACTIONS */
+};
+OFP_ASSERT(sizeof(ofp_instruction) == 12);
 
 enum ofp_flow_mod_flags {
     OFPFF_SEND_FLOW_REM = 1 << 0,  /* Send flow removed message when flow
@@ -563,7 +589,8 @@ struct ofp_flow_mod {
     uint64_t cookie;             /* Opaque controller-issued identifier. */
 
     /* Flow actions. */
-    uint16_t command;             /* One of OFPFC_*. */
+    uint8_t table_id;             /* ID of the table to put the flow in */
+    uint8_t command;              /* One of OFPFC_*. */
     uint16_t idle_timeout;        /* Idle time before discarding (seconds). */
     uint16_t hard_timeout;        /* Max time before discarding (seconds). */
     uint16_t priority;            /* Priority level of flow entry. */
@@ -574,9 +601,7 @@ struct ofp_flow_mod {
                                      output port.  A value of OFPP_NONE
                                      indicates no restriction. */
     uint16_t flags;               /* One of OFPFF_*. */
-    struct ofp_action_header actions[0]; /* The action length is inferred
-                                            from the length field in the
-                                            header. */
+    struct ofp_instruction instructions[0]; /* Instruction set */
 };
 OFP_ASSERT(sizeof(struct ofp_flow_mod) == 72);
 
@@ -795,7 +820,7 @@ struct ofp_flow_stats {
     uint64_t cookie;          /* Opaque controller-issued identifier. */
     uint64_t packet_count;    /* Number of packets in flow. */
     uint64_t byte_count;      /* Number of bytes in flow. */
-    struct ofp_action_header actions[0]; /* Actions. */
+    struct ofp_instruction instructions[0]; /* Instruction set. */
 };
 OFP_ASSERT(sizeof(struct ofp_flow_stats) == 88);
 
