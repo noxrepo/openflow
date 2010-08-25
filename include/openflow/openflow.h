@@ -566,12 +566,14 @@ enum ofp_instruction_type {
 
 struct ofp_instruction {
     uint16_t type;              /* one of OFPI_* */
-    uint8_t table_id;           /* table id for OFPI_GOTO_TABLE */
-    uint8_t pad;
-    uint64_t metadata;          /* metadata for OFPI_WRITE_METADATA */
-    struct ofp_action_header actions[0];        /* actions associated with
+    uint16_t pad;
+    union {
+      uint8_t table_id;           /* table id for OFPI_GOTO_TABLE */
+      uint64_t metadata;          /* metadata for OFPI_WRITE_METADATA */
+      struct ofp_action_header actions[0];        /* actions associated with
                                                    OFPI_WRITE_ACTIONS and
                                                    OFPI_APPLY_ACTIONS */
+    } u;
 };
 OFP_ASSERT(sizeof(ofp_instruction) == 12);
 
