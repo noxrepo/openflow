@@ -503,8 +503,11 @@ enum ofp_flow_wildcards {
     OFPFW_DL_VLAN_PCP = 1 << 20,  /* VLAN priority. */
     OFPFW_NW_TOS = 1 << 21,  /* IP ToS (DSCP field, 6 bits). */
 
+    OFPFW_MPLS_LABEL   = 1 << 22, /* MPLS label. */
+    OFPFW_MPLS_TC      = 1 << 23, /* MPLS TC. */
+
     /* Wildcard all fields. */
-    OFPFW_ALL = ((1 << 22) - 1)
+    OFPFW_ALL = ((1 << 24) - 1)
 };
 
 /* The wildcards for ICMP type and code fields use the transport source
