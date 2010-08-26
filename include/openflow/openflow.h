@@ -431,6 +431,32 @@ struct ofp_action_nw_tos {
 };
 OFP_ASSERT(sizeof(struct ofp_action_nw_tos) == 8);
 
+/* Action structure for OFPAT_SET_MPLS_LABEL. */
+struct ofp_action_mpls_label {
+    uint16_t type;                  /* OFPAT_SET_MPLS_LABEL. */
+    uint16_t len;                   /* Length is 8. */
+    uint32_t mpls_label;            /* MPLS label */
+};
+OFP_ASSERT(sizeof(struct ofp_action_mpls_label) == 8);
+
+/* Action structure for OFPAT_SET_MPLS_TC. */
+struct ofp_action_mpls_tc {
+    uint16_t type;                  /* OFPAT_SET_MPLS_TC. */
+    uint16_t len;                   /* Length is 8. */
+    uint8_t mpls_tc;                /* MPLS TC */
+    uint8_t pad[3];
+};
+OFP_ASSERT(sizeof(struct ofp_action_mpls_tc) == 8);
+
+/* Action structure for OFPAT_SET_MPLS_TTL. */
+struct ofp_action_mpls_ttl {
+    uint16_t type;                  /* OFPAT_SET_MPLS_TTL. */
+    uint16_t len;                   /* Length is 8. */
+    uint8_t mpls_ttl;               /* MPLS TTL */
+    uint8_t pad[3];
+};
+OFP_ASSERT(sizeof(struct ofp_action_mpls_ttl) == 8);
+
 /* Action header for OFPAT_VENDOR. The rest of the body is vendor-defined. */
 struct ofp_action_vendor_header {
     uint16_t type;                  /* OFPAT_VENDOR. */
