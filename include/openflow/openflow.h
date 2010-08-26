@@ -501,35 +501,16 @@ enum ofp_group_mod_command {
 enum ofp_flow_wildcards {
     OFPFW_IN_PORT  = 1 << 0,  /* Switch input port. */
     OFPFW_DL_VLAN  = 1 << 1,  /* VLAN id. */
-    OFPFW_DL_SRC   = 1 << 2,  /* Ethernet source address. */
-    OFPFW_DL_DST   = 1 << 3,  /* Ethernet destination address. */
-    OFPFW_DL_TYPE  = 1 << 4,  /* Ethernet frame type. */
+    OFPFW_DL_VLAN_PCP = 1 << 2, /* VLAN priority. */
+    OFPFW_DL_TYPE  = 1 << 3,  /* Ethernet frame type. */
+    OFPFW_NW_TOS   = 1 << 4,  /* IP ToS (DSCP field, 6 bits). */
     OFPFW_NW_PROTO = 1 << 5,  /* IP protocol. */
     OFPFW_TP_SRC   = 1 << 6,  /* TCP/UDP source port. */
     OFPFW_TP_DST   = 1 << 7,  /* TCP/UDP destination port. */
-
-    /* IP source address wildcard bit count.  0 is exact match, 1 ignores the
-     * LSB, 2 ignores the 2 least-significant bits, ..., 32 and higher wildcard
-     * the entire field.  This is the *opposite* of the usual convention where
-     * e.g. /24 indicates that 8 bits (not 24 bits) are wildcarded. */
-    OFPFW_NW_SRC_SHIFT = 8,
-    OFPFW_NW_SRC_BITS = 6,
-    OFPFW_NW_SRC_MASK = ((1 << OFPFW_NW_SRC_BITS) - 1) << OFPFW_NW_SRC_SHIFT,
-    OFPFW_NW_SRC_ALL = 32 << OFPFW_NW_SRC_SHIFT,
-
-    /* IP destination address wildcard bit count.  Same format as source. */
-    OFPFW_NW_DST_SHIFT = 14,
-    OFPFW_NW_DST_BITS = 6,
-    OFPFW_NW_DST_MASK = ((1 << OFPFW_NW_DST_BITS) - 1) << OFPFW_NW_DST_SHIFT,
-    OFPFW_NW_DST_ALL = 32 << OFPFW_NW_DST_SHIFT,
-
-    OFPFW_DL_VLAN_PCP = 1 << 20,  /* VLAN priority. */
-    OFPFW_NW_TOS = 1 << 21,  /* IP ToS (DSCP field, 6 bits). */
-
-    OFPFW_METADATA = 1 << 22, /* Metadata field */
+    OFPFW_METADATA = 1 << 8, /* Metadata field */
 
     /* Wildcard all fields. */
-    OFPFW_ALL = ((1 << 23) - 1)
+    OFPFW_ALL = ((1 << 9) - 1)
 };
 
 /* The wildcards for ICMP type and code fields use the transport source
@@ -558,16 +539,21 @@ struct ofp_match {
     uint32_t wildcards;        /* Wildcard fields. */
     uint32_t in_port;          /* Input switch port. */
     uint8_t dl_src[OFP_ETH_ALEN]; /* Ethernet source address. */
+    uint8_t dl_src_mask[OFP_ETH_ALEN]; /* Ethernet source address mask. */
     uint8_t dl_dst[OFP_ETH_ALEN]; /* Ethernet destination address. */
+    uint8_t dl_dst_mask[OFP_ETH_ALEN]; /* Ethernet destination address mask. */
+    uint8_t pad1[2];           /* Align to 64-bits */
     uint16_t dl_vlan;          /* Input VLAN id. */
     uint8_t dl_vlan_pcp;       /* Input VLAN priority. */
-    uint8_t pad1[1];           /* Align to 64-bits */
+    uint8_t pad2[1];           /* Align to 32-bits */
     uint16_t dl_type;          /* Ethernet frame type. */
     uint8_t nw_tos;            /* IP ToS (actually DSCP field, 6 bits). */
     uint8_t nw_proto;          /* IP protocol or lower 8 bits of
                                 * ARP opcode. */
     uint32_t nw_src;           /* IP source address. */
+    uint32_t nw_src_mask;      /* IP source address mask. */
     uint32_t nw_dst;           /* IP destination address. */
+    uint32_t nw_dst_mask;      /* IP destination address mask. */
     uint16_t tp_src;           /* TCP/UDP source port. */
     uint16_t tp_dst;           /* TCP/UDP destination port. */
     uint64_t metadata;         /* Metadata passed between tables. */

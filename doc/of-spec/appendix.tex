@@ -69,11 +69,12 @@ When describing a flow entry, the following structure is used:
 The \verb|wildcards| field has a number of flags that may be set:
 
 \input{enum/ofp_flow_wildcards}
-If no wildcards are set, then the \verb|ofp_match| exactly describes a flow, over the entire OpenFlow n-tuple.  On the other extreme, if all the wildcard flags are set, then every flow will match.
-\\\\
-The source and destination netmasks are each specified with a 6-bit number in the wildcard description. It is interpreted similar to the CIDR suffix, but with the opposite meaning, since this is being used to indicate which bits in the IP address should be treated as ``wild". For example, a CIDR suffix of "24" means to use a netmask of ``255.255.255.0". However, a wildcard mask value of ``24" means that the least-significant 24-bits are wild, so it forms a netmask of ``255.0.0.0". 
 \\\\
 The metadata field is used to pass information between lookups across multiple tables. This value can be masked using the metadata mask (which is 0xFFFFFFFFFFFFFFFF by default). If the metadata wildcard bit is set, the contents of these fields are ignored in the lookup.
+\\\\
+There are four mask fields defined in addition to the \verb|wildcards| field: \verb|dl_src_mask|, \verb|dl_dst_mask|, \verb|nw_src_mask|, and \verb|nw_dst_mask|. These mask fields allow the corresponding fields (\verb|dl_src|, \verb|dl_dst|, \verb|nw_src|, and \verb|nw_dst|) to be masked arbitrarily. The masks are defined such that a 1 in a given bit position indicates a ``don't care'' match for the same bit in the corresponding field, whereas a 0 means match the bit exactly.
+\\\\
+If no wildcards are set and the \verb|_mask| fields are all zero, then the \verb|ofp_match| exactly describes a flow, over the entire OpenFlow tuple.  On the other extreme, if all the wildcard flags and \verb|_mask| fields are set, then every flow will match.
 
 \subsubsection{Flow Instruction Structures}
 Flow instructions associated with a flow table entry are executed when a flow matches the entry. The list of instructions that are currently defined are:
