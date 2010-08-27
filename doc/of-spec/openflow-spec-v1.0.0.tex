@@ -229,10 +229,6 @@ If no VLAN is present, a new header is added with the specified priority and a V
 
 If a VLAN header already exists, the priority field is replaced with the specified value. \\
 \hline
-Strip VLAN header &
-- &
-Strip VLAN header if present. \\
-\hline
 Modify Ethernet source MAC address &
 48 bits: Value with which to replace existing source MAC address &
 Replace the existing Ethernet source MAC address with the new value \\
@@ -240,6 +236,26 @@ Replace the existing Ethernet source MAC address with the new value \\
 Modify Ethernet destination MAC address &
 48 bits: Value with which to replace existing destination MAC address &
 Replace the existing Ethernet destination MAC address with the new value. \\
+\hline
+Modify MPLS label &
+20 bits: Value with which to replace existing MPLS label field &
+Replace the existing MPLS label field.
+This action is only applied to MPLS packets. \\
+\hline
+Modify MPLS traffic class &
+3 bits: Value with which to replace existing MPLS traffic class field &
+Replace the existing MPLS traffic class field.
+This action is only applied to MPLS packets. \\
+\hline
+Modify MPLS TTL &
+8 bits: Value with which to replace existing MPLS TTL field &
+Replace the existing MPLS TTL field.
+This action is only applied to MPLS packets. \\
+\hline
+Decrement MPLS TTL &
+- &
+Decrement the MPLS TTL field.
+This action is only applied to MPLS packets. \\
 \hline
 Modify IPv4 source address & 
 32 bits: Value with which to replace existing IPv4 source address &
@@ -270,6 +286,36 @@ Modify transport destination port &
 Replace the existing TCP/UDP destination port with new value and update the TCP/UDP checksum
 
 This action is only applied to TCP and UDP packets.\\
+\hline
+Push VLAN header &
+- &
+Push a new VLAN header onto the packet. \\
+\hline
+Pop VLAN header &
+- &
+Pop the outer-most VLAN header from the packet. \\
+\hline
+Push MPLS header &
+- &
+Push a new MPLS header onto the packet. \\
+\hline
+Pop MPLS header &
+- &
+Pop the outer-most MPLS header from the packet. \\
+\hline
+Copy TTL outwards&
+- &
+Copy the TTL from next-to-outermost to outermost header with TTL.
+
+Copy can be IP-to-IP, MPLS-to-MPLS, or IP-to-MPLS.
+\\
+\hline
+Copy TTL inwards&
+- &
+Copy the TTL from outermost to next-to-outermost header with TTL.
+
+Copy can be IP-to-IP, MPLS-to-MPLS, or MPLS-to-IP.
+\\
 \hline
 \end{tabularx}
 \caption{Field-modify actions.}
