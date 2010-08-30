@@ -665,7 +665,8 @@ enum ofp_bad_request_code {
     OFPBRC_EPERM,               /* Permissions error. */
     OFPBRC_BAD_LEN,             /* Wrong request length for type. */
     OFPBRC_BUFFER_EMPTY,        /* Specified buffer has already been used. */
-    OFPBRC_BUFFER_UNKNOWN       /* Specified buffer does not exist. */
+    OFPBRC_BUFFER_UNKNOWN,      /* Specified buffer does not exist. */
+    OFPBRC_BAD_TABLE_ID         /* Invalid table-id associated with the flow */
 };
 
 /* ofp_error_msg 'code' values for OFPET_BAD_ACTION.  'data' contains at least
@@ -692,15 +693,18 @@ enum ofp_flow_mod_failed_code {
     OFPFMFC_BAD_EMERG_TIMEOUT,  /* Flow not added because of non-zero idle/hard
                                  * timeout. */
     OFPFMFC_BAD_COMMAND,        /* Unknown command. */
-    OFPFMFC_UNSUPPORTED         /* Unsupported action list - cannot process in
+    OFPFMFC_UNSUPPORTED,        /* Unsupported action list - cannot process in
                                  * the order specified. */
+    OFPFMFC_TABLE_FULL,         /* Table specified by the flow mod */
+    OFPFMFC_BAD_INSTRUCTION     /* Unsupported instruction specified by the
+                                   flow mod */
 };
 
 /* ofp_error_msg 'code' values for OFPET_PORT_MOD_FAILED.  'data' contains
  * at least the first 64 bytes of the failed request. */
 enum ofp_port_mod_failed_code {
     OFPPMFC_BAD_PORT,            /* Specified port does not exist. */
-    OFPPMFC_BAD_HW_ADDR,         /* Specified hardware address is wrong. */
+    OFPPMFC_BAD_HW_ADDR          /* Specified hardware address is wrong. */
 };
 
 /* ofp_error msg 'code' values for OFPET_QUEUE_OP_FAILED. 'data' contains
