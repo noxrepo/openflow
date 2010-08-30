@@ -187,9 +187,11 @@ A switch may reject a flow entry if it is unable to execute the instructions ass
 
 \subsection{Action Set}
 \label{ft:actionset}
-Each packet is associated with an action set. This set is empty by default. A flow entry can interact with the action set using instructions associated with a particular match. The action set is carried between flow tables. When there is no \textit{Goto-Table} instruction, the actions in the action set are executed. If the action set is empty, the packet will be dropped. The actions maybe executed in arbitrary order except for the output action which is executed last.
+Each packet that matches a flow entry is associated with an action set. This set is empty by default. A flow entry can interact with the action set using instructions associated with a particular match. The action set is carried between flow tables. When there is no \textit{Goto-Table} instruction, the actions in the action set are executed. If the action set is empty, the packet will be dropped. The actions maybe executed in arbitrary order except for the output action which is executed last.
 \\\\
 An action set has a single action of a single type. When multiple actions of the same type are required f.i. pushing multiple MPLS labels or popping multiple MPLS labels, the \emph{Apply-Actions} instruction may be used.
+\\\\
+If a packet does not match any entry in a flow table, it is forwarded to the controller. The controller can forward or drop the packet. It can also respond by installing appropriate flow entries so the switch can match and handle the packet. The controller can also prevent this default behavior by installing a catch-all low priority flow entry that drops packets that don't match any flow entries in the table.
 
 \begin{figure}[htbp]
 \centering
@@ -200,7 +202,7 @@ An action set has a single action of a single type. When multiple actions of the
 
 \subsection{Actions}
 \label{ft:actions}
-Each packet is associated with an action set \ref{ft:actionset}. The action set contains zero or more actions that dictate what the switch does on the packet. This action set is executed when there is no \textit{Goto-Table} instruction. If no forward actions are present, the packet is dropped. Otherwise, the packet maybe modified and forwarded. Action sets are processed in the order specified with the output action (if present) executed last.
+Each packet that matches a flow entry is associated with an action set \ref{ft:actionset}. The action set contains zero or more actions that dictate what the switch does on the packet. This action set is executed when there is no \textit{Goto-Table} instruction. If no forward actions are present, the packet is dropped. Otherwise, the packet maybe modified and forwarded. Action sets are processed in the order specified with the output action (if present) executed last.
 \\\\
 A switch is not required to support all action types --- just those marked ``Required Actions'' below. When connecting to the controller, a switch indicates which of the ``Optional Actions'' it supports.  OpenFlow-compliant switches come in two types: \emph{OpenFlow-only}, and \emph{OpenFlow-enabled}. 
 \\\\
