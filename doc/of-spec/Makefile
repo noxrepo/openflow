@@ -10,6 +10,7 @@ SOURCES=openflow-spec-v1.0.0.tex\
 
 all: $(TARGET).ps
 pdf: all
+diff: $(TARGET)-diff.pdf
 
 $(TARGET).pdf: Makefile  $(SOURCES)
 	./make_latex_input.pl
@@ -18,6 +19,16 @@ $(TARGET).pdf: Makefile  $(SOURCES)
 color: $(TARGET).pdf
 	pdflatex $(TARGET).tex
 	pdftops $(TARGET).pdf
+
+$(TARGET)-diff.pdf: $(TARGET).pdf
+	@if [ "$(DIFF_DIR)" = "" ] ; then \
+		echo "Please set DIFF_DIR to point to the directory containing the spec to diff against" ;\
+		echo "Example: $(MAKE) DIFF_DIR=<path_to_previous_spec> $@" ;\
+		false ;\
+	fi
+	$(MAKE) -C $(DIFF_DIR)
+	./make_diff.pl $(DIFF_DIR)
+	texi2pdf $(TARGET)-diff.tex
 
 $(TARGET).ps: $(TARGET).pdf
 	pdftops $(TARGET).pdf
