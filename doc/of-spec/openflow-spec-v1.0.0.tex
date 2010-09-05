@@ -210,7 +210,7 @@ basic Quality-of-Service (QoS) support (see section \ref{cts:qos}).}
 \\\\
 \textbf{Optional Action:} \emph{Push-Tag/Pop-Tag}.  Switches may support the ability to push/pop tags as shown in Table \ref{table:push pop actions}.  To aid integration with existing networks, we suggest that the ability to push/pop VLAN tags be supported.
 \\
-Note: The default value is zero for \emph{all} fields when pushing a new header. Field values should be overridden using Modify-Field actions.
+Note: Refer to section~\ref{sec:push field defaults} for information on default field values.
 \\\\
 \textbf{Optional Action:} \emph{Modify-Field}.  While not strictly required, the actions shown in Table \ref{table:field modify actions}  greatly increase the usefulness of an OpenFlow implementation.  To aid integration with existing networks, we suggest that VLAN modification actions be supported. 
 
@@ -344,6 +344,39 @@ Copy can be IP-to-IP, MPLS-to-MPLS, or MPLS-to-IP.
 \caption{Field-modify actions.}
 \label{table:field modify actions}
 \end{table}
+
+\subsubsection{Default values for fields on push}
+\label{sec:push field defaults}
+Field values should be copied from existing outer headers to new outer headers when executing a push action. New fields without corresponeding existing fields should be set to \emph{zero}. Table~\ref{table:push field copy} details the existing fields from which a new field may take it's value.
+
+\begin{table}[hbp]
+\centering
+\begin{tabular}{p{0.3\textwidth}p{0.3\textwidth}}
+\textbf{New Fields} & \textbf{Existing Field(s)} \\
+\hline
+VLAN ID & VLAN ID \\
+\hline
+VLAN priority & VLAN priority \\
+\hline
+MPLS label & MPLS label \\
+\hline
+MPLS traffic class & MPLS traffic class \\
+\hline
+MPLS TTL & MPLS TTL \\
+ & IP TTL \\
+\hline
+IP source address & IP source address \\
+\hline
+IP destination address & IP destination address \\
+\hline
+IP TTL & IP TTL \\
+ & MPLS TTL \\
+\end{tabular}
+\caption{Existing fields that may be copied into new fields on a push action.}
+\label{table:push field copy}
+\end{table}
+
+Fields in new headers may be overridden by specify a ``set'' action for the appropriate field(s) after the push operation.
 
 \subsection{Matching}
 \begin{figure}[!htb]
