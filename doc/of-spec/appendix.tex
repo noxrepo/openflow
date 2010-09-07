@@ -111,7 +111,22 @@ An \verb|action_vlan_pcp| has the following fields:
 \input{struct/ofp_action_vlan_pcp}
 The \verb|vlan_pcp| field is 8 bits long, but only the lower 3 bits have meaning.  
 \\\\
-An \verb|action_strip_vlan| takes no arguments and consists only of a generic \verb|ofp_action_header|.  This action strips the VLAN tag if one is present.
+An \verb|action_mpls_label| has the following fields:
+
+\input{struct/ofp_action_mpls_label}
+The \verb|mpls_label| field is 32 bits long, but only the lower 20 bits have meaning.
+\\\\
+An \verb|action_mpls_tc| has the following fields:
+
+\input{struct/ofp_action_mpls_tc}
+The \verb|mpls_tc| field is 8 bits long, but only the lower 3 bits have meaning.
+\\\\
+An \verb|action_mpls_ttl| has the following fields:
+
+\input{struct/ofp_action_mpls_ttl}
+The \verb|mpls_ttl| field is the MPLS TTL to set.
+\\\\
+An \verb|action_dec_mpls_ttl| takes no arguments and consists only of a generic \verb|ofp_action_header|. The action decrements the MPLS TTL.
 \\\\
 An \verb|action_dl_addr| has the following fields:
 
@@ -132,6 +147,18 @@ An \verb|action_tp_port| has the following fields:
 
 \input{struct/ofp_action_tp_port}
 The \verb|tp_port| field is the TCP/UDP/other port to set.
+\\\\
+An \verb|action_copy_ttl_out| takes no arguments and consists only of a generic \verb|ofp_action_header|. The action copies the TTL from the next-to-outermost header with TTL to the outermost header with TTL.
+\\\\
+An \verb|action_copy_ttl_in| takes no arguments and consists only of a generic \verb|ofp_action_header|. The action copies the TTL from the outermost header with TTL to the next-to-outermost header with TTL.
+\\\\
+An \verb|action_push_vlan| takes no arguments and consists only of a generic \verb|ofp_action_header|. The action pushes a new VLAN tag onto the packet.
+\\\\
+An \verb|action_pop_vlan| takes no arguments and consists only of a generic \verb|ofp_action_header|. The action pops the outermost VLAN tag from the packet.
+\\\\
+An \verb|action_push_mpls| takes no arguments and consists only of a generic \verb|ofp_action_header|. The action pushes a new MPLS tag onto the packet.
+\\\\
+An \verb|action_pop_mpls| takes no arguments and consists only of a generic \verb|ofp_action_header|. The action pops the outermost MPLS tag from the packet.
 \\\\
 An \verb|action_vendor| has the following fields:
 
