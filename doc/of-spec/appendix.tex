@@ -79,7 +79,7 @@ The source and destination netmasks are each specified with a 6-bit number in th
 A number of actions may be associated with flows or packets.  The currently defined action types are:
 
 \input{enum/ofp_action_type} 
-Output \qosupd{and enqueue} actions are described in Section \ref{ft:actions}, while Field-Modify actions are described in Table \ref{table:field modify actions}.  An action definition contains the action type, length, and any associated data:
+Output \qosupd{and enqueue} actions are described in Section~\ref{ft:actions}, tag push/pop actions are described in Table~\ref{table:push pop actions}, and Field-Modify actions are described in Table~\ref{table:field modify actions}.  An action definition contains the action type, length, and any associated data:
 
 \input{struct/ofp_action_header}
 An \verb|action_output| has the following fields:
