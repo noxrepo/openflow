@@ -21,21 +21,17 @@ Physical ports are described with the following structure:
 \input{struct/ofp_phy_port}
 The \verb|port_no| field is a value the datapath associates with a physical port.  The \verb|hw_addr| field typically is the MAC address for the port; \verb|OFP_MAX_ETH_ALEN| is 6.  The name field is a null-terminated string containing a human-readable name for the interface.  The value of \verb|OFP_MAX_PORT_NAME_LEN| is 16.  
 \\\\
-The \verb|config| field describes spanning tree and administrative settings with the following structure:
+The \verb|config| field describes administrative settings with the following structure:
 
 \input{enum/ofp_port_config}
-The port config bits indicate whether a port has been administratively brought down, options for handling 802.1D spanning tree packets, and how to handle incoming and outgoing packets.   These bits, configured over multiple switches, enable an OpenFlow network to safely flood packets along either a custom or 802.1D spanning tree.
+The port config bits indicate whether a port has been administratively brought down and how to handle incoming and outgoing packets.
 \\\\
-The controller may set \verb|OFPPFL_NO_STP| to 0 to enable STP on a port or to 1 to disable STP on a port. (The latter corresponds to the Disabled STP port state.) The default is switch implementation-defined; the OpenFlow reference implementation by default sets this bit to 0 (enabling STP).
+When the port flags are changed, the switch sends an \verb|OFPT_PORT_STATUS| message to notify the controller of the change. The \verb|OFPPFL_NO_RECV|, \verb|OFPPFL_NO_FWD|, and \verb|OFPPFL_NO_PACKET_IN| bits in the OpenFlow port flags may be useful for the controller to implement STP, BFD or the like, although they interact poorly with in-band control.
 \\\\
-When \verb|OFPPFL_NO_STP| is 0, STP controls the \verb|OFPPFL_NO_FLOOD| and \verb|OFPPFL_STP_*| bits directly. \verb|OFPPFL_NO_FLOOD| is set to 0 when the STP port state is Forwarding, otherwise to 1. The bits in \verb|OFPPFL_STP_MASK| are set to one of the other \verb|OFPPFL_STP_*| values according to the current STP port state.
-\\\\
-When the port flags are changed by STP, the switch sends an \verb|OFPT_PORT_STATUS| message to notify the controller of the change. The \verb|OFPPFL_NO_RECV|, \verb|OFPPFL_NO_RECV_STP|, \verb|OFPPFL_NO_FWD|, and \verb|OFPPFL_NO_PACKET_IN| bits in the OpenFlow port flags may be useful for the controller to implement STP, although they interact poorly with in-band control. 
-\\\\
-The \verb|state| field describes the spanning tree state and whether a physical link is present, with the following structure:
+The \verb|state| field describes the physical link state with the following structure:
 
 \input{enum/ofp_port_state}
-All port state bits are read-only, representing spanning tree and physical link state.
+All port state bits are read-only, representing physical link state.
 \\\\
 The port numbers use the following conventions:
 

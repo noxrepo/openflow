@@ -204,7 +204,6 @@ enum ofp_capabilities {
     OFPC_FLOW_STATS     = 1 << 0,  /* Flow statistics. */
     OFPC_TABLE_STATS    = 1 << 1,  /* Table statistics. */
     OFPC_PORT_STATS     = 1 << 2,  /* Port statistics. */
-    OFPC_STP            = 1 << 3,  /* 802.1d spanning tree. */
     OFPC_RESERVED       = 1 << 4,  /* Reserved, must be zero. */
     OFPC_IP_REASM       = 1 << 5,  /* Can reassemble IP fragments. */
     OFPC_QUEUE_STATS    = 1 << 6,  /* Queue statistics. */
@@ -218,11 +217,7 @@ enum ofp_capabilities {
 enum ofp_port_config {
     OFPPC_PORT_DOWN    = 1 << 0,  /* Port is administratively down. */
 
-    OFPPC_NO_STP       = 1 << 1,  /* Disable 802.1D spanning tree on port. */
-    OFPPC_NO_RECV      = 1 << 2,  /* Drop all packets except 802.1D spanning
-                                     tree packets. */
-    OFPPC_NO_RECV_STP  = 1 << 3,  /* Drop received 802.1D STP packets. */
-    OFPPC_NO_FLOOD     = 1 << 4,  /* Do not include this port when flooding. */
+    OFPPC_NO_RECV      = 1 << 2,  /* Drop all packets received by port. */
     OFPPC_NO_FWD       = 1 << 5,  /* Drop packets forwarded to port. */
     OFPPC_NO_PACKET_IN = 1 << 6   /* Do not send packet-in msgs for port. */
 };
@@ -231,17 +226,8 @@ enum ofp_port_config {
  * the controller.
  */
 enum ofp_port_state {
-    OFPPS_LINK_DOWN   = 1 << 0, /* No physical link present. */
-
-    /* The OFPPS_STP_* bits have no effect on switch operation.  The
-     * controller must adjust OFPPC_NO_RECV, OFPPC_NO_FWD, and
-     * OFPPC_NO_PACKET_IN appropriately to fully implement an 802.1D spanning
-     * tree. */
-    OFPPS_STP_LISTEN  = 0 << 8, /* Not learning or relaying frames. */
-    OFPPS_STP_LEARN   = 1 << 8, /* Learning but not relaying frames. */
-    OFPPS_STP_FORWARD = 2 << 8, /* Learning and relaying frames. */
-    OFPPS_STP_BLOCK   = 3 << 8, /* Not part of spanning tree. */
-    OFPPS_STP_MASK    = 3 << 8  /* Bit mask for OFPPS_STP_* values. */
+    OFPPS_LINK_DOWN    = 1 << 0, /* No physical link present. */
+    OFPPS_PORT_BLOCKED = 1 << 1, /* Port is blocked */
 };
 
 /* Features of physical ports available in a datapath. */
