@@ -133,8 +133,9 @@ enum ofp_type {
 
     /* Queue Configuration messages. */
     OFPT_QUEUE_GET_CONFIG_REQUEST,  /* Controller/switch message */
-    OFPT_QUEUE_GET_CONFIG_REPLY     /* Controller/switch message */
+    OFPT_QUEUE_GET_CONFIG_REPLY,     /* Controller/switch message */
 
+    OFPT_GROUP_MOD            /* Controller/switch message */
 };
 
 /* Header on all OpenFlow packets. */
@@ -607,6 +608,17 @@ struct ofp_flow_removed {
 };
 OFP_ASSERT(sizeof(struct ofp_flow_removed) == 88);
 
+enum ofp_group_mod_command {
+    OFPGMC_ADD,                 /* New group. */
+    OFPGMC_SET,                 /* Modify matching groups. */
+    OFPGMC_DELETE,              /* Delete all matching groups. */
+};
+
+/* Group mod (controller/switch) */
+struct ofp_group_mod {
+
+}
+
 /* Values for 'type' in ofp_error_message.  These values are immutable: they
  * will not change in future versions of the protocol (although new values may
  * be added). */
@@ -615,6 +627,7 @@ enum ofp_error_type {
     OFPET_BAD_REQUEST,          /* Request was not understood. */
     OFPET_BAD_ACTION,           /* Error in action description. */
     OFPET_FLOW_MOD_FAILED,      /* Problem modifying flow entry. */
+    OFPET_GROUP_MOD_FAILED,     /* Problem modifying group entry. */
     OFPET_PORT_MOD_FAILED,      /* Port mod request failed. */
     OFPET_QUEUE_OP_FAILED       /* Queue operation failed. */
 };
@@ -649,10 +662,12 @@ enum ofp_bad_action_code {
     OFPBAC_BAD_VENDOR,         /* Unknown vendor id specified. */
     OFPBAC_BAD_VENDOR_TYPE,    /* Unknown action type for vendor id. */
     OFPBAC_BAD_OUT_PORT,       /* Problem validating output action. */
+    OFPBAC_BAD_OUT_GROUP,      /* Problem validating output action. */
     OFPBAC_BAD_ARGUMENT,       /* Bad action argument. */
     OFPBAC_EPERM,              /* Permissions error. */
     OFPBAC_TOO_MANY,           /* Can't handle this many actions. */
-    OFPBAC_BAD_QUEUE           /* Problem validating output queue. */
+    OFPBAC_BAD_QUEUE,          /* Problem validating output queue. */
+    OFPBAC_GROUP_CHAINING_UNSUPPORTED  /* Group chaining unsupported. */
 };
 
 /* ofp_error_msg 'code' values for OFPET_FLOW_MOD_FAILED.  'data' contains
@@ -667,6 +682,22 @@ enum ofp_flow_mod_failed_code {
     OFPFMFC_BAD_COMMAND,        /* Unknown command. */
     OFPFMFC_UNSUPPORTED         /* Unsupported action list - cannot process in
                                  * the order specified. */
+};
+
+/* ofp_error_msg 'code' values for OFPET_GROUP_MOD_FAILED.  'data' contains
+ * at least the first 64 bytes of the failed request. */
+enum ofp_group_mod_failed_code {
+    OFPGMFC_INVALID_GID,	          /* Group not added because Group
+                                       * Identifier is invalid. */
+    OFPGMFC_INVALID_ACTIONS,          /* Invalid actions were specified in
+                                       * a group's action bucket(s). */
+    OFPGMFC_NON_EQUAL_MP_UNSUPPORTED, /* Switch does not support unequal
+                                       * load sharing on multipath group. */
+    OFPGMFC_INVALID_DELETE,           /* forwarding ID does not exist, unable
+                                       * to delete. */
+    OFPGMFC_OUT_OF_GROUPS,	          /* The group table is full. */
+    OFPGMFC_GROUP_OUT_OF_MP_MEMBERS   /* The maximum number of action buckets
+                                       * for a group has been exceeded. */
 };
 
 /* ofp_error_msg 'code' values for OFPET_PORT_MOD_FAILED.  'data' contains

@@ -49,15 +49,18 @@ Version 1.0 of this document will be the first for which official vendor support
 \end{figure}
 
 \section{Switch Components}
-An OpenFlow Switch consists of a \emph{flow table}, which performs packet lookup and forwarding, and a \emph{secure channel} to an external controller (Figure \ref{fig:flow table and controller}).  The controller manages the switch over the secure channel using the OpenFlow protocol.
+An OpenFlow Switch consists of a \emph{flow table}, which performs packet lookup and forwarding, a \emph{group table}, which provides a grouping of physical and logical ports, and a \emph{secure channel} to an external controller (Figure \ref{fig:flow table and controller}).  The controller manages the switch over the secure channel using the OpenFlow protocol.
 \\\\
-The flow table contains a set of flow entries (header values to match packets against), activity counters, and a set of zero or more actions to apply to matching packets.  All packets processed by the switch are compared against the flow table.  If a matching entry is found, any actions for that entry are performed on the packet (e.g., the action might be to forward a packet out a specified port).  If no match is found, the packet is forwarded to the controller over the secure channel.  The controller is responsible for determining how to handle packets without valid flow entries, and it manages the switch flow table by adding and removing flow entries.
+The flow table contains a set of flow entries (header values to match packets against), activity counters, and a set of zero or more actions to apply to matching packets.  The group table contains a set of group entries (grouped sets of action lists with specific semantics dependent on group type).  All packets processed by the switch are compared against the flow table.  If a matching entry is found, any actions for that entry are performed on the packet (e.g., the action might be to forward a packet out a specified port ). The controller is responsible for managing the flow table by adding and removing flow entries.
 \\\\
-Flow entries may forward packets to one or more OpenFlow ports.   In general, these are physical ports, but the protocol does not preclude abstractions like port aggregations or VLAN traffic on a port appearing as an OpenFlow port.  OpenFlow ports have limited state such as ``up'', ``down'' and whether spanning tree flood packets should be forwarded out the port.  Additional configuration of ports may handled by the OpenFlow configuration protocol.  There are several OpenFlow virtual ports used to indicate, for example, flooding or the ingress port (see \ref{ft:actions}).
+Flow entries may point to one or more groups.   OpenFlow groups can directly represent set of ports for flooding, as well as more complicated methods of forwarding (e.g. multipath, fast reroute, and link aggregation).  As a general layer of indirection, groups also enable multiple flows to forward to a common set of output actions (e.g.  IP forwarding to a common next hop), and for that common set to be changed atomically and efficiently.
+\\\\
+The OpenFlow port space includes virtual ports, which may represent tunnels, port aggregates, or VLAN interfaces, as well as regular physical ports.  OpenFlow ports have limited state such as ``up'', ``down'' .  Additional configuration of ports may handled by the OpenFlow configuration protocol.  There are several OpenFlow virtual ports used to indicate, for example, the controller or ingress port (see \ref{ft:actions}).
 
-\section{Flow Table}
-This section describes the components of flow table entries and the process by which incoming packets are matched against flow table entries.  
+\section{OpenFlow Tables}
+This section describes the components of flow table and group table entries, along with the mechanics of matching and action handling.
 
+\subsection{Flow Tables}
 \begin{table}[hbp]
 \centering
 \begin{tabular}{|c|c|c|}
@@ -75,6 +78,24 @@ Each flow table entry (see Table \ref{table:flow entry}) contains:
 \item \textbf{counters} to update for matching packet 
 \item \textbf{actions} to apply to matching packets 
 \end{itemize} 
+
+\subsection{Group Table}
+\begin{table}[hbp]
+\centering
+\begin{tabular}{|c|c|c|}
+\hline
+Group Fields and Action Buckets\\
+\hline
+\end{tabular}
+\caption{A group entry consists of a group type and a sequence of action buckets.}
+\label{table:group entry}
+\end{table}
+
+Each group table entry (see Table \ref{table:group entry}) contains:
+\begin{itemize}
+\item \textbf{group type} to determine group semantics
+\item \textbf{action buckets} list of action buckets, where each action bucket contains a list of actions to execute
+\end{itemize}
 
 \subsection{Header Fields}
 \begin{table}[hbp]
@@ -124,7 +145,7 @@ Table \ref{table:header fields} shows the header fields an incoming packet is co
 \end{tabularx}
 \caption{Field lengths and the way they must be applied to flow entries.}
 \label{table:header field details}
-\end{table}Switch designers are free to implement the internals in any way convenient provided that correct functionality is preserved.  For example, while a flow may have multiple forward actions, each specifying a different port, a switch designer may choose to implement this as a single bitmask within the hardware forwarding table.
+\end{table}Switch designers are free to implement the internals in any way convenient provided that correct functionality is preserved.  For example, while a flow may have multiple forward actions, each pointing to a different group or port, a switch designer may choose to implement this as a single bitmask within the hardware forwarding table.
 
 \subsection{Counters}
 
@@ -172,7 +193,7 @@ Table \ref{table:counters} contains the required set of counters.  Duration refe
 
 \subsection{Actions}
 \label{ft:actions}
-Each flow entry is associated with zero or more actions that dictate how the switch handles matching packets.  If no forward actions are present, the packet is dropped.  Action lists for \emph{inserted} flow entries MUST be processed in the order specified.  However, there is no packet output ordering guaranteed within a port.   For example, an action list may result in two packets sent to two different VLANs on a single port.  These two packets may be arbitrarily re-ordered, but the packet bodies must match those generated from a sequential execution of the actions.
+Each flow entry is associated with zero or more actions that dictate how the switch handles matching packets.  If no forward actions are present, the packet is dropped.  Action lists for \emph{inserted} flow and group entries MUST be processed in the order specified.  However, there is no packet output ordering guaranteed within a port.   For example, an action list may result in two packets sent to two different VLANs on a single port.  These two packets may be arbitrarily re-ordered, but the packet bodies must match those generated from a sequential execution of the actions.
 \\\\
 A switch may reject a flow entry if it cannot process the action list in the order specified, in which case it should immediately return an unsupported flow error (see \ref{unsupported_flow}).  Ordering within a port may vary between vendor switch implementations.
 \\\\
@@ -324,7 +345,7 @@ Controller/switch messages are initiated by the controller and may or may not re
 \\\\
 \textbf{Configuration:} The controller is able to set and query configuration parameters in the switch.  The switch only responds to a query from the controller.
 \\\\
-\textbf{Modify-State:} Modify-State messages are sent by the controller to manage state on the switches.  Their primary purpose is to add/delete and modify flows in the flow tables and to set switch port properties.  
+\textbf{Modify-State:} Modify-State messages are sent by the controller to manage state on the switches.  Their primary purpose is to add/delete and modify flows and groups in the OpenFlow tables and to set switch port properties.
 \\\\
 \textbf{Read-State:} Read-State messages are used by the controller to collect statistics from the switch’s flow-tables, ports and the individual flow entries.
 \\\\\
@@ -393,6 +414,8 @@ If a switch cannot find any table in which to add the incoming flow entry, the s
 \\\\
 If the action list in a flow mod message references a port that will never be valid on a switch, the switch must return an \verb|ofp_error_msg| with \verb|OFPET_BAD_ACTION| type and \verb|OFPBAC_BAD_OUT_PORT| code.  If the referenced port may be valid in the future, e.g. when a linecard is added to a chassis switch, or a port is dynamically added to a software switch, the switch may either silently drop packets sent to the referenced port, or immediately return an \verb|OFPBAC_BAD_OUT_PORT| error and refuse the flow mod.
 \\\\
+If the action list in a flow mod message references a group that does not exist on a switch, the switch must return an \verb|ofp_error_msg| with \verb|OFPET_BAD_ACTION| type and \verb|OFPBAC_BAD_OUT_GROUP| code.
+\\\\
 For MODIFY requests, if a flow entry with identical header fields does not current reside in any table, the MODIFY acts like an ADD, and the new flow entry must be inserted with zeroed counters.  Otherwise, the actions field is changed on the existing entry and its counters and idle time fields are left unchanged.
 \\\\
 For DELETE requests, if no flow entry matches, no error is recorded, and no flow table modification occurs.  If flow entries match, and must be deleted, then each normal entry with the \verb|OFPFF_SEND_FLOW_REM| flag set should generate a flow removed message.  Deleted emergency flow entries generate no flow removed messages.
@@ -401,7 +424,7 @@ MODIFY and DELETE flow mod commands have corresponding \_STRICT versions.   With
 \\\\
 For non-strict MODIFY and DELETE commands that contain wildcards, a match will occur when a flow entry exactly matches or is more specific than the description in the flow\_mod command. For example, if a DELETE command says to delete all flows with a destination port of 80, then a flow entry that is all wildcards will not be deleted. However, a DELETE command that is all wildcards will delete an entry that matches all port 80 traffic.  This same interpretation of mixed wildcard and exact header fields also applies to individual and aggregate flows stats.  
 \\\\
-DELETE and DELETE\_STRICT commands can be optionally filtered by output port.  If the \verb|out_port| field contains a value other than \verb|OFPP_NONE|, it introduces a constraint when matching.  This constraint is that the rule must contain an output action directed at that port.  This field is ignored by ADD, MODIFY, and MODIFY\_STRICT messages.
+DELETE and DELETE\_STRICT commands can be optionally filtered by destination group or output port.  If the \verb|out_port| or \verb|out_ougroup| field contains a value other than \verb|OFPP_NONE|, it introduces a constraint when matching.  This constraint is that the rule must contain an output action directed at the specified group or port.  This field is ignored by ADD, MODIFY, and MODIFY\_STRICT messages.
 \\\\
 Emergency flow mod messages must have timeout values set to zero.  Otherwise, the switch must refuse the addition and respond with an \verb|ofp_error_msg| with \verb|OFPET_FLOW_MOD_FAILED| type and \verb|OFPFMFC_BAD_EMERG_TIMEOUT| code.
 \\\\
@@ -411,6 +434,33 @@ Emergency flow mod messages must have timeout values set to zero.  Otherwise, th
 \subsection{Flow Removal}
 
 Each flow entry has an \verb|idle_timeout| and a \verb|hard_timeout| associated with it.  If no packet has matched the rule in the last \verb|idle_timeout| seconds, or it has been \verb|hard_timeout| seconds since the flow was inserted, the switch removes the entry and sends a flow removed message.  In addition, the controller is able to actively remove entries by sending a flow message with the \verb|DELETE| or \verb|DELETE_STRICT| command.  Like the message used to add the entry, a removal message contains a description, which may include wild cards.
+
+\subsection{Group Table Modification Messages}
+\label{group_table:sec_chan:group_add}
+\label{group_table:sec_chan:group_set}
+\label{group_table:sec_chan:group_delete}
+Group table modification messages can have the following types:
+\input{enum/ofp_group_mod_command}
+\\\\
+If a group entry with identical ID resides in any table, then that entry, including its counters, must be removed, and the new group entry added.
+\\\\
+If a switch cannot find any table in which to add the incoming group entry, the switch should send an \verb|ofp_error_msg| with \verb|OFPET_GROUP_MOD_FAILED| type and \verb|OFPGMFC_ALL_TABLES_FULL| code.
+\\\\
+If the action list in a group mod message's action buckets references a port that will never be valid on a switch, the switch must return an \verb|ofp_error_msg| with \verb|OFPET_BAD_ACTION| type and \verb|OFPBAC_BAD_OUT_PORT| code.  If the referenced port may be valid in the future, e.g. when a linecard is added to a chassis switch, or a port is dynamically added to a software switch, the switch may either silently drop packets sent to the referenced port, or immediately return an \verb|OFPBAC_BAD_OUT_PORT| error and refuse the group mod.
+\\\\
+If the action list in a group add or set message references a group that does not exist on a switch, the switch must return an \verb|ofp_error_msg| with \verb|OFPET_BAD_ACTION| type and \verb|OFPBAC_BAD_OUT_GROUP| code.
+\\\\
+For ADD requests, if a group entry with identical group ID field does not current reside in the group table, the ADD acts like an SET, and the new group entry must be inserted.  Otherwise, the buckets specified in the ADD are added to the existing entry.
+\\\\
+For DELETE requests, if no group entry with identical ID currently exists in the group table, no error is recorded, and no group table modification occurs.
+\\\\
+\label{unsupported_flow}If a switch cannot process the action list contained in any group mod message's action bucket in the order specified, it MUST immediately return an \verb|OFPET_GROUP_MOD_FAILED| :
+\verb|OFPFMFC_UNSUPPORTED| error and reject the group.
+
+\subsection{Group Removal}
+
+The controller is able to actively remove group entries by sending a group SET message referencing the group ID for removal with no arguments specified.
+
 
 \input{appendix}
 
