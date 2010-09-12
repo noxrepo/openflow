@@ -687,7 +687,7 @@ enum ofp_flow_mod_failed_code {
 /* ofp_error_msg 'code' values for OFPET_GROUP_MOD_FAILED.  'data' contains
  * at least the first 64 bytes of the failed request. */
 enum ofp_group_mod_failed_code {
-    OFPGMFC_INVALID_GID,	          /* Group not added because Group
+    OFPGMFC_INVALID_GID,              /* Group not added because Group
                                        * Identifier is invalid. */
     OFPGMFC_INVALID_ACTIONS,          /* Invalid actions were specified in
                                        * a group's action bucket(s). */
