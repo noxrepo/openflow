@@ -84,15 +84,16 @@ Each flow table entry (see Table \ref{table:flow entry}) contains:
 \centering
 \begin{tabular}{|c|c|c|}
 \hline
-Group Fields and Action Buckets\\
+Group Identifier & Group Type & Action Buckets\\
 \hline
 \end{tabular}
-\caption{A group entry consists of a group type and a sequence of action buckets.}
+\caption{A group entry consists of a group identifier, group type and a list of action buckets.}
 \label{table:group entry}
 \end{table}
 
 Each group table entry (see Table \ref{table:group entry}) contains:
 \begin{itemize}
+\item \textbf{group identifier} uniquely identifies the group in forwarding numberspace
 \item \textbf{group type} to determine group semantics
 \item \textbf{action buckets} list of action buckets, where each action bucket contains a list of actions to execute
 \end{itemize}
