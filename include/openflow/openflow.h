@@ -615,9 +615,9 @@ enum ofp_group_mod_command {
 };
 
 /* Group mod (controller/switch) */
-struct ofp_group_mod {
+/* struct ofp_group_mod {
 
-}
+} */
 
 /* Values for 'type' in ofp_error_message.  These values are immutable: they
  * will not change in future versions of the protocol (although new values may
