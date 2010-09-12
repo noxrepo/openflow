@@ -695,7 +695,7 @@ enum ofp_group_mod_failed_code {
                                        * load sharing on multipath group. */
     OFPGMFC_INVALID_DELETE,           /* forwarding ID does not exist, unable
                                        * to delete. */
-    OFPGMFC_OUT_OF_GROUPS,	          /* The group table is full. */
+    OFPGMFC_OUT_OF_GROUPS,            /* The group table is full. */
     OFPGMFC_GROUP_OUT_OF_MP_MEMBERS   /* The maximum number of action buckets
                                        * for a group has been exceeded. */
 };
