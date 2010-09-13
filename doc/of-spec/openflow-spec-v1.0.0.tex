@@ -442,20 +442,20 @@ Each flow entry has an \verb|idle_timeout| and a \verb|hard_timeout| associated 
 \label{group_table:sec_chan:group_delete}
 Group table modification messages can have the following types:
 \input{enum/ofp_group_mod_command}
-If a group entry with identical ID resides in any table, then that entry, including its counters, must be removed, and the new group entry added.
 \\\\
-If a switch cannot find any table in which to add the incoming group entry, the switch should send an \verb|ofp_error_msg| with \verb|OFPET_GROUP_MOD_FAILED| type and \verb|OFPGMFC_ALL_TABLES_FULL| code.
+For ADD requests, if a group entry with the specified forwarding identifier already resides in the group table, then the switch must refuse to add the group entry and must send an \verb|ofp_error_msg| with \verb|OFPET_GROUP_MOD_FAILED| type and \verb|OFPGMFC_GROUP_EXISTS| code.
 \\\\
-If the action list in a group mod message's action buckets references a port that will never be valid on a switch, the switch must return an \verb|ofp_error_msg| with \verb|OFPET_BAD_ACTION| type and \verb|OFPBAC_BAD_OUT_PORT| code.  If the referenced port may be valid in the future, e.g. when a linecard is added to a chassis switch, or a port is dynamically added to a software switch, the switch may either silently drop packets sent to the referenced port, or immediately return an \verb|OFPBAC_BAD_OUT_PORT| error and refuse the group mod.
+For MODIFY requests, if a group entry with the specified forwarding identifier already resides in the group table, then that entry, including its type and action buckets, must be removed, and the new group entry added.
 \\\\
-If the action list in a group add or set message references a group that does not exist on a switch, the switch must return an \verb|ofp_error_msg| with \verb|OFPET_BAD_ACTION| type and \verb|OFPBAC_BAD_OUT_GROUP| code.
+If a specified forwarding identifier is invalid for group use (reserved by the switch for a port, or one of the special OpenFlow virtual ports (\verb|OFPP_FLOOD|, etc.) then the switch must refuse to add the group entry and must send an \verb|ofp_error_msg| with \verb|OFPET_GROUP_MOD_FAILED| type and \verb|OFPGMFC_INVALID_GID| code.
 \\\\
-For ADD requests, if a group entry with identical group ID field does not current reside in the group table, the ADD acts like an SET, and the new group entry must be inserted.  Otherwise, the buckets specified in the ADD are added to the existing entry.
+If a switch does not support unequal load sharing with multipath groups, it must refuse to add the group entry and must send an \verb|ofp_error_msg| with \verb|OFPET_GROUP_MOD_FAILED| type and \verb|OFPGMFC_NON_EQUAL_MP_UNSUPPORTED| code.
 \\\\
-For DELETE requests, if no group entry with identical ID currently exists in the group table, no error is recorded, and no group table modification occurs.
+If a switch cannot add the incoming group entry due to lack of space, the switch must send an \verb|ofp_error_msg| with \verb|OFPET_GROUP_MOD_FAILED| type and \verb|OFPGMFC_OUT_OF_GROUPS| code. 
 \\\\
-\label{unsupported_flow}If a switch cannot process the action list contained in any group mod message's action bucket in the order specified, it MUST immediately return an \verb|OFPET_GROUP_MOD_FAILED| :
-\verb|OFPFMFC_UNSUPPORTED| error and reject the group.
+The action list for each bucket must be validated using the same rules as those for flow mods (Section \ref{flow_table:sec_chan:flow_add}.
+\\\\
+For DELETE requests, if no group entry with the specified identifier currently exists in the group table, no error is recorded, and no group table modification occurs.  Otherwise, the group is removed.   DELETE differs from an ADD or MODIFY with no buckets specified in that future attempts to ADD to the forwarding identifier will not result in a group exists error.
 
 \subsection{Group Removal}
 

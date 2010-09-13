@@ -687,14 +687,13 @@ enum ofp_flow_mod_failed_code {
 /* ofp_error_msg 'code' values for OFPET_GROUP_MOD_FAILED.  'data' contains
  * at least the first 64 bytes of the failed request. */
 enum ofp_group_mod_failed_code {
-    OFPGMFC_INVALID_GID,              /* Group not added because Group
+    OFPGMFC_GROUP_EXISTS,             /* Group not added because a group ADD
+                                       * attempted to replace an
+                                       * already-present group. */
+	OFPGMFC_INVALID_GID,              /* Group not added because Group
                                        * Identifier is invalid. */
-    OFPGMFC_INVALID_ACTIONS,          /* Invalid actions were specified in
-                                       * a group's action bucket(s). */
-    OFPGMFC_NON_EQUAL_MP_UNSUPPORTED, /* Switch does not support unequal
-                                       * load sharing on multipath group. */
-    OFPGMFC_INVALID_DELETE,           /* forwarding ID does not exist, unable
-                                       * to delete. */
+    OFPGMFC_NON_EQUAL_MP_UNSUPPORTED, /* Switch does not support unequal load
+                                       * sharing with multipath groups. */
     OFPGMFC_OUT_OF_GROUPS,            /* The group table is full. */
     OFPGMFC_GROUP_OUT_OF_MP_MEMBERS   /* The maximum number of action buckets
                                        * for a group has been exceeded. */
