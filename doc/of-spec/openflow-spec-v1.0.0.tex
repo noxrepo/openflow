@@ -194,9 +194,9 @@ Table \ref{table:counters} contains the required set of counters.  Duration refe
 
 \subsection{Actions}
 \label{ft:actions}
-Each flow entry is associated with zero or more actions that dictate how the switch handles matching packets.  If no forward actions are present, the packet is dropped.  Action lists for \emph{inserted} flow and group entries MUST be processed in the order specified.  However, there is no packet output ordering guaranteed within a port.   For example, an action list may result in two packets sent to two different VLANs on a single port.  These two packets may be arbitrarily re-ordered, but the packet bodies must match those generated from a sequential execution of the actions.
+Each action bucket in a group or flow entry is associated with zero or more actions that dictate how the switch handles matching packets.  If no forward actions are present, the packet is dropped.  Action lists for \emph{inserted} flow and group entries MUST be processed in the order specified.  However, there is no packet output ordering guaranteed within a port.   For example, an action list may result in two packets sent to two different VLANs on a single port.  These two packets may be arbitrarily re-ordered, but the packet bodies must match those generated from a sequential execution of the actions.
 \\\\
-A switch may reject a flow entry if it cannot process the action list in the order specified, in which case it should immediately return an unsupported flow error (see \ref{unsupported_flow}).  Ordering within a port may vary between vendor switch implementations.
+A switch may reject a flow entry or group if it cannot process the action list in the order specified, in which case it should immediately return an unsupported flow error (see \ref{unsupported_flow}).  Ordering within a port may vary between vendor switch implementations.
 \\\\
 A switch is not required to support all action types --- just those marked ``Required Actions'' below. When connecting to the controller, a switch indicates which of the ``Optional Actions'' it supports.  OpenFlow-compliant switches come in two types: \emph{OpenFlow-only}, and \emph{OpenFlow-enabled}. 
 \\\\
