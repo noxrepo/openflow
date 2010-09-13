@@ -656,17 +656,6 @@ struct ofp_flow_removed {
 };
 OFP_ASSERT(sizeof(struct ofp_flow_removed) == 88);
 
-enum ofp_group_mod_command {
-    OFPGMC_ADD,                 /* New group. */
-    OFPGMC_SET,                 /* Modify matching groups. */
-    OFPGMC_DELETE,              /* Delete all matching groups. */
-};
-
-/* Group mod (controller/switch) */
-/* struct ofp_group_mod {
-
-} */
-
 /* Values for 'type' in ofp_error_message.  These values are immutable: they
  * will not change in future versions of the protocol (although new values may
  * be added). */
