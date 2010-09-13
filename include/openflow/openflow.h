@@ -661,8 +661,7 @@ enum ofp_bad_action_code {
     OFPBAC_BAD_LEN,            /* Length problem in actions. */
     OFPBAC_BAD_VENDOR,         /* Unknown vendor id specified. */
     OFPBAC_BAD_VENDOR_TYPE,    /* Unknown action type for vendor id. */
-    OFPBAC_BAD_OUT_PORT,       /* Problem validating output action. */
-    OFPBAC_BAD_OUT_GROUP,      /* Problem validating output action. */
+    OFPBAC_BAD_OUT_FID,        /* Invalid forwarding id in forward action. */
     OFPBAC_BAD_ARGUMENT,       /* Bad action argument. */
     OFPBAC_EPERM,              /* Permissions error. */
     OFPBAC_TOO_MANY,           /* Can't handle this many actions. */
