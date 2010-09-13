@@ -207,6 +207,21 @@ When the \verb|OFPFF_CHECK_OVERLAP| flag is set, the switch must check that ther
 \\\\
 When the \verb|OFPFF_EMERG_| flag is set, the switch must consider this flow entry as an emergency entry, and only use it for forwarding when disconnected from the controller.
 
+\paragraph{Modify Group Entry Message}
+Modifications to the group table from the controller are done with the \verb|OFPT_GROUP_MOD| message:
+
+\input{struct/ofp_group_mod}
+
+The \verb|command| field must be one of the following:
+
+\input{enum/ofp_group_mod_command}
+
+The \verb|idle_timeout| and \verb|hard_timeout| fields control how quickly groups expire.  
+\\\\
+If the \verb|idle_timeout| is set and the \verb|hard_timeout| is zero, the entry must expire after \verb|idle_timeout| seconds with no received traffic.  If the \verb|idle_timeout| is zero and the \verb|hard_timeout| is set, the entry must expire in \verb|hard_timeout| seconds regardless of whether or not packets are hitting the entry.
+\\\\
+If both \verb|idle_timeout| and \verb|hard_timeout| are set, the flow will timeout after \verb|idle_timeout| seconds with no traffic, or \verb|hard_timeout| seconds, whichever comes first.  If both \verb|idle_timeout| and \verb|hard_timeout| are zero, the entry is considered permanent and will never time out.  It can still be removed with a \verb|grpip_mod| message of type \verb|OFPFC_DELETE|. 
+
 \paragraph{Port Modification Message}
 The controller uses the \verb|OFPT_PORT_MOD| message to modify the behavior of the physical port:
 
