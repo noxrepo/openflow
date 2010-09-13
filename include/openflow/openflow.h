@@ -463,6 +463,15 @@ enum ofp_flow_mod_command {
     OFPFC_DELETE_STRICT    /* Strictly match wildcards and priority. */
 };
 
+
+/* Group commands */
+enum ofp_group_mod_command {
+    OFPGC_ADD,              /* New group. */
+    OFPGC_MODIFY,           /* Modify all matching groups. */
+    OFPGC_DELETE,           /* Delete all matching groups. */
+};
+
+
 /* Flow wildcards. */
 enum ofp_flow_wildcards {
     OFPFW_IN_PORT  = 1 << 0,  /* Switch input port. */
@@ -580,6 +589,45 @@ struct ofp_flow_mod {
                                             header. */
 };
 OFP_ASSERT(sizeof(struct ofp_flow_mod) == 72);
+
+
+/* Group setup and teardown (controller -> datapath). */
+struct ofp_group_mod {
+
+    struct ofp_header header;
+    uint16_t command;             /* One of OFPGC_*. */
+
+    uint8_t type;						 /* One of OFPGT_*. */
+    struct ofp_bucket buckets[0]; /* The bucket length is inferred
+                                            from the length field in the
+                                            header. */
+};
+OFP_ASSERT(sizeof(struct ofp_group_mod) == 72);
+
+enum ofp_group_type {
+
+    OFPGT_FLOOD       = 1 << 0,  /* Flood type group  */
+    OFPGT_MPATH       = 1 << 1,  /* Multipath type group */
+    OFPGT_FF          = 1 << 2   /* fast failover type group */
+
+};
+
+struct ofp_bucket {
+
+    uint16_t type;                  /* One of OFPAT_*. */
+    uint8_t weight;                 /* relative weight of bucket*/
+    uint16_t len;                   /* Length of bucket list, including this
+                                       header and any padding to make it
+                                       64-bit aligned. */
+
+    struct ofp_action_header actions[0]; /* The action length is inferred
+                                           from the length field in the
+                                           header. */
+    
+    uint8_t pad[4];
+};
+OFP_ASSERT(sizeof(struct ofp_action_header) == 8);
+
 
 /* Why was this flow removed? */
 enum ofp_flow_removed_reason {
