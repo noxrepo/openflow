@@ -597,7 +597,7 @@ struct ofp_group_mod {
     struct ofp_header header;
     uint16_t command;             /* One of OFPGC_*. */
 
-    uint8_t type;						 /* One of OFPGT_*. */
+    uint8_t type;                 /* One of OFPGT_*. */
     struct ofp_bucket buckets[0]; /* The bucket length is inferred
                                             from the length field in the
                                             header. */
@@ -605,29 +605,27 @@ struct ofp_group_mod {
 OFP_ASSERT(sizeof(struct ofp_group_mod) == 72);
 
 enum ofp_group_type {
-
-    OFPGT_FLOOD       = 1 << 0,  /* Flood type group  */
-    OFPGT_MPATH       = 1 << 1,  /* Multipath type group */
-    OFPGT_FF          = 1 << 2   /* fast failover type group */
-
+    OFPGT_FLOOD,    /* Flood group.  */
+    OFPGT_MPATH,    /* Multipath group. */
+    OFPGT_FF,       /* Fast failover group. */
+    OFPTG_INDIRECT  /* Indirect group. */
 };
 
+/* Bucket for use in groups. */
 struct ofp_bucket {
-
-    uint16_t type;                  /* One of OFPAT_*. */
-    uint8_t weight;                 /* relative weight of bucket*/
     uint16_t len;                   /* Length of bucket list, including this
                                        header and any padding to make it
                                        64-bit aligned. */
-
+    uint8_t weight;                 /* Relative weight of bucket. */
+    uint8_t pad;
+    uint32_t port;                  /* Port whose state affects whether this
+                                     * bucket is live.  Only defined for fast
+                                     * failover groups. */
     struct ofp_action_header actions[0]; /* The action length is inferred
                                            from the length field in the
                                            header. */
-    
-    uint8_t pad[4];
 };
 OFP_ASSERT(sizeof(struct ofp_action_header) == 8);
-
 
 /* Why was this flow removed? */
 enum ofp_flow_removed_reason {

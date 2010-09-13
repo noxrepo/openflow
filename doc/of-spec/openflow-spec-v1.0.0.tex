@@ -90,14 +90,23 @@ Group Identifier & Group Type & Action Buckets\\
 \caption{A group entry consists of a group identifier, group type and a list of action buckets.}
 \label{table:group entry}
 \end{table}
-
 The ability for one port to point to a \emph{group} of other ports enables OpenFlow to represent additional methods of forwarding (ex. multipath, fast reroute, and link aggregation), as well as to handle current methods (ex. multicast) more efficiently.
-
+\\\\
 Each group table entry (see Table \ref{table:group entry}) contains:
 \begin{itemize}
 \item \textbf{group identifier} uniquely identifies the group in forwarding numberspace
 \item \textbf{group type} to determine group semantics
 \item \textbf{action buckets} list of action buckets, where each action bucket contains a list of actions to execute
+\end{itemize}
+
+\subsubsection{Group Types}
+The following group types are defined:
+
+\begin{itemize}
+\item \textbf{flood} send to all buckets in the group, except the incoming port.  Used for multicast or broadcast forwarding.
+\item \textbf{multipath} send to one bucket in the group based on switch selection criteria.  Packets are sent to a single bucket in the group, based on a switch-computed selection algorithm (e.g. hash on some user-configured tuple or simple round robin).  All configuration and state for multipath hash algorithms is external to OpenFlow.
+\item \textbf{indirect} send to one bucket.  Allows multiple flows or groups to point to a common forwarding identifier, supporting faster, more efficient convergence (e.g. next hops for IP forwarding).  This group type is effectively identical to flood groups with one bucket.  
+\item \textbf{fast failover} send to first live bucket.  Each action bucket is associated with a specific port that controls its liveness.  Enables the switch to change forwarding without requiring a round trip to the controller.
 \end{itemize}
 
 \subsection{Header Fields}
