@@ -466,7 +466,7 @@ If a switch cannot add the incoming group entry due to lack of space, the switch
 \\\\
 If a switch cannot add the incoming group entry due to restrictions (hardware or otherwise) limiting the number of group members, is must refuse to add the group entry and must send an \verb|ofp_error_msg| with \verb|OFPET_GROUP_MOD_FAILED| type and \verb|OFPGMFC_OUT_OF_MP_MEMBERS| code.
 \\\\
-For DELETE requests, if no group entry with the specified identifier currently exists in the group table, no error is recorded, and no group table modification occurs.  Otherwise, the group is removed.   DELETE differs from an ADD or MODIFY with no buckets specified in that future attempts to ADD to the forwarding identifier will not result in a group exists error.
+For DELETE requests, if no group entry with the specified identifier currently exists in the group table, no error is recorded, and no group table modification occurs.  Otherwise, the group is removed, and all flows that forward to the group are also removed.  DELETE differs from an ADD or MODIFY with no buckets specified in that future attempts to ADD to the forwarding identifier will not result in a group exists error.  If one wishes to effectively delete a group yet leave in flow entries using it, that group can be cleared by sending a MODIFY with no buckets specified.
 
 \input{appendix}
 
