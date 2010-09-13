@@ -94,19 +94,19 @@ The ability for one port to point to a \emph{group} of other ports enables OpenF
 \\\\
 Each group table entry (see Table \ref{table:group entry}) contains:
 \begin{itemize}
-\item \textbf{group identifier} uniquely identifies the group in forwarding numberspace
-\item \textbf{group type} to determine group semantics
-\item \textbf{action buckets} list of action buckets, where each action bucket contains a list of actions to execute
+\item \textbf{group identifier} to identify the group in the forwarding numberspace
+\item \textbf{group type} to determine group semantics (see below)
+\item \textbf{action buckets} an ordered list of action buckets, where each action bucket contains a list of actions to execute
 \end{itemize}
 
 \subsubsection{Group Types}
 The following group types are defined:
 
 \begin{itemize}
-\item \textbf{flood} send to all buckets in the group, except the incoming port.  Used for multicast or broadcast forwarding.
-\item \textbf{multipath} send to one bucket in the group based on switch selection criteria.  Packets are sent to a single bucket in the group, based on a switch-computed selection algorithm (e.g. hash on some user-configured tuple or simple round robin).  All configuration and state for multipath hash algorithms is external to OpenFlow.
-\item \textbf{indirect} send to one bucket.  Allows multiple flows or groups to point to a common forwarding identifier, supporting faster, more efficient convergence (e.g. next hops for IP forwarding).  This group type is effectively identical to flood groups with one bucket.  
-\item \textbf{fast failover} send to first live bucket.  Each action bucket is associated with a specific port that controls its liveness.  Enables the switch to change forwarding without requiring a round trip to the controller.
+\item \textbf{flood} forward to all buckets in the group.  Packets directed out the input port are dropped by default.  If the controller writer wants to forward out the incoming port, they should include a forward action to the \verb|OFPP_IN_PORT| in each bucket where this is desired.  Used for multicast or broadcast forwarding.
+\item \textbf{multipath} forward to one bucket in the group.  Packets are sent to a single bucket in the group, based on a switch-computed selection algorithm (e.g. hash on some user-configured tuple or simple round robin).  All configuration and state for the selection algorithm is external to OpenFlow.  When a port specified in a multipath group goes down, the switch may restrict forwarding to the remaining set of valid ports. This behavior may reduce the disruption of a downed link or switch.
+\item \textbf{indirect} forward to one bucket.  Allows multiple flows or groups to point to a common forwarding identifier, supporting faster, more efficient convergence (e.g. next hops for IP forwarding).  This group type is effectively identical to flood groups with one bucket.
+\item \textbf{fast failover} forward to the first live bucket.  Each action bucket is associated with a specific port that controls its liveness.  Enables the switch to change forwarding without requiring a round trip to the controller.  If no buckets are live, packets are dropped.  Conditions for liveness are outside the scope of the OpenFlow spec.
 \end{itemize}
 
 \subsection{Header Fields}
