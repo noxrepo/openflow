@@ -622,7 +622,7 @@ struct ofp_flow_removed {
 
     uint16_t priority;        /* Priority level of flow entry. */
     uint8_t reason;           /* One of OFPRR_*. */
-    uint8_t pad[1];           /* Align to 32-bits. */
+    uint8_t table_id;         /* ID of the table */
 
     uint32_t duration_sec;    /* Time flow was alive in seconds. */
     uint32_t duration_nsec;   /* Time flow was alive in nanoseconds beyond
