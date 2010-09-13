@@ -695,8 +695,10 @@ enum ofp_group_mod_failed_code {
     OFPGMFC_NON_EQUAL_MP_UNSUPPORTED, /* Switch does not support unequal load
                                        * sharing with multipath groups. */
     OFPGMFC_OUT_OF_GROUPS,            /* The group table is full. */
-    OFPGMFC_GROUP_OUT_OF_MP_MEMBERS   /* The maximum number of action buckets
+    OFPGMFC_GROUP_OUT_OF_MP_MEMBERS,  /* The maximum number of action buckets
                                        * for a group has been exceeded. */
+    OFPGMFC_CHAINING_UNSUPPORTED      /* Switch does not support groups that
+                                       * forward to groups. */
 };
 
 /* ofp_error_msg 'code' values for OFPET_PORT_MOD_FAILED.  'data' contains
