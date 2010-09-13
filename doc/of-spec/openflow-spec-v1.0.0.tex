@@ -457,11 +457,6 @@ The action list for each bucket must be validated using the same rules as those 
 \\\\
 For DELETE requests, if no group entry with the specified identifier currently exists in the group table, no error is recorded, and no group table modification occurs.  Otherwise, the group is removed.   DELETE differs from an ADD or MODIFY with no buckets specified in that future attempts to ADD to the forwarding identifier will not result in a group exists error.
 
-\subsection{Group Removal}
-
-The controller is able to actively remove group entries by sending a group SET message referencing the group ID for removal with no arguments specified.
-
-
 \input{appendix}
 
 \input{credits}
