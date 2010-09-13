@@ -91,6 +91,8 @@ Group Identifier & Group Type & Action Buckets\\
 \label{table:group entry}
 \end{table}
 
+The ability for one port to point to a \emph{group} of other ports enables OpenFlow to represent additional methods of forwarding (ex. multipath, fast reroute, and link aggregation), as well as to handle current methods (ex. multicast) more efficiently.
+
 Each group table entry (see Table \ref{table:group entry}) contains:
 \begin{itemize}
 \item \textbf{group identifier} uniquely identifies the group in forwarding numberspace
