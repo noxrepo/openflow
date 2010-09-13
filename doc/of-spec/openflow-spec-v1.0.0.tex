@@ -455,6 +455,8 @@ If a switch does not support unequal load sharing with multipath groups, it must
 \\\\
 If a switch cannot add the incoming group entry due to lack of space, the switch must send an \verb|ofp_error_msg| with \verb|OFPET_GROUP_MOD_FAILED| type and \verb|OFPGMFC_OUT_OF_GROUPS| code.
 \\\\
+If a switch cannot add the incoming group entry due to restrictions (hardware or otherwise) limiting the number of group members, is must refuse to add the group entry and must send an \verb|ofp_error_msg| with \verb|OFPET_GROUP_MOD_FAILED| type and \verb|OFPGMFC_OUT_OF_MP_MEMBERS| code.
+\\\\
 For DELETE requests, if no group entry with the specified identifier currently exists in the group table, no error is recorded, and no group table modification occurs.  Otherwise, the group is removed.   DELETE differs from an ADD or MODIFY with no buckets specified in that future attempts to ADD to the forwarding identifier will not result in a group exists error.
 
 \input{appendix}
