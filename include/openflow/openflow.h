@@ -608,7 +608,7 @@ enum ofp_group_type {
     OFPGT_FLOOD,    /* Flood group.  */
     OFPGT_MPATH,    /* Multipath group. */
     OFPGT_FF,       /* Fast failover group. */
-    OFPTG_INDIRECT  /* Indirect group. */
+    OFPGT_INDIRECT  /* Indirect group. */
 };
 
 /* Bucket for use in groups. */
