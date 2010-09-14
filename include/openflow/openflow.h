@@ -82,22 +82,22 @@ enum ofp_port {
     OFPP_MAX = 0x7fffff00,
 
     /* Fake output "ports". */
-    OFPP_GROUP_ALL  = 0x7ffffff7,  /* Represents all groups for group delete
+    OFPP_GROUP_ALL  = 0xfffffff7,  /* Represents all groups for group delete
                                       commands. */
-    OFPP_IN_PORT    = 0x7ffffff8,  /* Send the packet out the input port.  This
+    OFPP_IN_PORT    = 0xfffffff8,  /* Send the packet out the input port.  This
                                       virtual port must be explicitly used
                                       in order to send back out of the input
                                       port. */
-    OFPP_TABLE      = 0x7ffffff9,  /* Perform actions in flow table.
+    OFPP_TABLE      = 0xfffffff9,  /* Perform actions in flow table.
                                       NB: This can only be the destination
                                       port for packet-out messages. */
-    OFPP_NORMAL     = 0x7ffffffa,  /* Process with normal L2/L3 switching. */
-    OFPP_FLOOD      = 0x7ffffffb,  /* All physical ports except input port and
+    OFPP_NORMAL     = 0xfffffffa,  /* Process with normal L2/L3 switching. */
+    OFPP_FLOOD      = 0xfffffffb,  /* All physical ports except input port and
                                       those disabled by STP. */
-    OFPP_ALL        = 0x7ffffffc,  /* All physical ports except input port. */
-    OFPP_CONTROLLER = 0x7ffffffd,  /* Send to controller. */
-    OFPP_LOCAL      = 0x7ffffffe,  /* Local openflow "port". */
-    OFPP_NONE       = 0x7fffffff   /* Not associated with a physical port. */
+    OFPP_ALL        = 0xfffffffc,  /* All physical ports except input port. */
+    OFPP_CONTROLLER = 0xfffffffd,  /* Send to controller. */
+    OFPP_LOCAL      = 0xfffffffe,  /* Local openflow "port". */
+    OFPP_NONE       = 0xffffffff   /* Not associated with a physical port. */
 };
 
 enum ofp_type {
