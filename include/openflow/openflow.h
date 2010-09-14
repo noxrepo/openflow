@@ -79,23 +79,23 @@
 /* Port numbering.  Physical ports are numbered starting from 1. */
 enum ofp_port {
     /* Maximum number of physical switch ports. */
-    OFPP_MAX = 0xff00,
+    OFPP_MAX = 0x7fffff00,
 
     /* Fake output "ports". */
-    OFPP_IN_PORT    = 0xfff8,  /* Send the packet out the input port.  This
-                                  virtual port must be explicitly used
-                                  in order to send back out of the input
-                                  port. */
-    OFPP_TABLE      = 0xfff9,  /* Perform actions in flow table.
-                                  NB: This can only be the destination
-                                  port for packet-out messages. */
-    OFPP_NORMAL     = 0xfffa,  /* Process with normal L2/L3 switching. */
-    OFPP_FLOOD      = 0xfffb,  /* All physical ports except input port and
-                                  those disabled by STP. */
-    OFPP_ALL        = 0xfffc,  /* All physical ports except input port. */
-    OFPP_CONTROLLER = 0xfffd,  /* Send to controller. */
-    OFPP_LOCAL      = 0xfffe,  /* Local openflow "port". */
-    OFPP_NONE       = 0xffff   /* Not associated with a physical port. */
+    OFPP_IN_PORT    = 0x7ffffff8,  /* Send the packet out the input port.  This
+                                      virtual port must be explicitly used
+                                      in order to send back out of the input
+                                      port. */
+    OFPP_TABLE      = 0x7ffffff9,  /* Perform actions in flow table.
+                                      NB: This can only be the destination
+                                      port for packet-out messages. */
+    OFPP_NORMAL     = 0x7ffffffa,  /* Process with normal L2/L3 switching. */
+    OFPP_FLOOD      = 0x7ffffffb,  /* All physical ports except input port and
+                                      those disabled by STP. */
+    OFPP_ALL        = 0x7ffffffc,  /* All physical ports except input port. */
+    OFPP_CONTROLLER = 0x7ffffffd,  /* Send to controller. */
+    OFPP_LOCAL      = 0x7ffffffe,  /* Local openflow "port". */
+    OFPP_NONE       = 0x7fffffff   /* Not associated with a physical port. */
 };
 
 enum ofp_type {
@@ -237,8 +237,9 @@ enum ofp_port_features {
 
 /* Description of a physical port */
 struct ofp_phy_port {
-    uint16_t port_no;
+    uint32_t port_no;
     uint8_t hw_addr[OFP_ETH_ALEN];
+    uint8_t pad2[6];                  /* Align to 64 bits. */
     char name[OFP_MAX_PORT_NAME_LEN]; /* Null-terminated */
 
     uint32_t config;        /* Bitmap of OFPPC_* flags. */
@@ -251,7 +252,7 @@ struct ofp_phy_port {
     uint32_t supported;     /* Features supported by the port. */
     uint32_t peer;          /* Features advertised by peer. */
 };
-OFP_ASSERT(sizeof(struct ofp_phy_port) == 48);
+OFP_ASSERT(sizeof(struct ofp_phy_port) == 56);
 
 /* Switch features. */
 struct ofp_switch_features {
@@ -295,19 +296,19 @@ OFP_ASSERT(sizeof(struct ofp_port_status) == 64);
 /* Modify behavior of the physical port */
 struct ofp_port_mod {
     struct ofp_header header;
-    uint16_t port_no;
+    uint32_t port_no;
     uint8_t hw_addr[OFP_ETH_ALEN]; /* The hardware address is not
                                       configurable.  This is used to
                                       sanity-check the request, so it must
                                       be the same as returned in an
                                       ofp_phy_port struct. */
-
+    uint8_t pad[2];         /* Pad to 64 bits. */
     uint32_t config;        /* Bitmap of OFPPC_* flags. */
     uint32_t mask;          /* Bitmap of OFPPC_* flags to be changed. */
 
     uint32_t advertise;     /* Bitmap of "ofp_port_features"s.  Zero all
                                bits to prevent any action taking place. */
-    uint8_t pad[4];         /* Pad to 64-bits. */
+
 };
 OFP_ASSERT(sizeof(struct ofp_port_mod) == 32);
 
@@ -529,7 +530,7 @@ enum ofp_flow_wildcards {
 /* Fields to match against flows */
 struct ofp_match {
     uint32_t wildcards;        /* Wildcard fields. */
-    uint16_t in_port;          /* Input switch port. */
+    uint32_t in_port;          /* Input switch port. */
     uint8_t dl_src[OFP_ETH_ALEN]; /* Ethernet source address. */
     uint8_t dl_dst[OFP_ETH_ALEN]; /* Ethernet destination address. */
     uint16_t dl_vlan;          /* Input VLAN id. */
@@ -539,7 +540,6 @@ struct ofp_match {
     uint8_t nw_tos;            /* IP ToS (actually DSCP field, 6 bits). */
     uint8_t nw_proto;          /* IP protocol or lower 8 bits of
                                 * ARP opcode. */
-    uint8_t pad2[2];           /* Align to 64-bits */
     uint32_t nw_src;           /* IP source address. */
     uint32_t nw_dst;           /* IP destination address. */
     uint16_t tp_src;           /* TCP/UDP source port. */
@@ -837,12 +837,12 @@ struct ofp_flow_stats_request {
     struct ofp_match match;   /* Fields to match. */
     uint8_t table_id;         /* ID of table to read (from ofp_table_stats),
                                  0xff for all tables or 0xfe for emergency. */
-    uint8_t pad;              /* Align to 32 bits. */
-    uint16_t out_port;        /* Require matching entries to include this
+    uint8_t pad[3];           /* Align to 64 bits. */
+    uint32_t out_port;        /* Require matching entries to include this
                                  as an output port.  A value of OFPP_NONE
                                  indicates no restriction. */
 };
-OFP_ASSERT(sizeof(struct ofp_flow_stats_request) == 44);
+OFP_ASSERT(sizeof(struct ofp_flow_stats_request) == 48);
 
 /* Body of reply to OFPST_FLOW request. */
 struct ofp_flow_stats {
@@ -870,12 +870,12 @@ struct ofp_aggregate_stats_request {
     struct ofp_match match;   /* Fields to match. */
     uint8_t table_id;         /* ID of table to read (from ofp_table_stats)
                                  0xff for all tables or 0xfe for emergency. */
-    uint8_t pad;              /* Align to 32 bits. */
-    uint16_t out_port;        /* Require matching entries to include this
+    uint8_t pad[3];           /* Align to 64 bits. */
+    uint32_t out_port;        /* Require matching entries to include this
                                  as an output port.  A value of OFPP_NONE
                                  indicates no restriction. */
 };
-OFP_ASSERT(sizeof(struct ofp_aggregate_stats_request) == 44);
+OFP_ASSERT(sizeof(struct ofp_aggregate_stats_request) == 48);
 
 /* Body of reply to OFPST_AGGREGATE request. */
 struct ofp_aggregate_stats_reply {
@@ -903,19 +903,19 @@ OFP_ASSERT(sizeof(struct ofp_table_stats) == 64);
 
 /* Body for ofp_stats_request of type OFPST_PORT. */
 struct ofp_port_stats_request {
-    uint16_t port_no;        /* OFPST_PORT message must request statistics
+    uint32_t port_no;        /* OFPST_PORT message must request statistics
                               * either for a single port (specified in
                               * port_no) or for all ports (if port_no ==
                               * OFPP_NONE). */
-    uint8_t pad[6];
+    uint8_t pad[4];
 };
 OFP_ASSERT(sizeof(struct ofp_port_stats_request) == 8);
 
 /* Body of reply to OFPST_PORT request. If a counter is unsupported, set
  * the field to all ones. */
 struct ofp_port_stats {
-    uint16_t port_no;
-    uint8_t pad[6];          /* Align to 64-bits. */
+    uint32_t port_no;
+    uint8_t pad[4];          /* Align to 64-bits. */
     uint64_t rx_packets;     /* Number of received packets. */
     uint64_t tx_packets;     /* Number of transmitted packets. */
     uint64_t rx_bytes;       /* Number of received bytes. */
@@ -989,17 +989,16 @@ OFP_ASSERT(sizeof(struct ofp_packet_queue) == 8);
 /* Query for port queue configuration. */
 struct ofp_queue_get_config_request {
     struct ofp_header header;
-    uint16_t port;         /* Port to be queried. Should refer
+    uint32_t port;         /* Port to be queried. Should refer
                               to a valid physical port (i.e. < OFPP_MAX) */
-    uint8_t pad[2];        /* 32-bit alignment. */
 };
 OFP_ASSERT(sizeof(struct ofp_queue_get_config_request) == 12);
 
 /* Queue configuration for a given port. */
 struct ofp_queue_get_config_reply {
     struct ofp_header header;
-    uint16_t port;
-    uint8_t pad[6];
+    uint32_t port;
+    uint8_t pad[4];
     struct ofp_packet_queue queues[0]; /* List of configured queues. */
 };
 OFP_ASSERT(sizeof(struct ofp_queue_get_config_reply) == 16);
@@ -1008,24 +1007,22 @@ OFP_ASSERT(sizeof(struct ofp_queue_get_config_reply) == 16);
 struct ofp_action_enqueue {
     uint16_t type;            /* OFPAT_ENQUEUE. */
     uint16_t len;             /* Len is 16. */
-    uint16_t port;            /* Port that queue belongs. Should
+    uint32_t port;            /* Port that queue belongs. Should
                                  refer to a valid physical port
                                  (i.e. < OFPP_MAX) or OFPP_IN_PORT. */
-    uint8_t pad[6];           /* Pad for 64-bit alignment. */
+    uint8_t pad[4];           /* Pad for 64-bit alignment. */
     uint32_t queue_id;        /* Where to enqueue the packets. */
 };
 OFP_ASSERT(sizeof(struct ofp_action_enqueue) == 16);
 
 struct ofp_queue_stats_request {
-    uint16_t port_no;        /* All ports if OFPT_ALL. */
-    uint8_t pad[2];          /* Align to 32-bits. */
+    uint32_t port_no;        /* All ports if OFPT_ALL. */
     uint32_t queue_id;       /* All queues if OFPQ_ALL. */
 };
 OFP_ASSERT(sizeof(struct ofp_queue_stats_request) == 8);
 
 struct ofp_queue_stats {
-    uint16_t port_no;
-    uint8_t pad[2];          /* Align to 32-bits. */
+    uint32_t port_no;
     uint32_t queue_id;       /* Queue i.d */
     uint64_t tx_bytes;       /* Number of transmitted bytes. */
     uint64_t tx_packets;     /* Number of transmitted packets. */
