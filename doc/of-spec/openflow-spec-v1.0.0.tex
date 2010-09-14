@@ -55,7 +55,7 @@ The flow table contains a set of flow entries (header values to match packets ag
 \\\\
 Flow entries may forward to one or more forwarding identifiers (FIDs), which exist in a 32-bit numberspace.  FIDs include physical ports, virtual ports reserved by a switch, virtual ports reserved by the OpenFlow spec, and groups.  Virtual port examples include tunnels, port aggregates, and VLAN interfaces, as well as reserved ones, including the controller or ingress port (see \ref{ft:actions}).  OpenFlow groups can directly represent sets of ports for flooding, as well as more complicated methods of forwarding (e.g. multipath, fast reroute, and link aggregation).  As a general layer of indirection, groups also enable multiple flows to forward to a common set of output actions (e.g.  IP forwarding to a common next hop), and for that common set to be changed atomically and efficiently.
 \\\\
-The phrases `port' and `forwarding identifier' are used interchangeably in this document.  Additional port/group configuration may handled by an external configuration protocol.
+The phrases `port' and `forwarding identifier' are used interchangeably in this document.  Additional port/group configuration may be handled by an external configuration protocol.
 
 \section{OpenFlow Tables}
 This section describes the components of flow table and group table entries, along with the mechanics of matching and action handling.
