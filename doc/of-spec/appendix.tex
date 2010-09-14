@@ -85,7 +85,7 @@ Output \qosupd{and enqueue} actions are described in Section \ref{ft:actions}, w
 An \verb|action_output| has the following fields:
 
 \input{struct/ofp_action_output}
-The \verb|max_len| indicates the maximum amount of data from a packet that should be sent when the port is \verb|OFPP_CONTROLLER|.  If \verb|max_len| is zero, the switch must send a zero-size \verb|packet_in| message.  The \verb|forwarding_id| specifies the next forwarding identifier, group or port, which the lookup should occur through or packet should be sent to. 
+The \verb|max_len| indicates the maximum amount of data from a packet that should be sent when the port is \verb|OFPP_CONTROLLER|.  If \verb|max_len| is zero, the switch must send a zero-size \verb|packet_in| message.  The \verb|fid| specifies the next forwarding identifier, group or port, to which the packet should be sent. 
  \\\\
 \qosupd{The enqueue action maps a flow to an already-configured queue, regardless of the TOS and VLAN PCP bits.
   The packet should not change after an enqueue action. If the switch
