@@ -82,6 +82,8 @@ enum ofp_port {
     OFPP_MAX = 0x7fffff00,
 
     /* Fake output "ports". */
+    OFPP_GROUP_ALL  = 0x7ffffff7,  /* Represents all groups for group delete
+                                      commands. */
     OFPP_IN_PORT    = 0x7ffffff8,  /* Send the packet out the input port.  This
                                       virtual port must be explicitly used
                                       in order to send back out of the input
