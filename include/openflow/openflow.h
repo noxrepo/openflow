@@ -720,7 +720,7 @@ enum ofp_group_mod_failed_code {
     OFPGMFC_GROUP_EXISTS,             /* Group not added because a group ADD
                                        * attempted to replace an
                                        * already-present group. */
-	OFPGMFC_INVALID_GID,              /* Group not added because Group
+    OFPGMFC_INVALID_GID,              /* Group not added because Group
                                        * Identifier is invalid. */
     OFPGMFC_NON_EQUAL_MP_UNSUPPORTED, /* Switch does not support unequal load
                                        * sharing with multipath groups. */
