@@ -55,7 +55,7 @@ The flow table contains a set of flow entries (header values to match packets ag
 \\\\
 Flow entries may point to one or more groups.   OpenFlow groups can directly represent set of ports for flooding, as well as more complicated methods of forwarding (e.g. multipath, fast reroute, and link aggregation).  As a general layer of indirection, groups also enable multiple flows to forward to a common set of output actions (e.g.  IP forwarding to a common next hop), and for that common set to be changed atomically and efficiently.
 \\\\
-The OpenFlow port space includes virtual ports, which may represent tunnels, port aggregates, or VLAN interfaces, as well as regular physical ports.  OpenFlow ports have limited state such as ``up'', ``down'' .  Additional configuration of ports may handled by the OpenFlow configuration protocol.  There are several OpenFlow virtual ports used to indicate, for example, the controller or ingress port (see \ref{ft:actions}).
+OpenFlow actions may forward to forwarding identifiers (FIDs), which exist in a 32-bit numberspace.  FIDs include physical ports, virtual ports reserved by a switch, virtual ports reserved by the OpenFlow spec, and groups.  Virtual port examples include tunnels, port aggregates, and VLAN interfaces, as well as reserved ones, including the controller or ingress port (see \ref{ft:actions}).  The phrases 'port' and 'forwarding identifier' are used interchangeably in this document.  Additional port configuration may handled by an external configuration protocol.
 
 \section{OpenFlow Tables}
 This section describes the components of flow table and group table entries, along with the mechanics of matching and action handling.
