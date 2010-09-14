@@ -588,17 +588,17 @@ struct ofp_flow_mod {
 };
 OFP_ASSERT(sizeof(struct ofp_flow_mod) == 72);
 
-
 /* Group setup and teardown (controller -> datapath). */
 struct ofp_group_mod {
-
     struct ofp_header header;
     uint16_t command;             /* One of OFPGC_*. */
     uint8_t type;                 /* One of OFPGT_*. */
+    unit8_t pad;                  /* Pad to 64 bits. */
+    uint32_t fid;                 /* Group forwarding identifier. */
     struct ofp_bucket buckets[0]; /* The bucket length is inferred from the
                                      length field in the header. */
 };
-OFP_ASSERT(sizeof(struct ofp_group_mod) == 72);
+OFP_ASSERT(sizeof(struct ofp_group_mod) == 16);
 
 enum ofp_group_type {
     OFPGT_FLOOD,    /* Flood group.  */
