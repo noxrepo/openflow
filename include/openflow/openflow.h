@@ -464,14 +464,12 @@ enum ofp_flow_mod_command {
     OFPFC_DELETE_STRICT    /* Strictly match wildcards and priority. */
 };
 
-
 /* Group commands */
 enum ofp_group_mod_command {
     OFPGC_ADD,              /* New group. */
     OFPGC_MODIFY,           /* Modify all matching groups. */
     OFPGC_DELETE,           /* Delete all matching groups. */
 };
-
 
 /* Flow wildcards. */
 enum ofp_flow_wildcards {
@@ -596,11 +594,9 @@ struct ofp_group_mod {
 
     struct ofp_header header;
     uint16_t command;             /* One of OFPGC_*. */
-
     uint8_t type;                 /* One of OFPGT_*. */
-    struct ofp_bucket buckets[0]; /* The bucket length is inferred
-                                            from the length field in the
-                                            header. */
+    struct ofp_bucket buckets[0]; /* The bucket length is inferred from the
+                                     length field in the header. */
 };
 OFP_ASSERT(sizeof(struct ofp_group_mod) == 72);
 
