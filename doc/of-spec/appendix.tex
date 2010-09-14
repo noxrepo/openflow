@@ -211,7 +211,7 @@ When the \verb|OFPFF_EMERG_| flag is set, the switch must consider this flow ent
 Modifications to the group table from the controller are done with the \verb|OFPT_GROUP_MOD| message:
 
 \input{struct/ofp_group_mod}
-The semantics of the type field are explained in \ref{group_table:sec_chan:group_mod}.
+The semantics of the type and group fields are explained in \ref{group_table:sec_chan:group_mod}.
 \\\\
 The \verb|command| field must be one of the following:
 
@@ -219,6 +219,12 @@ The \verb|command| field must be one of the following:
 The \verb|type| field must be one of the following:
 
 \input{enum/ofp_group_type}
+Buckets use the following struct:
+
+\input{struct/ofp_bucket}
+The \verb|weight| field is only defined for multipath groups.  It is a dimensionless number that indicates this bucket's share of traffic to a group.  When a port goes down, the change in traffic distribution is undefined.  The precision by which a switch's packet distribution should match bucket weights is undefined.
+\\\\
+The \verb|port| field is only defined for fast failover groups.  It indicates the port whose liveness controls whether this bucket is a candidate for forwarding.  For fast failover groups, the first bucket defined is the highest-priority bucket, and only the highest-priority live bucket is used.
 
 \paragraph{Port Modification Message}
 The controller uses the \verb|OFPT_PORT_MOD| message to modify the behavior of the physical port:

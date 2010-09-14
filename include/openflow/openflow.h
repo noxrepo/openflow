@@ -609,14 +609,14 @@ enum ofp_group_type {
 
 /* Bucket for use in groups. */
 struct ofp_bucket {
-    uint16_t len;                   /* Length of bucket list, including this
-                                       header and any padding to make it
+    uint16_t len;                   /* Length the bucket in bytes, including
+                                       this header and any padding to make it
                                        64-bit aligned. */
-    uint8_t weight;                 /* Relative weight of bucket. */
-    uint8_t pad;
+    uint16_t weight;                /* Relative weight of bucket.  Only
+                                       defined for multipath groups. */
     uint32_t port;                  /* Port whose state affects whether this
-                                     * bucket is live.  Only defined for fast
-                                     * failover groups. */
+                                       bucket is live.  Only defined for fast
+                                       failover groups. */
     struct ofp_action_header actions[0]; /* The action length is inferred
                                            from the length field in the
                                            header. */
