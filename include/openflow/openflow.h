@@ -336,7 +336,7 @@ struct ofp_packet_in {
 OFP_ASSERT(sizeof(struct ofp_packet_in) == 20);
 
 enum ofp_action_type {
-    OFPAT_OUTPUT,           /* Output to switch port. */
+    OFPAT_OUTPUT,           /* Output to switch port or group. */
     OFPAT_SET_VLAN_VID,     /* Set the 802.1q VLAN id. */
     OFPAT_SET_VLAN_PCP,     /* Set the 802.1q priority. */
     OFPAT_STRIP_VLAN,       /* Strip the 802.1q header. */
@@ -358,7 +358,7 @@ enum ofp_action_type {
 struct ofp_action_output {
     uint16_t type;                  /* OFPAT_OUTPUT. */
     uint16_t len;                   /* Length is 8. */
-    uint16_t port;                  /* Output port. */
+    uint32_t fid;                   /* Output port or group. */
     uint16_t max_len;               /* Max length to send to controller. */
 };
 OFP_ASSERT(sizeof(struct ofp_action_output) == 8);
@@ -579,7 +579,7 @@ struct ofp_flow_mod {
     uint16_t priority;            /* Priority level of flow entry. */
     uint32_t buffer_id;           /* Buffered packet to apply to (or -1).
                                      Not meaningful for OFPFC_DELETE*. */
-    uint16_t out_port;            /* For OFPFC_DELETE* commands, require
+    uint16_t out_fid;             /* For OFPFC_DELETE* commands, require
                                      matching entries to include this as an
                                      output port.  A value of OFPP_NONE
                                      indicates no restriction. */
