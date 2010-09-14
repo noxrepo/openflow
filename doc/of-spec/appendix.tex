@@ -75,8 +75,8 @@ If no wildcards are set, then the \verb|ofp_match| exactly describes a flow, ove
 \\\\
 The source and destination netmasks are each specified with a 6-bit number in the wildcard description. It is interpreted similar to the CIDR suffix, but with the opposite meaning, since this is being used to indicate which bits in the IP address should be treated as ``wild". For example, a CIDR suffix of "24" means to use a netmask of ``255.255.255.0". However, a wildcard mask value of ``24" means that the least-significant 24-bits are wild, so it forms a netmask of ``255.0.0.0". 
 
-\subsubsection{Flow Action Structures}
-A number of actions may be associated with flows or packets.  The currently defined action types are:
+\subsubsection{Action Structures}
+A number of actions may be associated with flows, groups or packets.  The currently defined action types are:
 
 \input{enum/ofp_action_type} 
 Output \qosupd{and enqueue} actions are described in Section \ref{ft:actions}, while Field-Modify actions are described in Table \ref{table:field modify actions}.  An action definition contains the action type, length, and any associated data:
@@ -215,6 +215,10 @@ Modifications to the group table from the controller are done with the \verb|OFP
 The \verb|command| field must be one of the following:
 
 \input{enum/ofp_group_mod_command}
+
+The \verb|type| field must be one of the following:
+
+\input{enum/ofp_group_type}
 
 \paragraph{Port Modification Message}
 The controller uses the \verb|OFPT_PORT_MOD| message to modify the behavior of the physical port:
