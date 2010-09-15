@@ -212,7 +212,7 @@ basic Quality-of-Service (QoS) support (see section \ref{cts:qos}).}
 \\
 Note: Refer to section~\ref{sec:push field defaults} for information on default field values.
 \\\\
-\textbf{Optional Action:} \emph{Modify-Field}.  While not strictly required, the actions shown in Table \ref{table:field modify actions}  greatly increase the usefulness of an OpenFlow implementation.  To aid integration with existing networks, we suggest that VLAN modification actions be supported. 
+\textbf{Optional Action:} \emph{Modify-Field}.  While not strictly required, the actions shown in Table \ref{table:field modify actions}  greatly increase the usefulness of an OpenFlow implementation.  To aid integration with existing networks, we suggest that VLAN modification actions be supported. Modify-Field actions should \emph{always} be applied to the outermost-possible header (e.g.~a ``Set VLAN ID'' action always sets the ID of the outermost VLAN tag).
 
 \begin{table}[hbp]
 \centering
