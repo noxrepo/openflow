@@ -4,6 +4,9 @@
 #
 # Script to create a full diff version of the spec
 #
+# To install on Debian, append this to the LaTeX packages:
+# sudo apt-get install texinfo latexdiff
+#
 # Written: 9/1/10 -- Glen Gibb (grg@stanford.edu)
 #
 
