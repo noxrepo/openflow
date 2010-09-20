@@ -595,12 +595,20 @@ struct ofp_group_mod {
     struct ofp_header header;
     uint16_t command;             /* One of OFPGC_*. */
     uint8_t type;                 /* One of OFPGT_*. */
-    unit8_t pad;                  /* Pad to 64 bits. */
+    unit8_t select;               /* One of OFPGS_*. */
     uint32_t fid;                 /* Group forwarding identifier. */
+    uint64_t param;               /* Multipath only.  Meaning depends on value
+                                     of select field. */
     struct ofp_bucket buckets[0]; /* The bucket length is inferred from the
                                      length field in the header. */
 };
-OFP_ASSERT(sizeof(struct ofp_group_mod) == 16);
+OFP_ASSERT(sizeof(struct ofp_group_mod) == 24);
+
+/* Group selection algorithms - multipath only. Values in the range [128, 255]
+ * are reserved for vendor-specific usage. */
+enum ofp_group_select {
+    OFPGS_ANY = 0;  /* Use any selection algorithm */
+};
 
 enum ofp_group_type {
     OFPGT_FLOOD,    /* Flood group.  */
