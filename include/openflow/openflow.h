@@ -729,8 +729,9 @@ enum ofp_group_mod_failed_code {
     OFPGMFC_OUT_OF_GROUPS,            /* The group table is full. */
     OFPGMFC_GROUP_OUT_OF_MP_MEMBERS,  /* The maximum number of action buckets
                                        * for a group has been exceeded. */
-    OFPGMFC_CHAINING_UNSUPPORTED      /* Switch does not support groups that
+    OFPGMFC_CHAINING_UNSUPPORTED,     /* Switch does not support groups that
                                        * forward to groups. */
+    OFPGMFC_LOOP                      /* Group entry would cause a loop. */
 };
 
 /* ofp_error_msg 'code' values for OFPET_PORT_MOD_FAILED.  'data' contains
