@@ -161,8 +161,7 @@ Table \ref{table:header fields} shows the header fields an incoming packet is co
 
 \subsection{Counters}
 
-Counters are maintained per-table, per-flow, \qosupd{per-port and
-  per queue}.  OpenFlow-compliant counters may be implemented in software and maintained by polling hardware counters with more limited ranges.
+Counters are maintained for each table, flow, port, queue, group, and bucket.  OpenFlow-compliant counters may be implemented in software and maintained by polling hardware counters with more limited ranges.
 \\\\
 Table \ref{table:counters} contains the required set of counters.  Duration refers to the time the flow has been installed in the switch.  The Receive Errors field includes all explicitly specified errors, including frame, overrun, and CRC errors, plus any others.  Counters wrap around with no overflow indicator.  In this document, the phrase byte refers to 8-bit octets.
 \begin{table}[!hbp] 	
@@ -197,6 +196,13 @@ Table \ref{table:counters} contains the required set of counters.  Duration refe
 \hline \qosupd{Transmit Packets} & \qosupd{64} \\
 \hline \qosupd{Transmit Bytes} & \qosupd{64} \\
 \hline \qosupd{Transmit Overrun Errors} & \qosupd{64}\\
+\hline \multicolumn{2}{|c|}{Per Group} \\
+\hline Ref Count & 32 \\
+\hline Packet Count & 64 \\
+\hline Byte Count & 64 \\
+\hline \multicolumn{2}{|c|}{Per Bucket} \\
+\hline Packet Count & 64 \\
+\hline Byte Count & 64 \\
 \hline
 \end{tabular}
 \caption{Required list of counters for use in statistics messages.}

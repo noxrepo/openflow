@@ -335,6 +335,22 @@ The body of the reply consists of an array of
 the following structure:
 
 \input{struct/ofp_queue_stats}}
+\paragraph{Group Statistics}
+The \verb|OFPST_GROUP| stats request message provides statistics for one or more groups.  The request body consists of a \verb|group_id| field, which can be set to \verb|OFPG_ALL| to refer to all groups on the switch.
+
+\input{struct/ofp_group_stats_request}
+The body of the reply consists of an array of the following structure:
+
+\input{struct/ofp_group_stats}
+The \verb|bucket_stats| field consists of an array of \verb|ofp_bucket_counter| structs:
+
+\input{struct/ofp_bucket_counter}
+The switch should return a value of -1 for unavailable counters.
+\paragraph{Group Description Statistics}
+The \verb|OFPST_GROUP_DESC| stats request message provides a way to list the set of groups on a switch, along with their corresponding bucket actions.  The request body is empty, while the reply body is an array of the following structure:
+
+\input{struct/ofp_group_desc_stats}
+Fields for group description stats are the same as those used with the \verb|ofp_group_mod| struct.
 
 \paragraph{Vendor Statistics}
 Vendor-specific stats messages are requested with the \verb|OFPST_VENDOR| stats type. The first four bytes of the message are the vendor identifier. The rest of the body is vendor-defined.

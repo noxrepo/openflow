@@ -799,6 +799,16 @@ enum ofp_stats_types {
      * The reply body is an array of struct ofp_queue_stats */
     OFPST_QUEUE,
 
+    /* Group counter statistics.
+     * The request body is empty.
+     * The reply is struct ofp_group_stats. */
+    OFPST_GROUP,
+
+    /* Group description statistics.
+     * The request body is empty.
+     * The reply body is struct ofp_group_desc_stats. */
+    OFPST_GROUP_DESC,
+
     /* Vendor extension.
      * The request and reply bodies begin with a 32-bit vendor ID, which takes
      * the same form as in "struct ofp_vendor_header".  The request and reply
@@ -943,6 +953,49 @@ struct ofp_port_stats {
     uint64_t collisions;     /* Number of collisions. */
 };
 OFP_ASSERT(sizeof(struct ofp_port_stats) == 104);
+
+/* Body of OFPST_GROUP request. */
+struct ofp_group_stats_request {
+    uint32_t group_id;       /* All groups if OFPG_ALL. */
+    uint8_t pad[4];          /* Align to 64 bits. */
+};
+OFP_ASSERT(sizeof(struct ofp_group_stats_request) == 8);
+
+/* All ones is used to indicate all groups on a switch. */
+#define OFPG_ALL      0xffffffff
+
+/* Body of reply to OFPST_GROUP request. */
+struct ofp_group_stats {
+    uint16_t length;         /* Length of this entry. */
+    uint8_t pad[2];          /* Align to 64 bits. */
+    uint32_t group_id;       /* Group identifier. */
+    uint32_t ref_count;      /* Number of flows or groups that directly forward
+                                to this group. */
+    uint8_t pad2[4];         /* Align to 64 bits. */
+    uint64_t packet_count;   /* Number of packets for group. */
+    uint64_t byte_count;     /* Number of bytes for group. */
+    struct ofp_bucket_counter bucket_stats[0];
+};
+OFP_ASSERT(sizeof(struct ofp_group_stats) == 32);
+
+/* Used in group stats replies. */
+struct ofp_bucket_counter {
+    uint64_t packet_count;   /* Number of packets in bucket. */
+    uint64_t byte_count;     /* Number of bytes in bucket. */
+};
+OFP_ASSERT(sizeof(struct ofp_bucket_counter) == 16);
+
+/* Body of reply to OFPST_GROUP_DESC request. */
+struct ofp_group_desc_stats {
+    uint16_t length;              /* Length of this entry. */
+    uint8_t type;                 /* One of OFPGT_*. */
+    uint8_t select;               /* One of OFPGS_*. */
+    uint32_t group_id;            /* Group identifier. */
+    uint64_t param;               /* Multipath only.  Meaning depends on value
+                                     of select field. */
+    struct ofp_bucket buckets[0];
+};
+OFP_ASSERT(sizeof(struct ofp_group_desc_stats) == 16);
 
 /* Vendor extension. */
 struct ofp_vendor_header {
