@@ -48,7 +48,6 @@ This document describes the requirements of an OpenFlow Switch.  We recommend th
 \end{figure}
 
 \section{Switch Components}
-<<<<<<< HEAD:doc/of-spec/openflow-spec-v1.0.0.tex
 An OpenFlow Switch consists of one or more \emph{flow tables} and a \emph{group table}, which perform packet lookups and forwarding, as well as a \emph{secure channel} to an external controller (Figure \ref{fig:flow table and controller}).  The controller manages the switch over the secure channel using the OpenFlow protocol.
 \\\\
 Each flow table in the switch contains a set of flow entries; each flow entry consists of header values to match packets against, activity counters, and a set of instructions to apply to matching packets.  The group table contains group entries; each group entry includes a list of action buckets with specific semantics dependent on group type.
