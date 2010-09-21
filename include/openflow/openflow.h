@@ -350,6 +350,7 @@ enum ofp_action_type {
     OFPAT_SET_TP_SRC,       /* TCP/UDP source port. */
     OFPAT_SET_TP_DST,       /* TCP/UDP destination port. */
     OFPAT_ENQUEUE,          /* Output to queue.  */
+    OFPAT_GROUP,            /* Apply group. */
     OFPAT_VENDOR = 0xffff
 };
 
@@ -360,7 +361,7 @@ enum ofp_action_type {
 struct ofp_action_output {
     uint16_t type;                  /* OFPAT_OUTPUT. */
     uint16_t len;                   /* Length is 8. */
-    uint32_t fid;                   /* Output port or group. */
+    uint32_t port;                  /* Output port. */
     uint16_t max_len;               /* Max length to send to controller. */
 };
 OFP_ASSERT(sizeof(struct ofp_action_output) == 8);
@@ -422,6 +423,14 @@ struct ofp_action_nw_tos {
     uint8_t pad[3];
 };
 OFP_ASSERT(sizeof(struct ofp_action_nw_tos) == 8);
+
+/* Action structure for OFPAT_GROUP. */
+struct ofp_action_group {
+    uint16_t type;                  /* OFPAT_GROUP. */
+    uint16_t len;                   /* Length is 8. */
+    uint32_t group_id;              /* Group identifier. */
+};
+OFP_ASSERT(sizeof(struct ofp_action_group) == 8);
 
 /* Action header for OFPAT_VENDOR. The rest of the body is vendor-defined. */
 struct ofp_action_vendor_header {
@@ -579,7 +588,7 @@ struct ofp_flow_mod {
     uint16_t priority;            /* Priority level of flow entry. */
     uint32_t buffer_id;           /* Buffered packet to apply to (or -1).
                                      Not meaningful for OFPFC_DELETE*. */
-    uint16_t out_fid;             /* For OFPFC_DELETE* commands, require
+    uint16_t out_port;            /* For OFPFC_DELETE* commands, require
                                      matching entries to include this as an
                                      output port.  A value of OFPP_NONE
                                      indicates no restriction. */
@@ -596,7 +605,7 @@ struct ofp_group_mod {
     uint16_t command;             /* One of OFPGC_*. */
     uint8_t type;                 /* One of OFPGT_*. */
     unit8_t select;               /* One of OFPGS_*. */
-    uint32_t fid;                 /* Group forwarding identifier. */
+    uint32_t group_id;            /* Group identifier. */
     uint64_t param;               /* Multipath only.  Meaning depends on value
                                      of select field. */
     struct ofp_bucket buckets[0]; /* The bucket length is inferred from the
@@ -702,12 +711,13 @@ enum ofp_bad_action_code {
     OFPBAC_BAD_LEN,            /* Length problem in actions. */
     OFPBAC_BAD_VENDOR,         /* Unknown vendor id specified. */
     OFPBAC_BAD_VENDOR_TYPE,    /* Unknown action type for vendor id. */
-    OFPBAC_BAD_OUT_FID,        /* Invalid forwarding id in forward action. */
+    OFPBAC_BAD_OUT_PORT,       /* Invalid port in forward action. */
     OFPBAC_BAD_ARGUMENT,       /* Bad action argument. */
     OFPBAC_EPERM,              /* Permissions error. */
     OFPBAC_TOO_MANY,           /* Can't handle this many actions. */
     OFPBAC_BAD_QUEUE,          /* Problem validating output queue. */
     OFPBAC_GROUP_CHAINING_UNSUPPORTED  /* Group chaining unsupported. */
+    OFPBAC_BAD_OUT_GROUP,        /* Invalid group id in forward action. */
 };
 
 /* ofp_error_msg 'code' values for OFPET_FLOW_MOD_FAILED.  'data' contains
@@ -730,7 +740,7 @@ enum ofp_group_mod_failed_code {
     OFPGMFC_GROUP_EXISTS,             /* Group not added because a group ADD
                                        * attempted to replace an
                                        * already-present group. */
-    OFPGMFC_INVALID_GID,              /* Group not added because Group
+    OFPGMFC_INVALID_GROUP,            /* Group not added because Group
                                        * Identifier is invalid. */
     OFPGMFC_NON_EQUAL_MP_UNSUPPORTED, /* Switch does not support unequal load
                                        * sharing with multipath groups. */
