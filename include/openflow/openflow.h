@@ -79,23 +79,25 @@
 /* Port numbering.  Physical ports are numbered starting from 1. */
 enum ofp_port {
     /* Maximum number of physical switch ports. */
-    OFPP_MAX = 0xff00,
+    OFPP_MAX = 0x7fffff00,
 
     /* Fake output "ports". */
-    OFPP_IN_PORT    = 0xfff8,  /* Send the packet out the input port.  This
-                                  virtual port must be explicitly used
-                                  in order to send back out of the input
-                                  port. */
-    OFPP_TABLE      = 0xfff9,  /* Perform actions in flow table.
-                                  NB: This can only be the destination
-                                  port for packet-out messages. */
-    OFPP_NORMAL     = 0xfffa,  /* Process with normal L2/L3 switching. */
-    OFPP_FLOOD      = 0xfffb,  /* All physical ports except input port and
-                                  those disabled by STP. */
-    OFPP_ALL        = 0xfffc,  /* All physical ports except input port. */
-    OFPP_CONTROLLER = 0xfffd,  /* Send to controller. */
-    OFPP_LOCAL      = 0xfffe,  /* Local openflow "port". */
-    OFPP_NONE       = 0xffff   /* Not associated with a physical port. */
+    OFPP_GROUP_ALL  = 0xfffffff7,  /* Represents all groups for group delete
+                                      commands. */
+    OFPP_IN_PORT    = 0xfffffff8,  /* Send the packet out the input port.  This
+                                      virtual port must be explicitly used
+                                      in order to send back out of the input
+                                      port. */
+    OFPP_TABLE      = 0xfffffff9,  /* Perform actions in flow table.
+                                      NB: This can only be the destination
+                                      port for packet-out messages. */
+    OFPP_NORMAL     = 0xfffffffa,  /* Process with normal L2/L3 switching. */
+    OFPP_FLOOD      = 0xfffffffb,  /* All physical ports except input port and
+                                      those disabled by STP. */
+    OFPP_ALL        = 0xfffffffc,  /* All physical ports except input port. */
+    OFPP_CONTROLLER = 0xfffffffd,  /* Send to controller. */
+    OFPP_LOCAL      = 0xfffffffe,  /* Local openflow "port". */
+    OFPP_NONE       = 0xffffffff   /* Not associated with a physical port. */
 };
 
 enum ofp_type {
@@ -133,8 +135,9 @@ enum ofp_type {
 
     /* Queue Configuration messages. */
     OFPT_QUEUE_GET_CONFIG_REQUEST,  /* Controller/switch message */
-    OFPT_QUEUE_GET_CONFIG_REPLY     /* Controller/switch message */
+    OFPT_QUEUE_GET_CONFIG_REPLY,     /* Controller/switch message */
 
+    OFPT_GROUP_MOD            /* Controller/switch message */
 };
 
 /* Header on all OpenFlow packets. */
@@ -245,8 +248,9 @@ enum ofp_port_features {
 
 /* Description of a physical port */
 struct ofp_phy_port {
-    uint16_t port_no;
+    uint32_t port_no;
     uint8_t hw_addr[OFP_ETH_ALEN];
+    uint8_t pad2[6];                  /* Align to 64 bits. */
     char name[OFP_MAX_PORT_NAME_LEN]; /* Null-terminated */
 
     uint32_t config;        /* Bitmap of OFPPC_* flags. */
@@ -259,7 +263,7 @@ struct ofp_phy_port {
     uint32_t supported;     /* Features supported by the port. */
     uint32_t peer;          /* Features advertised by peer. */
 };
-OFP_ASSERT(sizeof(struct ofp_phy_port) == 48);
+OFP_ASSERT(sizeof(struct ofp_phy_port) == 56);
 
 /* Switch features. */
 struct ofp_switch_features {
@@ -303,19 +307,19 @@ OFP_ASSERT(sizeof(struct ofp_port_status) == 64);
 /* Modify behavior of the physical port */
 struct ofp_port_mod {
     struct ofp_header header;
-    uint16_t port_no;
+    uint32_t port_no;
     uint8_t hw_addr[OFP_ETH_ALEN]; /* The hardware address is not
                                       configurable.  This is used to
                                       sanity-check the request, so it must
                                       be the same as returned in an
                                       ofp_phy_port struct. */
-
+    uint8_t pad[2];         /* Pad to 64 bits. */
     uint32_t config;        /* Bitmap of OFPPC_* flags. */
     uint32_t mask;          /* Bitmap of OFPPC_* flags to be changed. */
 
     uint32_t advertise;     /* Bitmap of "ofp_port_features"s.  Zero all
                                bits to prevent any action taking place. */
-    uint8_t pad[4];         /* Pad to 64-bits. */
+
 };
 OFP_ASSERT(sizeof(struct ofp_port_mod) == 32);
 
@@ -343,7 +347,7 @@ struct ofp_packet_in {
 OFP_ASSERT(sizeof(struct ofp_packet_in) == 20);
 
 enum ofp_action_type {
-    OFPAT_OUTPUT,           /* Output to switch port. */
+    OFPAT_OUTPUT,           /* Output to switch port or group. */
     OFPAT_SET_VLAN_VID,     /* Set the 802.1q VLAN id. */
     OFPAT_SET_VLAN_PCP,     /* Set the 802.1q priority. */
     OFPAT_STRIP_VLAN,       /* Strip the 802.1q header. */
@@ -355,6 +359,7 @@ enum ofp_action_type {
     OFPAT_SET_TP_SRC,       /* TCP/UDP source port. */
     OFPAT_SET_TP_DST,       /* TCP/UDP destination port. */
     OFPAT_ENQUEUE,          /* Output to queue.  */
+    OFPAT_GROUP,            /* Apply group. */
     OFPAT_VENDOR = 0xffff
 };
 
@@ -365,7 +370,7 @@ enum ofp_action_type {
 struct ofp_action_output {
     uint16_t type;                  /* OFPAT_OUTPUT. */
     uint16_t len;                   /* Length is 8. */
-    uint16_t port;                  /* Output port. */
+    uint32_t port;                  /* Output port. */
     uint16_t max_len;               /* Max length to send to controller. */
 };
 OFP_ASSERT(sizeof(struct ofp_action_output) == 8);
@@ -428,6 +433,14 @@ struct ofp_action_nw_tos {
 };
 OFP_ASSERT(sizeof(struct ofp_action_nw_tos) == 8);
 
+/* Action structure for OFPAT_GROUP. */
+struct ofp_action_group {
+    uint16_t type;                  /* OFPAT_GROUP. */
+    uint16_t len;                   /* Length is 8. */
+    uint32_t group_id;              /* Group identifier. */
+};
+OFP_ASSERT(sizeof(struct ofp_action_group) == 8);
+
 /* Action header for OFPAT_VENDOR. The rest of the body is vendor-defined. */
 struct ofp_action_vendor_header {
     uint16_t type;                  /* OFPAT_VENDOR. */
@@ -469,6 +482,13 @@ enum ofp_flow_mod_command {
     OFPFC_MODIFY_STRICT,    /* Modify entry strictly matching wildcards */
     OFPFC_DELETE,           /* Delete all matching flows. */
     OFPFC_DELETE_STRICT     /* Strictly match wildcards and priority. */
+};
+
+/* Group commands */
+enum ofp_group_mod_command {
+    OFPGC_ADD,              /* New group. */
+    OFPGC_MODIFY,           /* Modify all matching groups. */
+    OFPGC_DELETE,           /* Delete all matching groups. */
 };
 
 /* Flow wildcards. */
@@ -530,7 +550,7 @@ enum ofp_flow_wildcards {
 /* Fields to match against flows */
 struct ofp_match {
     uint32_t wildcards;        /* Wildcard fields. */
-    uint16_t in_port;          /* Input switch port. */
+    uint32_t in_port;          /* Input switch port. */
     uint8_t dl_src[OFP_ETH_ALEN]; /* Ethernet source address. */
     uint8_t dl_dst[OFP_ETH_ALEN]; /* Ethernet destination address. */
     uint16_t dl_vlan;          /* Input VLAN id. */
@@ -540,7 +560,6 @@ struct ofp_match {
     uint8_t nw_tos;            /* IP ToS (actually DSCP field, 6 bits). */
     uint8_t nw_proto;          /* IP protocol or lower 8 bits of
                                 * ARP opcode. */
-    uint8_t pad2[2];           /* Align to 64-bits */
     uint32_t nw_src;           /* IP source address. */
     uint32_t nw_dst;           /* IP destination address. */
     uint16_t tp_src;           /* TCP/UDP source port. */
@@ -637,6 +656,43 @@ struct ofp_flow_mod {
 };
 OFP_ASSERT(sizeof(struct ofp_flow_mod) == 72);
 
+/* Group setup and teardown (controller -> datapath). */
+struct ofp_group_mod {
+    struct ofp_header header;
+    uint16_t command;             /* One of OFPGC_*. */
+    uint8_t type;                 /* One of OFPGT_*. */
+    unit8_t pad;                  /* Pad to 64 bits. */
+    uint32_t group_id;            /* Group identifier. */
+    struct ofp_bucket buckets[0]; /* The bucket length is inferred from the
+                                     length field in the header. */
+};
+OFP_ASSERT(sizeof(struct ofp_group_mod) == 16);
+
+/* Group types.  Values in the range [128, 255] are reserved for experimental
+ * use. */
+enum ofp_group_type {
+    OFPGT_FLOOD,    /* Flood group.  */
+    OFPGT_MPATH,    /* Multipath group. */
+    OFPGT_INDIRECT, /* Indirect group. */
+    OFPGT_FF        /* Fast failover group. */
+};
+
+/* Bucket for use in groups. */
+struct ofp_bucket {
+    uint16_t len;                   /* Length the bucket in bytes, including
+                                       this header and any padding to make it
+                                       64-bit aligned. */
+    uint16_t weight;                /* Relative weight of bucket.  Only
+                                       defined for multipath groups. */
+    uint32_t port;                  /* Port whose state affects whether this
+                                       bucket is live.  Only defined for fast
+                                       failover groups. */
+    struct ofp_action_header actions[0]; /* The action length is inferred
+                                           from the length field in the
+                                           header. */
+};
+OFP_ASSERT(sizeof(struct ofp_action_header) == 8);
+
 /* Why was this flow removed? */
 enum ofp_flow_removed_reason {
     OFPRR_IDLE_TIMEOUT,         /* Flow idle time exceeded idle_timeout. */
@@ -672,6 +728,7 @@ enum ofp_error_type {
     OFPET_BAD_REQUEST,          /* Request was not understood. */
     OFPET_BAD_ACTION,           /* Error in action description. */
     OFPET_FLOW_MOD_FAILED,      /* Problem modifying flow entry. */
+    OFPET_GROUP_MOD_FAILED,     /* Problem modifying group entry. */
     OFPET_PORT_MOD_FAILED,      /* Port mod request failed. */
     OFPET_QUEUE_OP_FAILED       /* Queue operation failed. */
 };
@@ -706,11 +763,13 @@ enum ofp_bad_action_code {
     OFPBAC_BAD_LEN,            /* Length problem in actions. */
     OFPBAC_BAD_VENDOR,         /* Unknown vendor id specified. */
     OFPBAC_BAD_VENDOR_TYPE,    /* Unknown action type for vendor id. */
-    OFPBAC_BAD_OUT_PORT,       /* Problem validating output action. */
+    OFPBAC_BAD_OUT_PORT,       /* Invalid port in forward action. */
     OFPBAC_BAD_ARGUMENT,       /* Bad action argument. */
     OFPBAC_EPERM,              /* Permissions error. */
     OFPBAC_TOO_MANY,           /* Can't handle this many actions. */
-    OFPBAC_BAD_QUEUE           /* Problem validating output queue. */
+    OFPBAC_BAD_QUEUE,          /* Problem validating output queue. */
+    OFPBAC_GROUP_CHAINING_UNSUPPORTED  /* Group chaining unsupported. */
+    OFPBAC_BAD_OUT_GROUP,        /* Invalid group id in forward action. */
 };
 
 /* ofp_error_msg 'code' values for OFPET_FLOW_MOD_FAILED.  'data' contains
@@ -728,6 +787,24 @@ enum ofp_flow_mod_failed_code {
     OFPFMFC_TABLE_FULL,         /* Table specified by the flow mod */
     OFPFMFC_BAD_INSTRUCTION     /* Unsupported instruction specified by the
                                    flow mod */
+};
+
+/* ofp_error_msg 'code' values for OFPET_GROUP_MOD_FAILED.  'data' contains
+ * at least the first 64 bytes of the failed request. */
+enum ofp_group_mod_failed_code {
+    OFPGMFC_GROUP_EXISTS,             /* Group not added because a group ADD
+                                       * attempted to replace an
+                                       * already-present group. */
+    OFPGMFC_INVALID_GROUP,            /* Group not added because Group specified
+                                       *is invalid. */
+    OFPGMFC_NON_EQUAL_MP_UNSUPPORTED, /* Switch does not support unequal load
+                                       * sharing with multipath groups. */
+    OFPGMFC_OUT_OF_GROUPS,            /* The group table is full. */
+    OFPGMFC_GROUP_OUT_OF_MP_MEMBERS,  /* The maximum number of action buckets
+                                       * for a group has been exceeded. */
+    OFPGMFC_CHAINING_UNSUPPORTED,     /* Switch does not support groups that
+                                       * forward to groups. */
+    OFPGMFC_LOOP                      /* Group entry would cause a loop. */
 };
 
 /* ofp_error_msg 'code' values for OFPET_PORT_MOD_FAILED.  'data' contains
@@ -787,6 +864,16 @@ enum ofp_stats_types {
      * The reply body is an array of struct ofp_queue_stats */
     OFPST_QUEUE,
 
+    /* Group counter statistics.
+     * The request body is empty.
+     * The reply is struct ofp_group_stats. */
+    OFPST_GROUP,
+
+    /* Group description statistics.
+     * The request body is empty.
+     * The reply body is struct ofp_group_desc_stats. */
+    OFPST_GROUP_DESC,
+
     /* Vendor extension.
      * The request and reply bodies begin with a 32-bit vendor ID, which takes
      * the same form as in "struct ofp_vendor_header".  The request and reply
@@ -832,12 +919,12 @@ struct ofp_flow_stats_request {
     struct ofp_match match;   /* Fields to match. */
     uint8_t table_id;         /* ID of table to read (from ofp_table_stats),
                                  0xff for all tables or 0xfe for emergency. */
-    uint8_t pad;              /* Align to 32 bits. */
-    uint16_t out_port;        /* Require matching entries to include this
+    uint8_t pad[3];           /* Align to 64 bits. */
+    uint32_t out_port;        /* Require matching entries to include this
                                  as an output port.  A value of OFPP_NONE
                                  indicates no restriction. */
 };
-OFP_ASSERT(sizeof(struct ofp_flow_stats_request) == 44);
+OFP_ASSERT(sizeof(struct ofp_flow_stats_request) == 48);
 
 /* Body of reply to OFPST_FLOW request. */
 struct ofp_flow_stats {
@@ -865,12 +952,12 @@ struct ofp_aggregate_stats_request {
     struct ofp_match match;   /* Fields to match. */
     uint8_t table_id;         /* ID of table to read (from ofp_table_stats)
                                  0xff for all tables or 0xfe for emergency. */
-    uint8_t pad;              /* Align to 32 bits. */
-    uint16_t out_port;        /* Require matching entries to include this
+    uint8_t pad[3];           /* Align to 64 bits. */
+    uint32_t out_port;        /* Require matching entries to include this
                                  as an output port.  A value of OFPP_NONE
                                  indicates no restriction. */
 };
-OFP_ASSERT(sizeof(struct ofp_aggregate_stats_request) == 44);
+OFP_ASSERT(sizeof(struct ofp_aggregate_stats_request) == 48);
 
 /* Body of reply to OFPST_AGGREGATE request. */
 struct ofp_aggregate_stats_reply {
@@ -903,19 +990,19 @@ OFP_ASSERT(sizeof(struct ofp_table_stats) == 76)
 
 /* Body for ofp_stats_request of type OFPST_PORT. */
 struct ofp_port_stats_request {
-    uint16_t port_no;        /* OFPST_PORT message must request statistics
+    uint32_t port_no;        /* OFPST_PORT message must request statistics
                               * either for a single port (specified in
                               * port_no) or for all ports (if port_no ==
                               * OFPP_NONE). */
-    uint8_t pad[6];
+    uint8_t pad[4];
 };
 OFP_ASSERT(sizeof(struct ofp_port_stats_request) == 8);
 
 /* Body of reply to OFPST_PORT request. If a counter is unsupported, set
  * the field to all ones. */
 struct ofp_port_stats {
-    uint16_t port_no;
-    uint8_t pad[6];          /* Align to 64-bits. */
+    uint32_t port_no;
+    uint8_t pad[4];          /* Align to 64-bits. */
     uint64_t rx_packets;     /* Number of received packets. */
     uint64_t tx_packets;     /* Number of transmitted packets. */
     uint64_t rx_bytes;       /* Number of received bytes. */
@@ -936,6 +1023,49 @@ struct ofp_port_stats {
     uint64_t collisions;     /* Number of collisions. */
 };
 OFP_ASSERT(sizeof(struct ofp_port_stats) == 104);
+
+/* Body of OFPST_GROUP request. */
+struct ofp_group_stats_request {
+    uint32_t group_id;       /* All groups if OFPG_ALL. */
+    uint8_t pad[4];          /* Align to 64 bits. */
+};
+OFP_ASSERT(sizeof(struct ofp_group_stats_request) == 8);
+
+/* All ones is used to indicate all groups on a switch. */
+#define OFPG_ALL      0xffffffff
+
+/* Body of reply to OFPST_GROUP request. */
+struct ofp_group_stats {
+    uint16_t length;         /* Length of this entry. */
+    uint8_t pad[2];          /* Align to 64 bits. */
+    uint32_t group_id;       /* Group identifier. */
+    uint32_t ref_count;      /* Number of flows or groups that directly forward
+                                to this group. */
+    uint8_t pad2[4];         /* Align to 64 bits. */
+    uint64_t packet_count;   /* Number of packets processed by group. */
+    uint64_t byte_count;     /* Number of bytes processed by group. */
+    struct ofp_bucket_counter bucket_stats[0];
+};
+OFP_ASSERT(sizeof(struct ofp_group_stats) == 32);
+
+/* Used in group stats replies. */
+struct ofp_bucket_counter {
+    uint64_t packet_count;   /* Number of packets processed by bucket. */
+    uint64_t byte_count;     /* Number of bytes processed by bucket. */
+};
+OFP_ASSERT(sizeof(struct ofp_bucket_counter) == 16);
+
+/* Body of reply to OFPST_GROUP_DESC request. */
+struct ofp_group_desc_stats {
+    uint16_t length;              /* Length of this entry. */
+    uint8_t type;                 /* One of OFPGT_*. */
+    uint8_t pad;                  /* Pad to 64 bits. */
+    uint32_t group_id;            /* Group identifier. */
+    uint64_t param;               /* Multipath only.  Meaning depends on value
+                                     of select field. */
+    struct ofp_bucket buckets[0];
+};
+OFP_ASSERT(sizeof(struct ofp_group_desc_stats) == 16);
 
 /* Vendor extension. */
 struct ofp_vendor_header {
@@ -989,17 +1119,16 @@ OFP_ASSERT(sizeof(struct ofp_packet_queue) == 8);
 /* Query for port queue configuration. */
 struct ofp_queue_get_config_request {
     struct ofp_header header;
-    uint16_t port;         /* Port to be queried. Should refer
+    uint32_t port;         /* Port to be queried. Should refer
                               to a valid physical port (i.e. < OFPP_MAX) */
-    uint8_t pad[2];        /* 32-bit alignment. */
 };
 OFP_ASSERT(sizeof(struct ofp_queue_get_config_request) == 12);
 
 /* Queue configuration for a given port. */
 struct ofp_queue_get_config_reply {
     struct ofp_header header;
-    uint16_t port;
-    uint8_t pad[6];
+    uint32_t port;
+    uint8_t pad[4];
     struct ofp_packet_queue queues[0]; /* List of configured queues. */
 };
 OFP_ASSERT(sizeof(struct ofp_queue_get_config_reply) == 16);
@@ -1008,24 +1137,22 @@ OFP_ASSERT(sizeof(struct ofp_queue_get_config_reply) == 16);
 struct ofp_action_enqueue {
     uint16_t type;            /* OFPAT_ENQUEUE. */
     uint16_t len;             /* Len is 16. */
-    uint16_t port;            /* Port that queue belongs. Should
+    uint32_t port;            /* Port that queue belongs. Should
                                  refer to a valid physical port
                                  (i.e. < OFPP_MAX) or OFPP_IN_PORT. */
-    uint8_t pad[6];           /* Pad for 64-bit alignment. */
+    uint8_t pad[4];           /* Pad for 64-bit alignment. */
     uint32_t queue_id;        /* Where to enqueue the packets. */
 };
 OFP_ASSERT(sizeof(struct ofp_action_enqueue) == 16);
 
 struct ofp_queue_stats_request {
-    uint16_t port_no;        /* All ports if OFPT_ALL. */
-    uint8_t pad[2];          /* Align to 32-bits. */
+    uint32_t port_no;        /* All ports if OFPT_ALL. */
     uint32_t queue_id;       /* All queues if OFPQ_ALL. */
 };
 OFP_ASSERT(sizeof(struct ofp_queue_stats_request) == 8);
 
 struct ofp_queue_stats {
-    uint16_t port_no;
-    uint8_t pad[2];          /* Align to 32-bits. */
+    uint32_t port_no;
     uint32_t queue_id;       /* Queue i.d */
     uint64_t tx_bytes;       /* Number of transmitted bytes. */
     uint64_t tx_packets;     /* Number of transmitted packets. */
