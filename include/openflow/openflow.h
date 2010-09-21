@@ -613,8 +613,9 @@ enum ofp_group_select {
 enum ofp_group_type {
     OFPGT_FLOOD,    /* Flood group.  */
     OFPGT_MPATH,    /* Multipath group. */
-    OFPGT_FF,       /* Fast failover group. */
-    OFPGT_INDIRECT  /* Indirect group. */
+    OFPGT_INDIRECT, /* Indirect group. */
+    OFPGT_FF        /* Fast failover group. */
+
 };
 
 /* Bucket for use in groups. */
