@@ -37,53 +37,59 @@
 \maketitle
 
 \section{Introduction}
-This document describes the requirements of an OpenFlow Switch.  We recommend that you read the latest version of the OpenFlow whitepaper before reading this specification. The whitepaper is available on the  OpenFlow Consortium website (\url{http://OpenFlowSwitch.org}). This specification covers the components and the basic functions of the switch, and the OpenFlow protocol to manage an OpenFlow switch from a remote controller.
+This document describes the requirements of an OpenFlow Switch.  We recommend that you read the latest version of the OpenFlow whitepaper before reading this specification. The whitepaper is available on the  OpenFlow Consortium website (\url{http://openflow.org}). This specification covers the components and the basic functions of the switch, and the OpenFlow protocol to manage an OpenFlow switch from a remote controller.
 \\\\
-Version 1.0 of this document will be the first for which official vendor support is expected.  Versions before 1.0 will be marked ``Draft", and will include the header: ``Do not build a switch from this specification!" We hope to generate feedback prior to Version 1.0 from switch designers and network researchers, so that the set of features defined in Version 1.0 enables production deployments on a variety of vendor hardware.
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[height=2.5in]{figure_flow_table_secchan.png}
+\includegraphics[height=2.5in]{figure_flow_tables_secchan.png}
 \caption{An OpenFlow switch communicates with a controller over a secure connection using the OpenFlow protocol.}
 \label{fig:flow table and controller}
 \end{figure}
 
 \section{Switch Components}
-An OpenFlow Switch consists of a \emph{flow table}, which performs packet lookup and forwarding, and a \emph{secure channel} to an external controller (Figure \ref{fig:flow table and controller}).  The controller manages the switch over the secure channel using the OpenFlow protocol.
+An OpenFlow Switch consists of one or more \emph{flow tables}, which perform packet lookups and forwarding. It also consists of a \emph{secure channel} to an external controller (Figure \ref{fig:flow table and controller}).  The controller manages the switch over the secure channel using the OpenFlow protocol.
 \\\\
-The flow table contains a set of flow entries (header values to match packets against), activity counters, and a set of zero or more actions to apply to matching packets.  All packets processed by the switch are compared against the flow table.  If a matching entry is found, any actions for that entry are performed on the packet (e.g., the action might be to forward a packet out a specified port).  If no match is found, the packet is forwarded to the controller over the secure channel.  The controller is responsible for determining how to handle packets without valid flow entries, and it manages the switch flow table by adding and removing flow entries.
+Each flow table contains a set of flow entries (header values to match packets against), activity counters, and a set of instructions to apply to matching packets.  Flow entries match packets in priority order. If a matching entry is found, the instructions associated with the specific flow entry are executed. If no match is found in a flow table, the packet is forwarded to the controller over the secure channel. The controller is responsible for determining how to handle packets without valid flow entries, and it manages the switch flow tables by adding, removing, and updating flow entries.
 \\\\
-Flow entries may forward packets to one or more OpenFlow ports.   In general, these are physical ports, but the protocol does not preclude abstractions like port aggregations or VLAN traffic on a port appearing as an OpenFlow port.  OpenFlow ports have limited state such as ``up'', ``down'' and whether spanning tree flood packets should be forwarded out the port.  Additional configuration of ports may handled by the OpenFlow configuration protocol.  There are several OpenFlow virtual ports used to indicate, for example, flooding or the ingress port (see \ref{ft:actions}).
+Matching starts at the first table and may continue to additional tables. Flow entries may include actions to modify and/or forward the packet, as well as instructions to modify the pipeline processing.  Flow entries may also specify the next table in the pipeline as well as metadata that may be matched in that table. Table pipeline processing is stopped when a next table is not specified.
+\\\\
+Packets are forwarded to ports. This usually indicates a physical port but it could also indicate a variety of virtual ports such as multicast, multipath and fast-failover. In addition, there are reserved virtual ports that specify generic forwarding actions such as sending to the controller, flooding or normal forwarding using non-OpenFlow methods (see \ref{ft:actions}).
+\\\\
+OpenFlow ports have limited state such as ``up'', ``down'' and whether spanning tree flood packets should be forwarded out the port.
 
-\section{Flow Table}
+\section{Flow Tables}
 This section describes the components of flow table entries and the process by which incoming packets are matched against flow table entries.  
+
+\subsection{Flow Table Entry}
+\label{ft:flowtableentry}
 
 \begin{table}[hbp]
 \centering
 \begin{tabular}{|c|c|c|}
 \hline	
-Header Fields & Counters & Actions\\ 
+Match Fields & Counters & Instructions\\ 
 \hline	
 \end{tabular}
-\caption{A flow entry consists of header fields, counters, and actions.}
+\caption{A flow entry consists of match fields, counters, and instructions.}
 \label{table:flow entry}
 \end{table}
 
 Each flow table entry (see Table \ref{table:flow entry}) contains: 
 \begin{itemize} 
-\item \textbf{header fields} to match against packets 
-\item \textbf{counters} to update for matching packet 
-\item \textbf{actions} to apply to matching packets 
+\item \textbf{match fields} to match against packets. These include the ingress port, packet headers, and may include metadata specified by a previous table.
+\item \textbf{counters} to update for matching packet
+\item \textbf{instructions} to modify the action set or pipeline processing.
 \end{itemize} 
 
-\subsection{Header Fields}
 \begin{table}[hbp]
 \centering
 \footnotesize
-\begin{tabularx}{\textwidth}{ |X|X|X|X|X|X|X|X|X|X|X|X| }
+\begin{tabularx}{\textwidth}{ |X|X|X|X|X|X|X|X|X|X|X|X|X| }
 \hline
-Ingress Port &
-Ether source &
+In Port &
+Meta data &
+Ether src&
 Ether dst &
 Ether type &
 VLAN id &
@@ -101,7 +107,8 @@ TCP/ UDP dst port
 \label{table:header fields}
 \end{table}
 
-Table \ref{table:header fields} shows the header fields an incoming packet is compared against. Each entry contains a specific value, or ANY, which matches any value. If the switch supports subnet masks on the IP source and/or destination fields, these can more precisely specify matches.  The fields in the OpenFlow 12-tuple are listed in Table \ref{table:header fields} and details on the properties of each field are described in Table \ref{table:header field details}.
+\subsection{Match Fields}
+Table \ref{table:header fields} shows the match fields an incoming packet is compared against. Each entry contains a specific value, or ANY, which matches any value. If the switch supports subnet masks on the IP source and/or destination fields, these can more precisely specify matches.  The fields in the OpenFlow n-tuple are listed in Table \ref{table:header fields} and details on the properties of each field are described in Table \ref{table:header field details}. In addition to packet headers, matches can also be performed against the ingress port and metadata fields. Metadata may be used to pass information between tables in a switch.
 \\\\
 \begin{table}[hbp]
 \centering
@@ -109,6 +116,7 @@ Table \ref{table:header fields} shows the header fields an incoming packet is co
 \begin{tabularx}{\textwidth}{ |X|X|X|X| }
 \hline Field & Bits & When applicable & Notes \\
 \hline Ingress Port & (Implementation dependent) & All packets & Numerical representation of incoming port, starting at 1.  \\
+\hline Metadata & 64 & On table 1 and above & \\
 \hline Ethernet source address & 48 & All packets on enabled ports & \\
 \hline Ethernet destination address & 48 & All packets on enabled ports & \\ 
 \hline Ethernet type & 16 & All packets on enabled ports & An OpenFlow switch is required to match the type in both standard Ethernet and 802.2 with a SNAP header and OUI of 0x000000.  The special value of 0x05FF is used to match all 802.3 packets without SNAP headers. \\
@@ -124,12 +132,11 @@ Table \ref{table:header fields} shows the header fields an incoming packet is co
 \end{tabularx}
 \caption{Field lengths and the way they must be applied to flow entries.}
 \label{table:header field details}
-\end{table}Switch designers are free to implement the internals in any way convenient provided that correct functionality is preserved.  For example, while a flow may have multiple forward actions, each specifying a different port, a switch designer may choose to implement this as a single bitmask within the hardware forwarding table.
+\end{table}Switch designers are free to implement the internals in any way convenient provided that correct functionality is preserved. For example, a flow may forward to a group that eventually forwards to multiple ports, a switch designer may choose to implement this as a single bitmask within the hardware forwarding table.
 
 \subsection{Counters}
 
-Counters are maintained per-table, per-flow, \qosupd{per-port and
-  per queue}.  OpenFlow-compliant counters may be implemented in software and maintained by polling hardware counters with more limited ranges.
+Counters are maintained per-table, per-flow, \qosupd{per-port and per-queue}.  OpenFlow-compliant counters may be implemented in software and maintained by polling hardware counters with more limited ranges.
 \\\\
 Table \ref{table:counters} contains the required set of counters.  Duration refers to the time the flow has been installed in the switch.  The Receive Errors field includes all explicitly specified errors, including frame, overrun, and CRC errors, plus any others.  Counters wrap around with no overflow indicator.  In this document, the phrase byte refers to 8-bit octets.
 \begin{table}[!hbp] 	
@@ -170,11 +177,37 @@ Table \ref{table:counters} contains the required set of counters.  Duration refe
 \label{table:counters}
 \end{table}
 
+\subsection{Instructions}
+\label{ft:instructions}
+Each flow entry is associated with a set of instructions that are executed when a packet matches the entry. These instructions result in changes to the action set and/or pipeline processing (see: \ref{ft:actionset}). Supported instructions include:
+\begin{itemize} 
+\item \textbf{Goto-Table \textit{next-table-id}} : Indicates the next table in the processing pipeline. The table-id must be greater than the current table-id.
+\item \textbf{Write-Metadata \textit{metadata / mask}} : Writes the masked metadata value into the metadata field.
+\item \textbf{Write-Actions \textit{action(s)}} : Merges the specified action(s) into the current action set.  If the action exists in current set, overwrite it, otherwise add it.
+\item \textbf{Apply-Actions \textit{action(s)}} : Applies the specific action(s) immediately, without any change to the Action Set.
+\item \textbf{Clear-Actions} : Clears all the actions in the action set immediately.
+\end{itemize} 
+
+A switch may reject a flow entry if it is unable to execute the instructions associated with the flow entry. In this case, the switch must return an unsupported flow error (see \ref{unsupported_flow}).  Flow tables may not support every match and every instruction.
+
+\subsection{Action Set}
+\label{ft:actionset}
+Each packet that matches a flow entry is associated with an action set. This set is empty by default. A flow entry can interact with the action set using instructions associated with a particular match. The action set is carried between flow tables. When there is no \textit{Goto-Table} instruction, the actions in the action set are executed. If the action set does not contact an output action, the packet will be dropped. The actions may be executed in arbitrary order, except for the output action, which is executed last.
+\\\\
+An action set has a single action of each type. When multiple actions of the same type are required, e.g. pushing multiple MPLS labels or popping multiple MPLS labels, the \emph{Apply-Actions} instruction may be used.
+\\\\
+If a packet does not match any entry in a flow table, it is forwarded to the controller. The controller can forward or drop the packet. It can also respond by installing appropriate flow entries so the switch can match and handle the packet. The controller can also prevent this default behavior by installing a catch-all low priority flow entry, dropping unmatched packets.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[height=1.85in]{figure_packet_flow.png}
+\caption{Packets are matched against multiple tables in the pipeline}
+\label{fig:packet flow multiple tables}
+\end{figure}
+
 \subsection{Actions}
 \label{ft:actions}
-Each flow entry is associated with zero or more actions that dictate how the switch handles matching packets.  If no forward actions are present, the packet is dropped.  Action lists for \emph{inserted} flow entries MUST be processed in the order specified.  However, there is no packet output ordering guaranteed within a port.   For example, an action list may result in two packets sent to two different VLANs on a single port.  These two packets may be arbitrarily re-ordered, but the packet bodies must match those generated from a sequential execution of the actions.
-\\\\
-A switch may reject a flow entry if it cannot process the action list in the order specified, in which case it should immediately return an unsupported flow error (see \ref{unsupported_flow}).  Ordering within a port may vary between vendor switch implementations.
+Each packet is associated with an action set \ref{ft:actionset}. The action set dictates how the switch modifies or forwards a packet.  This action set is executed when a matching flow entry does not specify a \textit{Goto-Table} instruction. If no output actions is present in the action set, the packet is dropped. Actions in the action set are processed in arbitrary order, except for the output action, which is executed last.
 \\\\
 A switch is not required to support all action types --- just those marked ``Required Actions'' below. When connecting to the controller, a switch indicates which of the ``Optional Actions'' it supports.  OpenFlow-compliant switches come in two types: \emph{OpenFlow-only}, and \emph{OpenFlow-enabled}. 
 \\\\
@@ -275,8 +308,8 @@ This action is only applied to TCP and UDP packets.\\
 \subsection{Matching}
 \begin{figure}[!htb]
 \centering
-\includegraphics[height=1.85in]{packet_flow_flowchart}
-\caption{Packet flow in an OpenFlow switch.  As discussed in Section \ref{flow_table:stp_support}, support for 802.1D is optional.}
+\includegraphics[height=1.6in]{packet_flow_flowchart}
+\caption{Packet flow in an OpenFlow switch.}
 \label{fig:packet_flow}
 \end{figure}
 
@@ -303,7 +336,7 @@ A packet matches a flow table entry if the values in the header fields used for 
 \\\\
 To handle the various Ethernet framing types, matching the Ethernet type is handled in a slightly different manner.  If the packet is an Ethernet II frame, the Ethernet type is handled in the expected way.  If the packet is an 802.3 frame with a SNAP header and Organizationally Unique Identifier (OUI) of 0x000000, the SNAP protocol id is matched against the flow’s Ethernet type.  A flow entry that specifies an Ethernet type of 0x05FF, matches all Ethernet 802.2 frames without a SNAP header and those with SNAP headers that do not have an OUI of 0x000000.  
 \\\\
-Packets are matched against flow entries based on prioritization.  An entry that specifies an exact match (i.e., it has no wildcards) is always the highest priority.  All wildcard entries have a priority associated with them.  Higher priority entries must match before lower priority ones.  If multiple entries have the same priority, the switch is free to choose any ordering.  Higher numbers have higher priorities.
+Packets are matched against flow entries based on prioritization. Higher priority entries must match before lower priority ones.  If multiple entries have the same priority, the switch is free to choose any ordering.  Higher numbers have higher priorities.
 \\\\
 For each packet that matches a flow entry, the associated counters for that entry are updated.  If no matching entry can be found for a packet, the packet is sent to the controller over the secure channel.
 
@@ -405,7 +438,7 @@ DELETE and DELETE\_STRICT commands can be optionally filtered by output port.  I
 \\\\
 Emergency flow mod messages must have timeout values set to zero.  Otherwise, the switch must refuse the addition and respond with an \verb|ofp_error_msg| with \verb|OFPET_FLOW_MOD_FAILED| type and \verb|OFPFMFC_BAD_EMERG_TIMEOUT| code.
 \\\\
-\label{unsupported_flow}If a switch cannot process the action list for any flow mod message in the order specified, it MUST immediately return an \verb|OFPET_FLOW_MOD_FAILED| :
+\label{unsupported_flow}If a switch cannot process the action list for any flow mod message in the order specified, it must immediately return an \verb|OFPET_FLOW_MOD_FAILED| :
 \verb|OFPFMFC_UNSUPPORTED| error and reject the flow.
 
 \subsection{Flow Removal}

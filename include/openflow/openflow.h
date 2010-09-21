@@ -158,10 +158,19 @@ struct ofp_hello {
 
 enum ofp_config_flags {
     /* Handling of IP fragments. */
-    OFPC_FRAG_NORMAL   = 0,  /* No special handling for fragments. */
-    OFPC_FRAG_DROP     = 1,  /* Drop fragments. */
-    OFPC_FRAG_REASM    = 2,  /* Reassemble (only if OFPC_IP_REASM set). */
-    OFPC_FRAG_MASK     = 3
+    OFPC_FRAG_NORMAL   = 0,       /* No special handling for fragments. */
+    OFPC_FRAG_DROP     = 1 << 0,  /* Drop fragments. */
+    OFPC_FRAG_REASM    = 1 << 1,  /* Reassemble (only if OFPC_IP_REASM set). */
+    OFPC_FRAG_MASK     = 3,
+
+    /* Handling of packets that don't match in the table. The default
+       behavior is SEND_TO_CONTROLLER */
+    OFPC_TABLE_MISS_CONTINUE = 1 << 2,  /* OpenFlow 1.0 behavior */
+    OFPC_TABLE_MISS_DROP = 1 << 3,      /* Drop if no match in table */
+
+    /* TTL processing - applicable for IP and MPLS packets */
+    OFPC_INVALID_TTL_TO_CONTROLLER = 1 << 4, /* Send packets with invalid TTL
+                                                ie. 0 or 1 to controller */
 };
 
 /* Switch configuration. */
@@ -266,7 +275,7 @@ struct ofp_switch_features {
 
     /* Features. */
     uint32_t capabilities;  /* Bitmap of support "ofp_capabilities". */
-    uint32_t actions;       /* Bitmap of supported "ofp_action_type"s. */
+    uint32_t reserved;
 
     /* Port info.*/
     struct ofp_phy_port ports[0];  /* Port definitions.  The number of ports
@@ -323,7 +332,7 @@ struct ofp_packet_in {
     uint16_t total_len;     /* Full length of frame. */
     uint16_t in_port;       /* Port on which frame was received. */
     uint8_t reason;         /* Reason packet is being sent (one of OFPR_*) */
-    uint8_t pad;
+    uint8_t table_id;       /* ID of the table that was looked up */
     uint8_t data[0];        /* Ethernet frame, halfway through 32-bit word,
                                so the IP header is 32-bit aligned.  The
                                amount of data is inferred from the length
@@ -459,7 +468,7 @@ enum ofp_flow_mod_command {
     OFPFC_MODIFY,           /* Modify all matching flows. */
     OFPFC_MODIFY_STRICT,    /* Modify entry strictly matching wildcards */
     OFPFC_DELETE,           /* Delete all matching flows. */
-    OFPFC_DELETE_STRICT    /* Strictly match wildcards and priority. */
+    OFPFC_DELETE_STRICT     /* Strictly match wildcards and priority. */
 };
 
 /* Flow wildcards. */
@@ -491,8 +500,10 @@ enum ofp_flow_wildcards {
     OFPFW_DL_VLAN_PCP = 1 << 20,  /* VLAN priority. */
     OFPFW_NW_TOS = 1 << 21,  /* IP ToS (DSCP field, 6 bits). */
 
+    OFPFW_METADATA = 1 << 22, /* Metadata field */
+
     /* Wildcard all fields. */
-    OFPFW_ALL = ((1 << 22) - 1)
+    OFPFW_ALL = ((1 << 23) - 1)
 };
 
 /* The wildcards for ICMP type and code fields use the transport source
@@ -534,8 +545,10 @@ struct ofp_match {
     uint32_t nw_dst;           /* IP destination address. */
     uint16_t tp_src;           /* TCP/UDP source port. */
     uint16_t tp_dst;           /* TCP/UDP destination port. */
+    uint64_t metadata;         /* Metadata passed between tables. */
+    uint64_t metadata_mask;    /* Mask for metadata. */
 };
-OFP_ASSERT(sizeof(struct ofp_match) == 40);
+OFP_ASSERT(sizeof(struct ofp_match) == 56);
 
 /* The match fields for ICMP type and code use the transport source and
  * destination port fields, respectively. */
@@ -548,6 +561,51 @@ OFP_ASSERT(sizeof(struct ofp_match) == 40);
 
 /* By default, choose a priority in the middle. */
 #define OFP_DEFAULT_PRIORITY 0x8000
+
+enum ofp_instruction_type {
+    OFPIT_GOTO_TABLE = 1,       /* Setup the next table in the lookup
+                                   pipeline */
+    OFPIT_WRITE_METADATA = 2,   /* Setup the metadata field for use in later
+                                   pipelines */
+    OFPIT_WRITE_ACTIONS = 3,    /* Write the action(s) onto the datapath action
+                                   set */
+    OFPIT_APPLY_ACTIONS = 4,    /* Applies the action(s) immediately */
+    OFPIT_CLEAR_ACTIONS = 5,    /* Clears all actions from the datapath
+                                   action set */
+
+    OFPI_VENDOR = 0xFFFF        /* Vendor instruction */
+};
+
+struct ofp_instruction_goto_table {
+    uint16_t type;                /* OFPI_GOTO_TABLE */
+    uint16_t len;                 /* Length of this struct in bytes. */
+    uint8_t table_id;             /* Set next table in the lookup pipeline */
+    uint8_t pad[3];               /* Pad to 64 bits. */
+};
+OFP_ASSERT(sizeof(struct ofp_instruction_goto_table) == 8);
+
+struct ofp_instruction_write_metadata {
+    uint16_t type;                /* OFPI_WRITE_METADATA */
+    uint16_t len;                 /* Length of this struct in bytes. */
+    uint64_t metadata;            /* Metadata value to write */
+    uint64_t metadata_mask;       /* Metadata write bitmask */
+};
+OFP_ASSERT(sizeof(struct ofp_instruction_write_metadata) == 20);
+
+struct ofp_instruction_actions {
+    uint16_t type;              /* One of OFPI_*_ACTIONS */
+    uint16_t len;               /* Length of this struct in bytes. */
+    struct ofp_action_header actions[0];  /* Actions associated with
+                                             OFPI_WRITE_ACTIONS and
+                                             OFPI_APPLY_ACTIONS */
+};
+OFP_ASSERT(sizeof(ofp_instruction_actions) == 12);
+
+struct ofp_instruction_vendor {
+    uint16_t type;		/* OFPI_VENDOR */
+    uint16_t len;               /* Length of this struct in bytes */
+};
+OFP_ASSERT(sizeof(ofp_instruction_vendor) == 4);
 
 enum ofp_flow_mod_flags {
     OFPFF_SEND_FLOW_REM = 1 << 0,  /* Send flow removed message when flow
@@ -563,7 +621,8 @@ struct ofp_flow_mod {
     uint64_t cookie;             /* Opaque controller-issued identifier. */
 
     /* Flow actions. */
-    uint16_t command;             /* One of OFPFC_*. */
+    uint8_t table_id;             /* ID of the table to put the flow in */
+    uint8_t command;              /* One of OFPFC_*. */
     uint16_t idle_timeout;        /* Idle time before discarding (seconds). */
     uint16_t hard_timeout;        /* Max time before discarding (seconds). */
     uint16_t priority;            /* Priority level of flow entry. */
@@ -574,9 +633,7 @@ struct ofp_flow_mod {
                                      output port.  A value of OFPP_NONE
                                      indicates no restriction. */
     uint16_t flags;               /* One of OFPFF_*. */
-    struct ofp_action_header actions[0]; /* The action length is inferred
-                                            from the length field in the
-                                            header. */
+    struct ofp_instruction instructions[0]; /* Instruction set */
 };
 OFP_ASSERT(sizeof(struct ofp_flow_mod) == 72);
 
@@ -595,7 +652,7 @@ struct ofp_flow_removed {
 
     uint16_t priority;        /* Priority level of flow entry. */
     uint8_t reason;           /* One of OFPRR_*. */
-    uint8_t pad[1];           /* Align to 32-bits. */
+    uint8_t table_id;         /* ID of the table */
 
     uint32_t duration_sec;    /* Time flow was alive in seconds. */
     uint32_t duration_nsec;   /* Time flow was alive in nanoseconds beyond
@@ -638,7 +695,8 @@ enum ofp_bad_request_code {
     OFPBRC_EPERM,               /* Permissions error. */
     OFPBRC_BAD_LEN,             /* Wrong request length for type. */
     OFPBRC_BUFFER_EMPTY,        /* Specified buffer has already been used. */
-    OFPBRC_BUFFER_UNKNOWN       /* Specified buffer does not exist. */
+    OFPBRC_BUFFER_UNKNOWN,      /* Specified buffer does not exist. */
+    OFPBRC_BAD_TABLE_ID         /* Invalid table-id associated with the flow */
 };
 
 /* ofp_error_msg 'code' values for OFPET_BAD_ACTION.  'data' contains at least
@@ -665,15 +723,18 @@ enum ofp_flow_mod_failed_code {
     OFPFMFC_BAD_EMERG_TIMEOUT,  /* Flow not added because of non-zero idle/hard
                                  * timeout. */
     OFPFMFC_BAD_COMMAND,        /* Unknown command. */
-    OFPFMFC_UNSUPPORTED         /* Unsupported action list - cannot process in
+    OFPFMFC_UNSUPPORTED,        /* Unsupported action list - cannot process in
                                  * the order specified. */
+    OFPFMFC_TABLE_FULL,         /* Table specified by the flow mod */
+    OFPFMFC_BAD_INSTRUCTION     /* Unsupported instruction specified by the
+                                   flow mod */
 };
 
 /* ofp_error_msg 'code' values for OFPET_PORT_MOD_FAILED.  'data' contains
  * at least the first 64 bytes of the failed request. */
 enum ofp_port_mod_failed_code {
     OFPPMFC_BAD_PORT,            /* Specified port does not exist. */
-    OFPPMFC_BAD_HW_ADDR,         /* Specified hardware address is wrong. */
+    OFPPMFC_BAD_HW_ADDR          /* Specified hardware address is wrong. */
 };
 
 /* ofp_error msg 'code' values for OFPET_QUEUE_OP_FAILED. 'data' contains
@@ -795,7 +856,7 @@ struct ofp_flow_stats {
     uint64_t cookie;          /* Opaque controller-issued identifier. */
     uint64_t packet_count;    /* Number of packets in flow. */
     uint64_t byte_count;      /* Number of bytes in flow. */
-    struct ofp_action_header actions[0]; /* Actions. */
+    struct ofp_instruction instructions[0]; /* Instruction set. */
 };
 OFP_ASSERT(sizeof(struct ofp_flow_stats) == 88);
 
@@ -828,12 +889,17 @@ struct ofp_table_stats {
     char name[OFP_MAX_TABLE_NAME_LEN];
     uint32_t wildcards;      /* Bitmap of OFPFW_* wildcards that are
                                 supported by the table. */
+    uint32_t actions;        /* Bitmap of OFPAT_* that are supported
+                                by the table. */
+    uint32_t match;          /* Bitmap of OFPFW_* that indicate the fields
+                                the table can match on. */
+    uint32_t instructions;   /* Bitmap of OFPIT_* values supported. */
     uint32_t max_entries;    /* Max number of entries supported. */
     uint32_t active_count;   /* Number of active entries. */
     uint64_t lookup_count;   /* Number of packets looked up in table. */
     uint64_t matched_count;  /* Number of packets that hit table. */
 };
-OFP_ASSERT(sizeof(struct ofp_table_stats) == 64);
+OFP_ASSERT(sizeof(struct ofp_table_stats) == 76)
 
 /* Body for ofp_stats_request of type OFPST_PORT. */
 struct ofp_port_stats_request {
