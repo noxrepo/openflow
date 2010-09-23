@@ -44,6 +44,8 @@ The \verb|curr|, \verb|advertised|, \verb|supported|, and \verb|peer| fields ind
 
 \input{enum/ofp_port_features}
 Multiple of these flags may be set simultaneously.
+\\\\
+The \verb|curr_speed| fields indicate the current bit rate (raw transmission speed) of the link in kbps. The number should be rounded to match common usage. For example, an optical 10 Gb Ethernet port should have this field set to 10000000 (instead of 10312500), and an OC-192 port should have this field set to 10000000 (instead of 9953280).
 
 \subsubsection{\qosupd{Queue Structures}}
 \label{cts:qos}

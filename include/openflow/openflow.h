@@ -263,8 +263,9 @@ enum ofp_port_features {
 /* Description of a physical port */
 struct ofp_phy_port {
     uint32_t port_no;
+    uint8_t pad[4];
     uint8_t hw_addr[OFP_ETH_ALEN];
-    uint8_t pad2[6];                  /* Align to 64 bits. */
+    uint8_t pad2[2];                  /* Align to 64 bits. */
     char name[OFP_MAX_PORT_NAME_LEN]; /* Null-terminated */
 
     uint32_t config;        /* Bitmap of OFPPC_* flags. */
@@ -276,8 +277,11 @@ struct ofp_phy_port {
     uint32_t advertised;    /* Features being advertised by the port. */
     uint32_t supported;     /* Features supported by the port. */
     uint32_t peer;          /* Features advertised by peer. */
+
+    uint32_t curr_speed;    /* Current port bitrate in kbps. */
+    uint8_t pad3[4];        /* Align to 64 bits. */
 };
-OFP_ASSERT(sizeof(struct ofp_phy_port) == 56);
+OFP_ASSERT(sizeof(struct ofp_phy_port) == 64);
 
 /* Switch features. */
 struct ofp_switch_features {
@@ -322,20 +326,21 @@ OFP_ASSERT(sizeof(struct ofp_port_status) == 64);
 struct ofp_port_mod {
     struct ofp_header header;
     uint32_t port_no;
+    uint8_t pad[4];
     uint8_t hw_addr[OFP_ETH_ALEN]; /* The hardware address is not
                                       configurable.  This is used to
                                       sanity-check the request, so it must
                                       be the same as returned in an
                                       ofp_phy_port struct. */
-    uint8_t pad[2];         /* Pad to 64 bits. */
+    uint8_t pad2[2];        /* Pad to 64 bits. */
     uint32_t config;        /* Bitmap of OFPPC_* flags. */
     uint32_t mask;          /* Bitmap of OFPPC_* flags to be changed. */
 
-    uint32_t advertise;     /* Bitmap of "ofp_port_features"s.  Zero all
-                               bits to prevent any action taking place. */
-
+    uint32_t advertise;     /* Bitmap of OFPPF_*.  Zero all bits to prevent
+                               any action taking place. */
+    unit8_t pad3[4];        /* Pad to 64 bits. */
 };
-OFP_ASSERT(sizeof(struct ofp_port_mod) == 32);
+OFP_ASSERT(sizeof(struct ofp_port_mod) == 40);
 
 /* Why is this packet being sent to the controller? */
 enum ofp_packet_in_reason {
