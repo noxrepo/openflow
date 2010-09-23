@@ -323,7 +323,7 @@ struct ofp_packet_in {
     uint16_t total_len;     /* Full length of frame. */
     uint16_t in_port;       /* Port on which frame was received. */
     uint8_t reason;         /* Reason packet is being sent (one of OFPR_*) */
-    uint8_t pad;
+    uint8_t table_id;       /* ID of the table that was looked up */
     uint8_t data[0];        /* Ethernet frame, halfway through 32-bit word,
                                so the IP header is 32-bit aligned.  The
                                amount of data is inferred from the length
