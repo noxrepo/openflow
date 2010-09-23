@@ -266,7 +266,7 @@ struct ofp_switch_features {
 
     /* Features. */
     uint32_t capabilities;  /* Bitmap of support "ofp_capabilities". */
-    uint32_t actions;       /* Bitmap of supported "ofp_action_type"s. */
+    uint32_t reserved;
 
     /* Port info.*/
     struct ofp_phy_port ports[0];  /* Port definitions.  The number of ports
@@ -859,12 +859,14 @@ struct ofp_table_stats {
     char name[OFP_MAX_TABLE_NAME_LEN];
     uint32_t wildcards;      /* Bitmap of OFPFW_* wildcards that are
                                 supported by the table. */
+    uint32_t actions;        /* Bitmap of OFPAT_* that are supported
+                                by the table. */
     uint32_t max_entries;    /* Max number of entries supported. */
     uint32_t active_count;   /* Number of active entries. */
     uint64_t lookup_count;   /* Number of packets looked up in table. */
     uint64_t matched_count;  /* Number of packets that hit table. */
 };
-OFP_ASSERT(sizeof(struct ofp_table_stats) == 64);
+OFP_ASSERT(sizeof(struct ofp_table_stats) == 68);
 
 /* Body for ofp_stats_request of type OFPST_PORT. */
 struct ofp_port_stats_request {
