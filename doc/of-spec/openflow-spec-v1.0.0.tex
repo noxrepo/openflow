@@ -49,15 +49,15 @@ Version 1.0 of this document will be the first for which official vendor support
 \end{figure}
 
 \section{Switch Components}
-An OpenFlow Switch consists of a \emph{flow table}, which performs packet lookup and forwarding, a \emph{group table}, which stores forwarding instruction aggregates, and a \emph{secure channel} to an external controller (Figure \ref{fig:flow table and controller}).  The controller manages the switch over the secure channel using the OpenFlow protocol.
+An OpenFlow Switch consists of a \emph{flow table} and a \emph{group table}, which perform packet lookup and forwarding, as well as a \emph{secure channel} to an external controller (Figure \ref{fig:flow table and controller}).  The controller manages the switch over the secure channel using the OpenFlow protocol.
 \\\\
-The flow table contains a set of flow entries (header values to match packets against), activity counters, and a set of zero or more actions to apply to matching packets.  The group table contains a set of group entries (grouped sets of action lists with specific semantics dependent on group type).  All packets processed by the switch are compared against the flow table.  If a matching entry is found, any actions for that entry are performed on the packet (e.g., the action might be to forward a packet out a specified port).  If no match is found, the packet is forwarded to the controller over the secure channel.  The controller is responsible for determining how to handle packets without valid flow entries, and it manages the switch flow table by adding and removing flow entries.
+The flow table contains a set of flow entries (header values to match packets against), activity counters, and a set of zero or more actions to apply to matching packets.  The group table contains group entries ( a list of action buckets with specific semantics dependent on group type).  All packets processed by the switch are compared against the flow table.  If a matching entry is found, any actions for that entry are performed on the packet (e.g., the action might be to forward a packet out a specified port).  If no match is found, the packet is forwarded to the controller over the secure channel.  The controller is responsible for determining how to handle packets without valid flow entries, and it manages the switch flow table by adding and removing flow entries.
 \\\\
-Flow entries may forward to one or more ports, which exist in a 32-bit space.  OpenFlow ports include physical ports, virtual ports reserved by a switch, and virtual ports reserved by the OpenFlow spec.  Virtual port examples include tunnels, port aggregates, and VLAN interfaces, as well as reserved ones, including the controller or ingress port (see \ref{ft:actions}).  
+Flow entries may forward to single ports.  OpenFlow ports include physical ports, virtual ports reserved by a switch, and virtual ports reserved by the OpenFlow spec.  Virtual ports may include, but are not limited to, tunnels, port aggregates, VLAN interfaces, and OpenFlow-spec-defined special ports such as the controller or ingress port (see \ref{ft:actions}).  
 \\\\\
-OpenFlow groups exist in a separate 32-bit space.  Groups can directly represent sets of ports for flooding, as well as more complicated methods of forwarding (e.g. multipath, fast reroute, and link aggregation).  As a general layer of indirection, groups also enable multiple flows to forward to a common set of output actions (e.g.  IP forwarding to a common next hop), and for that common set to be changed atomically and efficiently.  
+Groups can directly represent sets of ports for flooding, as well as more complex forwarding semantics (e.g. multipath, fast reroute, and link aggregation).  As a general layer of indirection, groups also enable multiple flows to forward to a single identifier (e.g.  IP forwarding to a common next hop).  This abstraction allows common output actions across flows to be changed atomically and efficiently.  
 \\\\
-Additional port/group configuration may be handled by an external configuration protocol.
+Additional port/group configuration may be handled by an external configuration protocol, which is beyond the scope of this document.
 
 \section{OpenFlow Tables}
 This section describes the components of flow table and group table entries, along with the mechanics of matching and action handling.
@@ -76,9 +76,9 @@ Header Fields & Counters & Actions\\
 
 Each flow table entry (see Table \ref{table:flow entry}) contains: 
 \begin{itemize} 
-\item \textbf{header fields} to match against packets 
-\item \textbf{counters} to update for matching packet 
-\item \textbf{actions} to apply to matching packets 
+\item \textbf{header fields}: to match against packets 
+\item \textbf{counters}: to update for matching packet 
+\item \textbf{actions}: to apply to matching packets 
 \end{itemize} 
 
 \subsection{Group Table}
@@ -92,23 +92,23 @@ Group Identifier & Group Type & Action Buckets\\
 \caption{A group entry consists of a group identifier, group type and a list of action buckets.}
 \label{table:group entry}
 \end{table}
-The ability for one port to point to a \emph{group} of other ports enables OpenFlow to represent additional methods of forwarding (ex. multipath, fast reroute, and link aggregation), as well as to handle current methods (ex. multicast) more efficiently.
+A group table consists group entries.  The ability for a flow to point to a \emph{group} enables OpenFlow to represent additional methods of forwarding (e.g. multipath and multicast).
 \\\\
-Each group table entry (see Table \ref{table:group entry}) contains:
+Each group entry (see Table \ref{table:group entry}) contains:
 \begin{itemize}
-\item \textbf{group identifier} to identify the group
-\item \textbf{group type} to determine group semantics (see below)
-\item \textbf{action buckets} an ordered list of action buckets, where each action bucket contains a list of actions to execute
+\item \textbf{group identifier}: a 32 bit unsigned integer uniquely identifying the group
+\item \textbf{group type}: to determine group semantics
+\item \textbf{action buckets}: an ordered list of action buckets, where each action bucket contains a set of actions to execute
 \end{itemize}
 
 \subsubsection{Group Types}
 The following group types are defined:
 
 \begin{itemize}
-\item \textbf{flood} apply all buckets in the group.  Packets directed out the input port are dropped by default.  If the controller writer wants to forward out the incoming port, they should include a forward action to the \verb|OFPP_IN_PORT| in each bucket where this is desired.  Used for multicast or broadcast forwarding.
-\item \textbf{multipath} apply one bucket in the group.  Packets are sent to a single bucket in the group, based on a switch-computed selection algorithm (e.g. hash on some user-configured tuple or simple round robin).  All configuration and state for the selection algorithm is external to OpenFlow.  When a port specified in a bucket in a multipath group goes down, the switch may restrict bucket selection to the remaining set (those with forwarding actions to live ports). This behavior may reduce the disruption of a downed link or switch.
-\item \textbf{indirect} apply the one defined bucket in this group.  Allows multiple flows or groups to point to a common group identifier, supporting faster, more efficient convergence (e.g. next hops for IP forwarding).  This group type is effectively identical to flood groups with one bucket.
-\item \textbf{fast failover} apply the first live bucket.  Each action bucket is associated with a specific port that controls its liveness.  Enables the switch to change forwarding without requiring a round trip to the controller.  If no buckets are live, packets are dropped.  Conditions for liveness are outside the scope of the OpenFlow spec.
+\item \textbf{flood}: Execute all buckets in the group.  Packets directed out the input port are dropped by default.  If the controller writer wants to forward out the incoming port, they should include a forward action to the \verb|OFPP_IN_PORT| in each bucket where this is desired.  This group is used for multicast or broadcast forwarding.
+\item \textbf{multipath}: Execute one bucket in the group.  Packets are sent to a single bucket in the group, based on a switch-computed selection algorithm (e.g. hash on some user-configured tuple or simple round robin).  All configuration and state for the selection algorithm is external to OpenFlow.  When a port specified in a bucket in a multipath group goes down, the switch may restrict bucket selection to the remaining set (those with forwarding actions to live ports). This behavior may reduce the disruption of a downed link or switch.
+\item \textbf{indirect}: Execution the one defined bucket in this group.  Allows multiple flows or groups to point to a common group identifier, supporting faster, more efficient convergence (e.g. next hops for IP forwarding).  This group type is effectively identical to flood groups with one bucket.
+\item \textbf{fast failover}: Execute the first live bucket.  Each action bucket is associated with a specific port that controls its liveness.  Enables the switch to change forwarding without requiring a round trip to the controller.  If no buckets are live, packets are dropped.  Conditions for liveness are outside the scope of the OpenFlow spec.
 \end{itemize}
 
 \subsection{Header Fields}
@@ -163,7 +163,7 @@ Table \ref{table:header fields} shows the header fields an incoming packet is co
 
 \subsection{Counters}
 
-Counters are maintained for each table, flow, port, queue, group, and bucket.  OpenFlow-compliant counters may be implemented in software and maintained by polling hardware counters with more limited ranges.
+Counters may be maintained for each table, flow, port, queue, group, and bucket.  OpenFlow-compliant counters may be implemented in software and maintained by polling hardware counters with more limited ranges.
 \\\\
 Table \ref{table:counters} contains the required set of counters.  Duration refers to the time the flow has been installed in the switch.  The Receive Errors field includes all explicitly specified errors, including frame, overrun, and CRC errors, plus any others.  Counters wrap around with no overflow indicator.  In this document, the phrase byte refers to 8-bit octets.
 \begin{table}[!hbp] 	
@@ -213,7 +213,7 @@ Table \ref{table:counters} contains the required set of counters.  Duration refe
 
 \subsection{Actions}
 \label{ft:actions}
-Each action bucket in a group or flow entry is associated with zero or more actions that dictate how the switch handles matching packets.  If no forward actions are present, the packet is dropped.  Action lists for \emph{inserted} flow and group entries MUST be processed in the order specified.  However, there is no packet output ordering guaranteed within a port.   For example, an action list may result in two packets sent to two different VLANs on a single port.  These two packets may be arbitrarily re-ordered, but the packet bodies must match those generated from a sequential execution of the actions.
+Each action set in a bucket in a flow entry group action bucket is associated with zero or more actions that dictate how the switch handles matching packets.  If no forward actions are present, the packet is dropped.  Action sets for \emph{inserted} flow and group entries MUST be processed in the order specified.  However, there is no packet output ordering guaranteed within a port.   For example, a use of flood groups  may result in two packets sent to two different VLANs on a single port.  These two packets may be arbitrarily re-ordered, but the packet bodies must match those generated from a sequential execution of the actions.
 \\\\
 A switch may reject a flow entry or group if it cannot process the action list in the order specified, in which case it should immediately return an unsupported flow error (see \ref{unsupported_flow}).  Ordering within a port may vary between vendor switch implementations.
 \\\\
@@ -247,7 +247,7 @@ basic Quality-of-Service (QoS) support (see section \ref{cts:qos}).}
 \\\\
 \textbf{Optional Action:} \emph{Modify-Field}.  While not strictly required, the actions shown in Table \ref{table:field modify actions}  greatly increase the usefulness of an OpenFlow implementation.  To aid integration with existing networks, we suggest that VLAN modification actions be supported. 
 \\\\
-\textbf{Required Action:} \emph{Group}.  Apply the group to the current packet.  The exact interpretation depends on the specific group type. 
+\textbf{Required Action:} \emph{Group}.  Process the packet through the specified group.  The exact interpretation depends on group type. 
 
 \begin{table}[hbp]
 \centering
@@ -465,13 +465,13 @@ Each flow entry has an \verb|idle_timeout| and a \verb|hard_timeout| associated 
 Group table modification messages can have the following types:
 \input{enum/ofp_group_mod_command}
 
-The action list for each bucket must be validated using the same rules as those for flow mods (Section \ref{flow_table:sec_chan:flow_add}, with additional group-specific checks.  Groups which consist of a single bucket are allowed. A group may also include buckets which themselves forward to other groups. For example, a fast reroute group may have two buckets, where each points to a multipath group. If a switch does not support groups of groups, it must send an \verb|ofp_error_msg| with \verb|OFPET_GROUP_MOD_FAILED| type and \verb|OFPGMFC_CHAINING_UNSUPPORTED| code.  If a group mod is sent such that a forwarding loop would be created, the switch should send an \verb|ofp_error_msg| with \verb|OFPET_GROUP_MOD_FAILED| type and \verb|OFPGMFC_LOOP| code.  If the switch does not support such checking, the forwarding behavior is undefined.
+The action set for each bucket must be validated using the same rules as those for flow mods (Section \ref{flow_table:sec_chan:flow_add}, with additional group-specific checks.  Groups which consist of a single bucket are allowed. A group may also include buckets which themselves forward to other groups. For example, a fast reroute group may have two buckets, where each points to a multipath group. If a switch does not support groups of groups, it must send an \verb|ofp_error_msg| with \verb|OFPET_GROUP_MOD_FAILED| type and \verb|OFPGMFC_CHAINING_UNSUPPORTED| code.  If a group mod is sent such that a forwarding loop would be created, the switch should send an \verb|ofp_error_msg| with \verb|OFPET_GROUP_MOD_FAILED| type and \verb|OFPGMFC_LOOP| code.  If the switch does not support such checking, the forwarding behavior is undefined.
 \\\\
 For ADD requests, if a group entry with the specified group identifier already resides in the group table, then the switch must refuse to add the group entry and must send an \verb|ofp_error_msg| with \verb|OFPET_GROUP_MOD_FAILED| type and \verb|OFPGMFC_GROUP_EXISTS| code.
 \\\\
 For MODIFY requests, if a group entry with the specified group identifier already resides in the group table, then that entry, including its type and action buckets, must be removed, and the new group entry added.
 \\\\
-If a specified group identifier is invalid for group use (reserved by the switch for a port, or one of the special OpenFlow virtual ports (\verb|OFPP_FLOOD|, etc.) then the switch must refuse to add the group entry and must send an \verb|ofp_error_msg| with \verb|OFPET_GROUP_MOD_FAILED| type and \verb|OFPGMFC_INVALID_GROUP| code.
+If a specified group type is invalid (ie: includes fields such as \verb|weight| that are undefined for the specified group type) then the switch must refuse to add the group entry and must send an \verb|ofp_error_msg| with \verb|OFPET_GROUP_MOD_FAILED| type and \verb|OFPGMFC_INVALID_GROUP| code.
 \\\\
 If a switch does not support unequal load sharing with multipath groups, it must refuse to add the group entry and must send an \verb|ofp_error_msg| with \verb|OFPET_GROUP_MOD_FAILED| type and \verb|OFPGMFC_NON_EQUAL_MP_UNSUPPORTED| code.
 \\\\

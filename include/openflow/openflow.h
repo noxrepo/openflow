@@ -605,7 +605,7 @@ struct ofp_group_mod {
     uint16_t command;             /* One of OFPGC_*. */
     uint8_t type;                 /* One of OFPGT_*. */
     unit8_t pad;                  /* Pad to 64 bits. */
-    uint32_t fid;                 /* Group forwarding identifier. */
+    uint32_t group_id;            /* Group identifier. */
     struct ofp_bucket buckets[0]; /* The bucket length is inferred from the
                                      length field in the header. */
 };
@@ -734,8 +734,8 @@ enum ofp_group_mod_failed_code {
     OFPGMFC_GROUP_EXISTS,             /* Group not added because a group ADD
                                        * attempted to replace an
                                        * already-present group. */
-    OFPGMFC_INVALID_GROUP,            /* Group not added because Group
-                                       * Identifier is invalid. */
+    OFPGMFC_INVALID_GROUP,            /* Group not added because Group specified
+                                       *is invalid. */
     OFPGMFC_NON_EQUAL_MP_UNSUPPORTED, /* Switch does not support unequal load
                                        * sharing with multipath groups. */
     OFPGMFC_OUT_OF_GROUPS,            /* The group table is full. */
@@ -993,7 +993,7 @@ OFP_ASSERT(sizeof(struct ofp_bucket_counter) == 16);
 struct ofp_group_desc_stats {
     uint16_t length;              /* Length of this entry. */
     uint8_t type;                 /* One of OFPGT_*. */
-    uint8_t select;               /* One of OFPGS_*. */
+    uint8_t pad;                  /* Pad to 64 bits. */
     uint32_t group_id;            /* Group identifier. */
     uint64_t param;               /* Multipath only.  Meaning depends on value
                                      of select field. */

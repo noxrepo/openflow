@@ -85,12 +85,12 @@ Output, group, \qosupd{and enqueue} actions are described in Section \ref{ft:act
 An \verb|action_output| has the following fields:
 
 \input{struct/ofp_action_output}
-The \verb|max_len| indicates the maximum amount of data from a packet that should be sent when the port is \verb|OFPP_CONTROLLER|.  If \verb|max_len| is zero, the switch must send a zero-size \verb|packet_in| message.  The \verb|port| specifies the next port to which the packet should be sent.
+The \verb|max_len| indicates the maximum amount of data from a packet that should be sent when the port is \verb|OFPP_CONTROLLER|.  If \verb|max_len| is zero, the switch must send a zero-size \verb|packet_in| message.  The \verb|port| specifies the port through which the packet should be sent.
 \\\\
 An \verb|action_group| has the following fields:
 
 \input{struct/ofp_action_group}
-The \verb|group_id| indicates the group pointed to by this action.  The set of buckets to apply depends on the group type.
+The \verb|group_id| indicates the group used top process this packet.  The set of buckets to apply depends on the group type.
 \\\\
 \qosupd{The enqueue action maps a flow to an already-configured queue, regardless of the TOS and VLAN PCP bits.
   The packet should not change after an enqueue action. If the switch
@@ -201,7 +201,7 @@ The \verb|priority| field is only relevant for flow entries with wildcard fields
 \\\\
 The \verb|buffer_id| refers to a buffered packet sent by the \verb|OFPT_PACKET_IN| message.
 \\\\
-The \verb|out_port| field optionally filters the scope of DELETE and DELETE\_STRICT messages by output port.  If \verb|out_port| contains a value other than \verb|OFPP_NONE|, it introduces a constraint when matching.  This constraint is that the rule must contain an output action directed at that port or group.  Other constraints such as \verb|ofp_match| structs and priorities are still used; this is purely an \emph{additional} constraint.  Note that to disable output filtering, \verb|out_port| must be set to \verb|OFPP_NONE|, since 0 is a valid forwarding id.  This field is ignored by ADD, MODIFY, and MODIFY\_STRICT messages.
+The \verb|out_port| and \verb|out_group| fields optionally filter the scope of DELETE and DELETE\_STRICT messages by output port and group.  If either \verb|out_port| or \verb|out_group| contains a value other than \verb|OFPP_NONE| or \verb|OFPG_NONE| respectively, it introduces a constraint when matching.  This constraint is that the rule must contain an output action directed at that port or group.  Other constraints such as \verb|ofp_match| structs and priorities are still used; this is purely an \emph{additional} constraint.  Note that to disable output filtering, both \verb|out_port| and \verb|out_group| must be set to \verb|OFPP_NONE| and \verb|OFPG_NONE| respectively, since 0 is a valid identifier in both tables.  This field is ignored by ADD, MODIFY, and MODIFY\_STRICT messages.
 \\\\
 The \verb|flags| field may include the follow flags:
 
@@ -227,9 +227,11 @@ The \verb|type| field must be one of the following:
 Buckets use the following struct:
 
 \input{struct/ofp_bucket}
-The \verb|weight| field is only defined for multipath groups.  It is a dimensionless number that indicates this bucket's share of traffic to a group.  When a port goes down, the change in traffic distribution is undefined.  The precision by which a switch's packet distribution should match bucket weights is undefined.
+The \verb|weight| field is only defined for multipath groups.  The bucket's share of the traffic processed by the group is defined by the individual bucket's weight divided by the sum of the bucket weights in the group.  When a port goes down, the change in traffic distribution is undefined.  The precision by which a switch's packet distribution should match bucket weights is undefined.
 \\\\
 The \verb|port| field is only defined for fast failover groups.  It indicates the port whose liveness controls whether this bucket is a candidate for forwarding.  For fast failover groups, the first bucket defined is the highest-priority bucket, and only the highest-priority live bucket is used.
+
+Specification   
 
 \paragraph{Port Modification Message}
 The controller uses the \verb|OFPT_PORT_MOD| message to modify the behavior of the physical port:
