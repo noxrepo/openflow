@@ -537,8 +537,9 @@ struct ofp_match {
     uint16_t tp_src;           /* TCP/UDP source port. */
     uint16_t tp_dst;           /* TCP/UDP destination port. */
     uint64_t metadata;         /* Metadata between tables */
+    uint64_t metadata_mask;    /* Mask for metadata */
 };
-OFP_ASSERT(sizeof(struct ofp_match) == 48);
+OFP_ASSERT(sizeof(struct ofp_match) == 56);
 
 /* The match fields for ICMP type and code use the transport source and
  * destination port fields, respectively. */
@@ -564,18 +565,29 @@ enum ofp_instruction_type {
                                    action set */
 };
 
-struct ofp_instruction {
-    uint16_t type;              /* one of OFPI_* */
+struct ofp_instruction_actions {
+    uint16_t type;              /* one of OFPI_*_ACTIONS */
     uint16_t pad;
-    union {
-      uint8_t table_id;           /* table id for OFPI_GOTO_TABLE */
-      uint64_t metadata;          /* metadata for OFPI_WRITE_METADATA */
-      struct ofp_action_header actions[0];        /* actions associated with
-                                                   OFPI_WRITE_ACTIONS and
-                                                   OFPI_APPLY_ACTIONS */
-    } u;
+    struct ofp_action_header actions[0];  /* actions associated with
+                                             OFPI_WRITE_ACTIONS and
+                                             OFPI_APPLY_ACTIONS */
 };
-OFP_ASSERT(sizeof(ofp_instruction) == 12);
+OFP_ASSERT(sizeof(ofp_instruction_actions) == 12);
+
+struct ofp_instruction_table_id {
+  uint16_t type;                /* OFPI_GOTO_TABLE */
+  uint8_t table_id;             /* Set next table in the lookup pipeline */
+  uint8_t pad;
+};
+OFP_ASSERT(sizeof(struct ofp_instruction_table_id) == 4);
+
+struct ofp_instruction_metadata {
+  uint16_t type;                /* OFPI_GOTO_TABLE */
+  uint16_t pad;
+  uint64_t metadata;            /* Metadata value to write */
+  uint64_t metadata_mask;       /* Metadata write bitmask */
+};
+OFP_ASSERT(sizeof(struct ofp_instruction_metadata) == 20);
 
 enum ofp_flow_mod_flags {
     OFPFF_SEND_FLOW_REM = 1 << 0,  /* Send flow removed message when flow
