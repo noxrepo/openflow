@@ -976,16 +976,16 @@ struct ofp_group_stats {
     uint32_t ref_count;      /* Number of flows or groups that directly forward
                                 to this group. */
     uint8_t pad2[4];         /* Align to 64 bits. */
-    uint64_t packet_count;   /* Number of packets for group. */
-    uint64_t byte_count;     /* Number of bytes for group. */
+    uint64_t packet_count;   /* Number of packets processed by group. */
+    uint64_t byte_count;     /* Number of bytes processed by group. */
     struct ofp_bucket_counter bucket_stats[0];
 };
 OFP_ASSERT(sizeof(struct ofp_group_stats) == 32);
 
 /* Used in group stats replies. */
 struct ofp_bucket_counter {
-    uint64_t packet_count;   /* Number of packets in bucket. */
-    uint64_t byte_count;     /* Number of bytes in bucket. */
+    uint64_t packet_count;   /* Number of packets processed by bucket. */
+    uint64_t byte_count;     /* Number of bytes processed by bucket. */
 };
 OFP_ASSERT(sizeof(struct ofp_bucket_counter) == 16);
 
