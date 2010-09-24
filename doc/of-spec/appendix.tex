@@ -224,11 +224,6 @@ The \verb|command| field must be one of the following:
 The \verb|type| field must be one of the following:
 
 \input{enum/ofp_group_type}
-The \verb|select| field is only defined for multipath groups.  It identifies the bucket selection algorithm, enabling multiple hash functions to be in use on a switch.  Values between 128 and 255 are reserved for vendor experimentation.  One group selection value is currently defined:
-
-\input{enum/ofp_group_select}
-The \verb|param| field is only meaningful for multipath groups with a nonzero group selection value.  It is intended to pass pameters for hash selection, such as a hash seed.
-\\\\
 Buckets use the following struct:
 
 \input{struct/ofp_bucket}
