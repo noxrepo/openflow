@@ -875,6 +875,8 @@ struct ofp_table_stats {
                                 supported by the table. */
     uint32_t actions;        /* Bitmap of OFPAT_* that are supported
                                 by the table. */
+    uint32_t match_fields;   /* Bitmap of OFPFW_* that indicate the fields
+                                the table can match on */
     uint32_t max_entries;    /* Max number of entries supported. */
     uint32_t active_count;   /* Number of active entries. */
     uint64_t lookup_count;   /* Number of packets looked up in table. */
