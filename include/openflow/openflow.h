@@ -611,6 +611,8 @@ struct ofp_group_mod {
 };
 OFP_ASSERT(sizeof(struct ofp_group_mod) == 16);
 
+/* Group types.  Values in the range [128, 255] are reserved for experimental
+ * use. */
 enum ofp_group_type {
     OFPGT_FLOOD,    /* Flood group.  */
     OFPGT_MPATH,    /* Multipath group. */
