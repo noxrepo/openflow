@@ -561,8 +561,10 @@ enum ofp_instruction_type {
     OFPI_WRITE_ACTIONS = 3,     /* Write the action(s) onto the datapath action
                                    set */
     OFPI_APPLY_ACTIONS = 4,     /* Applies the action(s) immediately */
-    OFPI_CLEAR_ACTIONS = 5      /* Clears all actions from the datapath
+    OFPI_CLEAR_ACTIONS = 5,     /* Clears all actions from the datapath
                                    action set */
+
+    OFPI_VENDOR = 0xFFFF        /* Vendor instruction */
 };
 
 struct ofp_instruction_actions {

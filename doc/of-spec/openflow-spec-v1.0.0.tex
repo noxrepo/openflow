@@ -51,12 +51,15 @@ An OpenFlow Switch consists of one of more \emph{flow tables}, which perform pac
 \\\\
 Each flow table contains a set of flow entries that are organized in priority order. If a matching entry is found, the instructions associated with the specific flow entry are executed. If no match is found in a flow table, the packet is forwarded to the controller via the secure connection. The controller is responsible for determining how to handle packets without valid flow entries, and it manages the switch flow tables by adding, removing and updating flow entries.
 \\\\
-Packets may be matched against one or more flow tables in the switch pipeline. Flow entries may setup actions to modify and forward matching packets or clear actions to drop a packet. Flow entries could also setup metadata that may be matched in the next flow table in the switch pipeline. A packet is forwarded to a single OpenFlow Forwarding ID. This usually indicates a physical port but it could also indicate a variety of forwarding abstractions such as multicast, multipath, flooding (on a VLAN). In addition, there are reserved Forwarding IDs that specify generic forwarding actions such as sending to the controller, flooding or normal forwarding using non-OpenFlow methods (see \ref{ft:actions}).
+Packets are always matched against table 0 and may be matched against more flow tables in the switch pipeline. Flow entries may setup actions to modify and forward matching packets or clear actions to drop a packet. Flow entries could specify the next table in the pipeline as well as metadata that may be matched in that table. If the entry does not indicate the next table in the pipeline, the packet is processed. A packet is forwarded to a port. This usually indicates a physical port but it could also indicate a variety of virtual ports such as multicast, multipath and fast-failover. In addition, there are reserved virtual ports that specify generic forwarding actions such as sending to the controller, flooding or normal forwarding using non-OpenFlow methods (see \ref{ft:actions}).
 \\\\
 OpenFlow ports have limited state such as ``up'', ``down'' and whether spanning tree flood packets should be forwarded out the port.
 
 \section{Flow Table}
 This section describes the components of flow table entries and the process by which incoming packets are matched against flow table entries.  
+
+\subsection{Flow Table Entry}
+\label{ft:flowtableentry}
 
 \begin{table}[hbp]
 \centering
@@ -176,8 +179,8 @@ Table \ref{table:counters} contains the required set of counters.  Duration refe
 \label{ft:instructions}
 Each flow entry is associated with a set of instructions that are executed when a packet matches the entry. These instructions result in updates on the action set (see: \ref{ft:actionset}). Supported instructions are:
 \begin{itemize} 
-\item \textbf{Goto-Table \textit{table-id}} : Indicates the next table in the pipeline
-\item \textbf{Write-Metadata \textit{metadata}} : Writes the metadata value into the Metadata register
+\item \textbf{Goto-Table \textit{table-id}} : Indicates the next table in the pipeline. The table-id must be greater than the current table-id.
+\item \textbf{Write-Metadata \textit{metadata / mask}} : Writes the masked metadata value into the Metadata register.
 \item \textbf{Write-Actions \textit{action(s)}} : Writes the action(s) into the Action Set
 \item \textbf{Apply-Actions \textit{action(s)}} : Applies the action(s) immediately without any change to the Action Set.
 \item \textbf{Clear-Actions} : Clears all the actions in the Action Set. This is also executed immediately.
