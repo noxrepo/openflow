@@ -536,8 +536,8 @@ struct ofp_match {
     uint32_t nw_dst;           /* IP destination address. */
     uint16_t tp_src;           /* TCP/UDP source port. */
     uint16_t tp_dst;           /* TCP/UDP destination port. */
-    uint64_t metadata;         /* Metadata between tables */
-    uint64_t metadata_mask;    /* Mask for metadata */
+    uint64_t metadata;         /* Metadata passed between tables. */
+    uint64_t metadata_mask;    /* Mask for metadata. */
 };
 OFP_ASSERT(sizeof(struct ofp_match) == 56);
 
@@ -554,42 +554,43 @@ OFP_ASSERT(sizeof(struct ofp_match) == 56);
 #define OFP_DEFAULT_PRIORITY 0x8000
 
 enum ofp_instruction_type {
-    OFPI_GOTO_TABLE = 1,        /* Setup the next table in the lookup
+    OFPIT_GOTO_TABLE = 1,       /* Setup the next table in the lookup
                                    pipeline */
-    OFPI_WRITE_METADATA = 2,    /* Setup the metadata field for use in later
+    OFPIT_WRITE_METADATA = 2,   /* Setup the metadata field for use in later
                                    pipelines */
-    OFPI_WRITE_ACTIONS = 3,     /* Write the action(s) onto the datapath action
+    OFPIT_WRITE_ACTIONS = 3,    /* Write the action(s) onto the datapath action
                                    set */
-    OFPI_APPLY_ACTIONS = 4,     /* Applies the action(s) immediately */
-    OFPI_CLEAR_ACTIONS = 5,     /* Clears all actions from the datapath
+    OFPIT_APPLY_ACTIONS = 4,    /* Applies the action(s) immediately */
+    OFPIT_CLEAR_ACTIONS = 5,    /* Clears all actions from the datapath
                                    action set */
 
     OFPI_VENDOR = 0xFFFF        /* Vendor instruction */
 };
 
+struct ofp_instruction_goto_table {
+    uint16_t type;                /* OFPI_GOTO_TABLE */
+    uint16_t len;                 /* Length of this struct in bytes. */
+    uint8_t table_id;             /* Set next table in the lookup pipeline */
+    uint8_t pad[3];               /* Pad to 64 bits. */
+};
+OFP_ASSERT(sizeof(struct ofp_instruction_goto_table) == 8);
+
+struct ofp_instruction_write_metadata {
+    uint16_t type;                /* OFPI_WRITE_METADATA */
+    uint16_t len;                 /* Length of this struct in bytes. */
+    uint64_t metadata;            /* Metadata value to write */
+    uint64_t metadata_mask;       /* Metadata write bitmask */
+};
+OFP_ASSERT(sizeof(struct ofp_instruction_write_metadata) == 20);
+
 struct ofp_instruction_actions {
-    uint16_t type;              /* one of OFPI_*_ACTIONS */
-    uint16_t pad;
-    struct ofp_action_header actions[0];  /* actions associated with
+    uint16_t type;              /* One of OFPI_*_ACTIONS */
+    uint16_t len;               /* Length of this struct in bytes. */
+    struct ofp_action_header actions[0];  /* Actions associated with
                                              OFPI_WRITE_ACTIONS and
                                              OFPI_APPLY_ACTIONS */
 };
 OFP_ASSERT(sizeof(ofp_instruction_actions) == 12);
-
-struct ofp_instruction_table_id {
-  uint16_t type;                /* OFPI_GOTO_TABLE */
-  uint8_t table_id;             /* Set next table in the lookup pipeline */
-  uint8_t pad;
-};
-OFP_ASSERT(sizeof(struct ofp_instruction_table_id) == 4);
-
-struct ofp_instruction_metadata {
-  uint16_t type;                /* OFPI_GOTO_TABLE */
-  uint16_t pad;
-  uint64_t metadata;            /* Metadata value to write */
-  uint64_t metadata_mask;       /* Metadata write bitmask */
-};
-OFP_ASSERT(sizeof(struct ofp_instruction_metadata) == 20);
 
 enum ofp_flow_mod_flags {
     OFPFF_SEND_FLOW_REM = 1 << 0,  /* Send flow removed message when flow
@@ -875,8 +876,9 @@ struct ofp_table_stats {
                                 supported by the table. */
     uint32_t actions;        /* Bitmap of OFPAT_* that are supported
                                 by the table. */
-    uint32_t match_fields;   /* Bitmap of OFPFW_* that indicate the fields
-                                the table can match on */
+    uint32_t match;          /* Bitmap of OFPFW_* that indicate the fields
+                                the table can match on. */
+    uint32_t instructions;   /* Bitmap of OFPIT_* values supported. */
     uint32_t max_entries;    /* Max number of entries supported. */
     uint32_t active_count;   /* Number of active entries. */
     uint64_t lookup_count;   /* Number of packets looked up in table. */

@@ -75,7 +75,7 @@ If no wildcards are set, then the \verb|ofp_match| exactly describes a flow, ove
 \\\\
 The source and destination netmasks are each specified with a 6-bit number in the wildcard description. It is interpreted similar to the CIDR suffix, but with the opposite meaning, since this is being used to indicate which bits in the IP address should be treated as ``wild". For example, a CIDR suffix of "24" means to use a netmask of ``255.255.255.0". However, a wildcard mask value of ``24" means that the least-significant 24-bits are wild, so it forms a netmask of ``255.0.0.0". 
 \\\\
-The metadata field is used to carry information between lookups across multiple tables. This value can be masked using the metadata mask (which is 0xFFFFFFFF by default). If the metadata wildcard bit is set, the contents of these fields are ignored in the lookup (This allows metadata to be carried unchanged across tables).
+The metadata field is used to pass information between lookups across multiple tables. This value can be masked using the metadata mask (which is 0xFFFFFFFF by default). If the metadata wildcard bit is set, the contents of these fields are ignored in the lookup.
 
 \subsubsection{Flow Instruction Structures}
 Flow instructions associated with a flow table entry are executed when a flow matches the entry. The list of instructions that are currently defined are:
@@ -87,10 +87,10 @@ The instruction set is described in section \ref{ft:instructions}. All instructi
 This structure is used for all actions related instructions. For the Clear-Actions instruction, the structure does not contain any actions.
 
 \input{struct/ofp_instruction_metadata}
-Metadata for the next table lookup can be written using the \verb|metadata| and the \verb|metadata_mask| in order to set specific bits on the match field. 
+Metadata for the next table lookup can be written using the \verb|metadata| and the \verb|metadata_mask| in order to set specific bits on the match field.   If this instruction is not specified, the metadata is passed, unchanged.
 
 \input{struct/ofp_instruction_table_id}
-\verb|table_id| indicates the next table to lookup in the packet processing pipeline.
+\verb|table_id| indicates the next table in the packet processing pipeline.
 
 \subsubsection{Flow Action Structures}
 A number of actions may be associated with flows or packets.  The currently defined action types are:
@@ -196,9 +196,8 @@ reserved and must not be used.  It is required that when \verb|command| is
 \verb|OFPC_MODIFY| or \verb|OFPC_MODIFY_STRICT| that matched flows have
 their \verb|cookie| field updated appropriately.
 \\\\
-The \verb|table_id| field specifies the table to put the flow into. Lower
-numbered tables are consulted earlier. Table Id 0 signifies the first table 
-in the pipeline.
+The \verb|table_id| field specifies the table into which the flow should be inserted.
+Table 0 signifies the first table in the pipeline.
 \\\\
 The \verb|command| field must be one of the following:
 
@@ -211,7 +210,7 @@ If the \verb|idle_timeout| is set and the \verb|hard_timeout| is zero, the entry
 \\\\
 If both \verb|idle_timeout| and \verb|hard_timeout| are set, the flow will timeout after \verb|idle_timeout| seconds with no traffic, or \verb|hard_timeout| seconds, whichever comes first.  If both \verb|idle_timeout| and \verb|hard_timeout| are zero, the entry is considered permanent and will never time out.  It can still be removed with a \verb|flow_mod| message of type \verb|OFPFC_DELETE|. 
 \\\\
-The \verb|priority| field is relevant for all flow entries.  The priority field indicates priority within the specific flow table. Higher numbers indicate higher priorities.
+The \verb|priority| indicates priority within the specified flow table table. Higher numbers indicate higher priorities.
 \\\\
 The \verb|buffer_id| refers to a buffered packet sent by the \verb|OFPT_PACKET_IN| message.
 \\\\
@@ -304,7 +303,7 @@ The body of the reply consists of an array of the following:
 \input{struct/ofp_table_stats}
 The \verb|body| contains a \verb|wildcards| field, which indicates the fields for which that particular table supports wildcarding. For example, a direct look-up hash table would have that field set to zero, while a sequentially searched table would have it set to \verb|OFPFW_ALL|. The entries are returned in the order that packets traverse the tables. 
 \\\\
-The \verb|actions| field is a bitmap of actions supported by the switch.  The list of actions is found in Section~\ref{ft:actions}; all actions marked Required must be supported. Vendor actions should \emph{not} be reported via this bitmask. The bitmask uses the values from \verb|ofp_action_type| as the number of bits to shift left for an associated action. For example, \verb|OFPAT_SET_DL_VLAN| would use the flag \verb|0x00000002|.
+The \verb|actions| field is a bitmap of actions supported by the switch.  The list of actions is found in Section~\ref{ft:actions}. Vendor actions should \emph{not} be reported via this bitmask. The bitmask uses the values from \verb|ofp_action_type| as the number of bits to shift left for an associated action. For example, \verb|OFPAT_SET_DL_VLAN| would use the flag \verb|0x00000002|.
 \\\\
 \verb|OFP_MAX_TABLE_NAME_LEN| is \input{define/OFP_MAX_TABLE_NAME_LEN}.
 
