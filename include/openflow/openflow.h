@@ -161,7 +161,13 @@ enum ofp_config_flags {
     OFPC_FRAG_NORMAL   = 0,  /* No special handling for fragments. */
     OFPC_FRAG_DROP     = 1,  /* Drop fragments. */
     OFPC_FRAG_REASM    = 2,  /* Reassemble (only if OFPC_IP_REASM set). */
-    OFPC_FRAG_MASK     = 3
+    OFPC_FRAG_MASK     = 3,
+
+    /* Handling of packets that don't match in the table. The default
+       behavior is SEND_TO_CONTROLLER */
+    OFPC_TABLE_MISS_CONTROLLER = 4, /* Default OpenFlow 1.1 behavior */
+    OFPC_TABLE_MISS_CONTINUE = 5,   /* OpenFlow 1.0 behavior */
+    OFPC_TABLE_MISS_DROP = 6,       /* Drop if no match in table */
 };
 
 /* Switch configuration. */
