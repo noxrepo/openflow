@@ -49,7 +49,7 @@ This document describes the requirements of an OpenFlow Switch.  We recommend th
 \section{Switch Components}
 An OpenFlow Switch consists of one or more \emph{flow tables}, which perform packet lookups and forwarding. It also consists of a \emph{secure channel} to an external controller (Figure \ref{fig:flow table and controller}).  The controller manages the switch over the secure channel using the OpenFlow protocol.
 \\\\
-Each flow table contains a set of flow entries (header values to matchpackets against), activity counters, and a set of instructions to applyto matching packets.  Flow entries match packets in priority order. If a matching entry is found, the instructions associated with the specific flow entry are executed. If no match is found in a flow table, the packet is forwarded to the controller over the secure channel. The controller is responsible for determining how to handle packets without valid flow entries, and it manages the switch flow tables by adding, removing, and updating flow entries.
+Each flow table contains a set of flow entries (header values to match packets against), activity counters, and a set of instructions to apply to matching packets.  Flow entries match packets in priority order. If a matching entry is found, the instructions associated with the specific flow entry are executed. If no match is found in a flow table, the packet is forwarded to the controller over the secure channel. The controller is responsible for determining how to handle packets without valid flow entries, and it manages the switch flow tables by adding, removing, and updating flow entries.
 \\\\
 Matching starts at the first table and may continue to additional tables. Flow entries may include actions to modify and/or forward the packet, as well as instructions to modify the pipeline processing.  Flow entries may also specify the next table in the pipeline as well as metadata that may be matched in that table. Table pipeline processing is stopped when a next table is not specified.
 \\\\
@@ -107,7 +107,7 @@ TCP/ UDP dst port
 \end{table}
 
 \subsection{Match Fields}
-Table \ref{table:header fields} shows the match fields an incoming packet is compared against. Each entry contains a specific value, or ANY, which matches any value. If the switch supports subnet masks on the IP source and/or destination fields, these can more precisely specify matches.  The fields in the OpenFlow 12-tuple are listed in Table \ref{table:header fields} and details on the properties of each field are described in Table \ref{table:header field details}. In addition to packet headers, matches can also be performed against the ingress port and metadata fields. Metadata may be used to pass information between tables in a switch.
+Table \ref{table:header fields} shows the match fields an incoming packet is compared against. Each entry contains a specific value, or ANY, which matches any value. If the switch supports subnet masks on the IP source and/or destination fields, these can more precisely specify matches.  The fields in the OpenFlow n-tuple are listed in Table \ref{table:header fields} and details on the properties of each field are described in Table \ref{table:header field details}. In addition to packet headers, matches can also be performed against the ingress port and metadata fields. Metadata may be used to pass information between tables in a switch.
 \\\\
 \begin{table}[hbp]
 \centering
@@ -336,7 +336,7 @@ A packet matches a flow table entry if the values in the header fields used for 
 \\\\
 To handle the various Ethernet framing types, matching the Ethernet type is handled in a slightly different manner.  If the packet is an Ethernet II frame, the Ethernet type is handled in the expected way.  If the packet is an 802.3 frame with a SNAP header and Organizationally Unique Identifier (OUI) of 0x000000, the SNAP protocol id is matched against the flow’s Ethernet type.  A flow entry that specifies an Ethernet type of 0x05FF, matches all Ethernet 802.2 frames without a SNAP header and those with SNAP headers that do not have an OUI of 0x000000.  
 \\\\
-Packets are matched against flow entries based on prioritization.  Higher priority entries must match before lower priority ones.  If multiple entries have the same priority, the switch is free to choose any ordering.  Higher numbers have higher priorities.
+Packets are matched against flow entries based on prioritization. Higher priority entries must match before lower priority ones.  If multiple entries have the same priority, the switch is free to choose any ordering.  Higher numbers have higher priorities.
 \\\\
 For each packet that matches a flow entry, the associated counters for that entry are updated.  If no matching entry can be found for a packet, the packet is sent to the controller over the secure channel.
 

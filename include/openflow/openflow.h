@@ -884,7 +884,7 @@ struct ofp_table_stats {
     uint64_t lookup_count;   /* Number of packets looked up in table. */
     uint64_t matched_count;  /* Number of packets that hit table. */
 };
-OFP_ASSERT(sizeof(struct ofp_table_stats) == 68);
+OFP_ASSERT(sizeof(struct ofp_table_stats) == 76)
 
 /* Body for ofp_stats_request of type OFPST_PORT. */
 struct ofp_port_stats_request {
