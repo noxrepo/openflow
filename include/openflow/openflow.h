@@ -592,6 +592,12 @@ struct ofp_instruction_actions {
 };
 OFP_ASSERT(sizeof(ofp_instruction_actions) == 12);
 
+struct ofp_instruction_vendor {
+    uint16_t type;		/* OFPI_VENDOR */
+    uint16_t len;               /* Length of this struct in bytes */
+};
+OFP_ASSERT(sizeof(ofp_instruction_vendor) == 4);
+
 enum ofp_flow_mod_flags {
     OFPFF_SEND_FLOW_REM = 1 << 0,  /* Send flow removed message when flow
                                     * expires or is deleted. */

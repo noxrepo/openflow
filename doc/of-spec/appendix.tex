@@ -83,14 +83,14 @@ Flow instructions associated with a flow table entry are executed when a flow ma
 \input{enum/ofp_instruction_type}
 The instruction set is described in section \ref{ft:instructions}. All instructions may not be supported by any or all flow tables.
 
-\input{struct/ofp_instruction_actions}
-This structure is used for all actions related instructions. For the Clear-Actions instruction, the structure does not contain any actions.
+\input{struct/ofp_instruction_goto_table}
+\verb|table_id| indicates the next table in the packet processing pipeline.
 
-\input{struct/ofp_instruction_metadata}
+\input{struct/ofp_instruction_write_metadata}
 Metadata for the next table lookup can be written using the \verb|metadata| and the \verb|metadata_mask| in order to set specific bits on the match field.   If this instruction is not specified, the metadata is passed, unchanged.
 
-\input{struct/ofp_instruction_table_id}
-\verb|table_id| indicates the next table in the packet processing pipeline.
+\input{struct/ofp_instruction_actions}
+This structure is used for all actions related instructions. For the Clear-Actions instruction, the structure does not contain any actions.
 
 \subsubsection{Flow Action Structures}
 A number of actions may be associated with flows or packets.  The currently defined action types are:
