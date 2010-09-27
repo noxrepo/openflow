@@ -165,9 +165,12 @@ enum ofp_config_flags {
 
     /* Handling of packets that don't match in the table. The default
        behavior is SEND_TO_CONTROLLER */
-    OFPC_TABLE_MISS_CONTROLLER = 4, /* Default OpenFlow 1.1 behavior */
-    OFPC_TABLE_MISS_CONTINUE = 5,   /* OpenFlow 1.0 behavior */
-    OFPC_TABLE_MISS_DROP = 6,       /* Drop if no match in table */
+    OFPC_TABLE_MISS_CONTINUE = 4,   /* OpenFlow 1.0 behavior */
+    OFPC_TABLE_MISS_DROP = 5,       /* Drop if no match in table */
+
+    /* TTL processing - applicable for IP and MPLS packets */
+    OFPC_INVALID_TTL_TO_CONTROLLER = 6, /* Send packets with invalid TTL ie.
+                                           0 or 1 to controller */
 };
 
 /* Switch configuration. */
