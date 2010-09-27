@@ -125,7 +125,6 @@ Table \ref{table:header fields} shows the match fields an incoming packet is com
 \hline IP destination address & 32 & All IP and ARP packets & Can be subnet masked \\
 \hline IP protocol & 8 & All IP and IP over Ethernet, ARP packets & Only the lower 8 bits of the ARP opcode are used \\
 \hline IP ToS bits & 6 & All IP packets & Specify as 8-bit value and place ToS in upper 6 bits. \\
-\hline Invalid TTL & 1 & All IP and MPLS packets & This will match TTL=1 and TTL=0 packets \\
 \hline Transport source port / ICMP Type & 16 & All TCP, UDP, and ICMP packets & Only lower 8 bits used for ICMP Type \\
 \hline Transport destination port / ICMP Code & 16 & All TCP, UDP, and ICMP packets & Only lower 8 bits used for ICMP Code \\
 \hline
