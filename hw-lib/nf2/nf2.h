@@ -1,5 +1,5 @@
 /* ****************************************************************************
- * $Id: nf2.h 5575 2009-05-13 18:44:26Z grg $
+ * $Id: nf2.h 6067 2010-04-01 22:36:26Z grg $
  *
  * Module: nf2.h
  * Project: NetFPGA 2 Linux Kernel Driver
@@ -26,7 +26,7 @@
  * Register names and locations.
  *
  * Note that these names are not necessarily identical to
- * those in NF2/hw/common/src/defines
+ * those in netfpga/hw/common/src/defines
  */
 
 /* CPCI registers */
@@ -47,6 +47,7 @@
 #define CPCI_REG_DMA_E_SIZE		0x14c
 #define CPCI_REG_DMA_I_CTRL		0x150
 #define CPCI_REG_DMA_E_CTRL		0x154
+#define CPCI_REG_DMA_QUEUE_STATUS	0x158
 #define CPCI_REG_DMA_MAX_XFER_TIME	0x180
 #define CPCI_REG_DMA_MAX_RETRIES	0x184
 #define CPCI_REG_CNET_MAX_XFER_TIME	0x188
@@ -206,6 +207,7 @@
 #define INT_DMA_RX_COMPLETE		0x80000000
 #define INT_DMA_TX_COMPLETE		0x40000000
 #define INT_PHY_INTERRUPT		0x20000000
+#define INT_DMA_QUEUE_STATUS_CHANGE	0x00000200
 #define INT_PKT_AVAIL			0x00000100
 #define INT_CNET_ERROR			0x00000020
 #define INT_CNET_READ_TIMEOUT		0x00000010
@@ -217,6 +219,7 @@
 #define INT_UNKNOWN			~(INT_DMA_RX_COMPLETE | \
 					  INT_DMA_TX_COMPLETE | \
 					  INT_PHY_INTERRUPT | \
+					  INT_DMA_QUEUE_STATUS_CHANGE | \
 					  INT_PKT_AVAIL | \
 					  INT_CNET_ERROR | \
 					  INT_CNET_READ_TIMEOUT | \
@@ -427,9 +430,12 @@
 
 
 /* MDIO registers */
-#define MDIO_0_AUX_STATUS              0x04c0064
-#define MDIO_0_INTR_STATUS             0x04c0068
-#define MDIO_0_INTR_MASK               0x04c006c
+#define MDIO_0_BASE                    0x0440000
+#define MDIO_0_PHY_ID_LO_REG           0x0440008
+#define MDIO_0_PHY_ID_HI_REG           0x044000C
+#define MDIO_0_AUX_STATUS              0x0440064
+#define MDIO_0_INTR_STATUS             0x0440068
+#define MDIO_0_INTR_MASK               0x044006c
 
 
 /* MDIO address delta between each phy base address */

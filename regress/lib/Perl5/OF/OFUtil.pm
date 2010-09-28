@@ -231,15 +231,15 @@ sub setup_NF2 {
 	setup_pcap_interfaces();
 
     # load the openflow bitfile on the NetFPGA
-	system("nf2_download ${openflow_dir}/hw-lib/nf2/openflow_switch.bit");
+	system("nf_download ${openflow_dir}/hw-lib/nf2/openflow_switch.bit");
 	sleep(2);
 
     # turn on phy(0-3) interrupt mask
     # in order to avoid asynchronous port_mod_change message
-        `regwrite 0x04c006c 0xffff`;
-        `regwrite 0x04c00ec 0xffff`;
-        `regwrite 0x04c016c 0xffff`;
-        `regwrite 0x04c01ec 0xffff`;
+        `regwrite 0x044006c 0xffff`;
+        `regwrite 0x04400ec 0xffff`;
+        `regwrite 0x044016c 0xffff`;
+        `regwrite 0x04401ec 0xffff`;
 
 	# create openflow switch on four ports
 	my $if_string = '';
