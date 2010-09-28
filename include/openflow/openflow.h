@@ -123,7 +123,9 @@ enum ofp_type {
     /* Controller command messages. */
     OFPT_PACKET_OUT,          /* Controller/switch message */
     OFPT_FLOW_MOD,            /* Controller/switch message */
+    OFPT_GROUP_MOD,           /* Controller/switch message */
     OFPT_PORT_MOD,            /* Controller/switch message */
+    OFPT_TABLE_MOD,           /* Controller/switch message */
 
     /* Statistics messages. */
     OFPT_STATS_REQUEST,       /* Controller/switch message */
@@ -136,8 +138,6 @@ enum ofp_type {
     /* Queue Configuration messages. */
     OFPT_QUEUE_GET_CONFIG_REQUEST,  /* Controller/switch message */
     OFPT_QUEUE_GET_CONFIG_REPLY,     /* Controller/switch message */
-
-    OFPT_GROUP_MOD            /* Controller/switch message */
 };
 
 /* Header on all OpenFlow packets. */
@@ -166,13 +166,8 @@ enum ofp_config_flags {
     OFPC_FRAG_REASM    = 1 << 1,  /* Reassemble (only if OFPC_IP_REASM set). */
     OFPC_FRAG_MASK     = 3,
 
-    /* Handling of packets that don't match in the table. The default
-       behavior is SEND_TO_CONTROLLER */
-    OFPC_TABLE_MISS_CONTINUE = 1 << 2,  /* OpenFlow 1.0 behavior */
-    OFPC_TABLE_MISS_DROP = 1 << 3,      /* Drop if no match in table */
-
     /* TTL processing - applicable for IP and MPLS packets */
-    OFPC_INVALID_TTL_TO_CONTROLLER = 1 << 4, /* Send packets with invalid TTL
+    OFPC_INVALID_TTL_TO_CONTROLLER = 1 << 2, /* Send packets with invalid TTL
                                                 ie. 0 or 1 to controller */
 };
 
@@ -184,6 +179,25 @@ struct ofp_switch_config {
                                    send to the controller. */
 };
 OFP_ASSERT(sizeof(struct ofp_switch_config) == 12);
+
+/* Flags to indicate behavior of the flow table. These flags are used in
+   ofp_table_stats to describe the current configuration. They are used in
+   ofp_table_mod message to configure the table's behavior */
+enum ofp_table_config {
+    OFPTC_TABLE_MISS_CONTINUE = 1, /* Continue to the next table in the
+                                      pipeline (OpenFlow 1.0 behavior) */
+    OFPTC_TABLE_MISS_DROP     = 2, /* Drop the packet */
+    OFPTC_TABLE_MISS_MASK     = 3
+};
+
+/* Configure/Modify behavior of a flow table */
+struct ofp_table_mod {
+    struct ofp_header header; 
+    uint8_t table_id;       /* ID of the table, 0xFF indicates all tables */
+    uint8_t pad[3];         /* Pad to 32 bits */
+    uint32_t config;        /* Bitmap of OFPTC_* flags */
+};
+OFP_ASSERT(sizeof(struct ofp_table_mod) == 16);
 
 /* Capabilities supported by the datapath. */
 enum ofp_capabilities {
@@ -981,6 +995,7 @@ struct ofp_table_stats {
     uint32_t match;          /* Bitmap of OFPFW_* that indicate the fields
                                 the table can match on. */
     uint32_t instructions;   /* Bitmap of OFPIT_* values supported. */
+    uint32_t config;         /* Bitmap of OFPTC_* values */
     uint32_t max_entries;    /* Max number of entries supported. */
     uint32_t active_count;   /* Number of active entries. */
     uint64_t lookup_count;   /* Number of packets looked up in table. */

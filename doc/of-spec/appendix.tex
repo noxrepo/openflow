@@ -189,6 +189,15 @@ The \verb|OFPC_FRAG_*| flags indicate whether IP fragments should be treated nor
 \\\\
 The \verb|miss_send_len| field defines the number of bytes of each packet sent to the controller as a result of both flow table misses and flow table hits with the controller as the destination.  If this field equals 0, the switch must send a zero-size \verb|packet_in| message.
 
+\subsubsection{Flow Table Configuration}
+The controller can configure and query table state in the switch with the \verb|OFP_TABLE_MOD| and \verb|OFPST_TABLE_STATS| requests, respectively. The switch responds to a table stats request with a \verb|OFPT_STATS_REPLY| message.
+
+\input{struct/ofp_table_mod}
+The \verb|config| field is a bitmap that is used to configure the \verb|table_id| specified. If the \verb|table_id| is \verb|0xFF|, the configuration is applied to all tables in the switch.
+
+\input{enum/ofp_table_config}
+Any packet that does not match a table is sent to the controller for processing. This default behavior can be modified by either using \verb|OFPTC_TABLE_MISS_CONTINUE| or \verb|OFPTC_TABLE_MISS_DROP| flags. The latter configures the table to drop the packet if it does not match on a table. The former requires the packet to match in the next available table (This is the behavior from an earlier version of the specification).
+
 \subsubsection{Modify State Messages}
 \paragraph{Modify Flow Entry Message}
 Modifications to the flow table from the controller are done with the \verb|OFPT_FLOW_MOD| message:
@@ -248,8 +257,6 @@ Buckets use the following struct:
 The \verb|weight| field is only defined for multipath groups.  The bucket's share of the traffic processed by the group is defined by the individual bucket's weight divided by the sum of the bucket weights in the group.  When a port goes down, the change in traffic distribution is undefined.  The precision by which a switch's packet distribution should match bucket weights is undefined.
 \\\\
 The \verb|port| field is only defined for fast failover groups.  It indicates the port whose liveness controls whether this bucket is a candidate for forwarding.  For fast failover groups, the first bucket defined is the highest-priority bucket, and only the highest-priority live bucket is used.
-
-Specification   
 
 \paragraph{Port Modification Message}
 The controller uses the \verb|OFPT_PORT_MOD| message to modify the behavior of the physical port:
