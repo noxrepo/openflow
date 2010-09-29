@@ -497,6 +497,8 @@ For non-strict MODIFY and DELETE commands that contain wildcards, a match will o
 \\\\
 DELETE and DELETE\_STRICT commands can be optionally filtered by destination group or output port.  If the \verb|out_port| field contains a value other than \verb|OFPP_NONE|, it introduces a constraint when matching.  This constraint is that the rule must contain an output action directed at the specified group or port.  This field is ignored by ADD, MODIFY, and MODIFY\_STRICT messages.
 \\\\
+MODIFY, MODIFY\_STRICT, DELETE and DELETE\_STRICT commands can also be filtered by cookie value, if the \verb|cookie_mask| field contains a value other than 0. This constraint is that the bits specified by the \verb|cookie_mask| in both the \verb|cookie| field of the flow mod and a flow's \verb|cookie| value must be equal. In other words, (flow.cookie \& flow_mod.cookie_mask) == (flow_mod.cookie \& flow_mod.cookie_mask).
+\\\\
 Emergency flow mod messages must have timeout values set to zero.  Otherwise, the switch must refuse the addition and respond with an \verb|ofp_error_msg| with \verb|OFPET_FLOW_MOD_FAILED| type and \verb|OFPFMFC_BAD_EMERG_TIMEOUT| code.
 \\\\
 \label{unsupported_flow}If a switch cannot process the action list for any flow mod message in the order specified, it must immediately return an \verb|OFPET_FLOW_MOD_FAILED| :

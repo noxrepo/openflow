@@ -644,6 +644,10 @@ struct ofp_flow_mod {
     struct ofp_header header;
     struct ofp_match match;      /* Fields to match */
     uint64_t cookie;             /* Opaque controller-issued identifier. */
+    uint64_t cookie_mask;        /* Mask used to restrict the cookie bits
+                                    that must match when the command is
+                                    OFPFC_MODIFY* or OFPFC_DELETE*. A value
+				    of 0 indicates no restriction. */
 
     /* Flow actions. */
     uint8_t table_id;             /* ID of the table to put the flow in */
@@ -661,7 +665,7 @@ struct ofp_flow_mod {
     uint8_t pad[2];
     struct ofp_instruction instructions[0]; /* Instruction set */
 };
-OFP_ASSERT(sizeof(struct ofp_flow_mod) == 72);
+OFP_ASSERT(sizeof(struct ofp_flow_mod) == 80);
 
 /* Group numbering. Groups can use any number up to OFPG_MAX. */
 enum ofp_group {
@@ -945,8 +949,14 @@ struct ofp_flow_stats_request {
     uint32_t out_port;        /* Require matching entries to include this
                                  as an output port.  A value of OFPP_NONE
                                  indicates no restriction. */
+    uint8_t pad[4];           /* Align to 64 bits. */
+    uint64_t cookie;          /* Require matching entries to contain this
+				 cookie value */
+    uint64_t cookie_mask;     /* Mask used to restrict the cookie bits that
+				 must match. A value of 0 indicates
+				 no restriction. */
 };
-OFP_ASSERT(sizeof(struct ofp_flow_stats_request) == 48);
+OFP_ASSERT(sizeof(struct ofp_flow_stats_request) == 64);
 
 /* Body of reply to OFPST_FLOW request. */
 struct ofp_flow_stats {
@@ -978,8 +988,19 @@ struct ofp_aggregate_stats_request {
     uint32_t out_port;        /* Require matching entries to include this
                                  as an output port.  A value of OFPP_NONE
                                  indicates no restriction. */
+<<<<<<< HEAD
 };
 OFP_ASSERT(sizeof(struct ofp_aggregate_stats_request) == 48);
+=======
+    uint8_t pad2[4];          /* Align to 64 bits. */
+    uint64_t cookie;          /* Require matching entries to contain this
+				 cookie value */
+    uint64_t cookie_mask;     /* Mask used to restrict the cookie bits that
+				 must match. A value of 0 indicates
+				 no restriction. */
+};
+OFP_ASSERT(sizeof(struct ofp_aggregate_stats_request) == 64);
+>>>>>>> spec: Improve cookie matching abilities
 
 /* Body of reply to OFPST_AGGREGATE request. */
 struct ofp_aggregate_stats_reply {
