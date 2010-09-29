@@ -632,8 +632,7 @@ OFP_ASSERT(sizeof(ofp_instruction_vendor) == 4);
 enum ofp_flow_mod_flags {
     OFPFF_SEND_FLOW_REM = 1 << 0,  /* Send flow removed message when flow
                                     * expires or is deleted. */
-    OFPFF_CHECK_OVERLAP = 1 << 1,  /* Check for overlapping entries first. */
-    OFPFF_EMERG         = 1 << 2   /* Remark this is for emergency. */
+    OFPFF_CHECK_OVERLAP = 1 << 1   /* Check for overlapping entries first. */
 };
 
 /* Flow setup and teardown (controller -> datapath). */
@@ -800,8 +799,8 @@ enum ofp_flow_mod_failed_code {
     OFPFMFC_OVERLAP,            /* Attempted to add overlapping flow with
                                  * CHECK_OVERLAP flag set. */
     OFPFMFC_EPERM,              /* Permissions error. */
-    OFPFMFC_BAD_EMERG_TIMEOUT,  /* Flow not added because of non-zero idle/hard
-                                 * timeout. */
+    OFPFMFC_BAD_TIMEOUT,        /* Flow not added because of unsupported
+				 * idle/hard timeout. */
     OFPFMFC_BAD_COMMAND,        /* Unknown command. */
     OFPFMFC_UNSUPPORTED,        /* Unsupported action list - cannot process in
                                  * the order specified. */
@@ -946,7 +945,6 @@ struct ofp_flow_stats_request {
     uint32_t out_port;        /* Require matching entries to include this
                                  as an output port.  A value of OFPP_NONE
                                  indicates no restriction. */
-    uint8_t pad[4];           /* Align to 64 bits. */
     uint64_t cookie;          /* Require matching entries to contain this
 				 cookie value */
     uint64_t cookie_mask;     /* Mask used to restrict the cookie bits that
@@ -985,7 +983,6 @@ struct ofp_aggregate_stats_request {
     uint32_t out_port;        /* Require matching entries to include this
                                  as an output port.  A value of OFPP_NONE
                                  indicates no restriction. */
-    uint8_t pad2[4];          /* Align to 64 bits. */
     uint64_t cookie;          /* Require matching entries to contain this
 				 cookie value */
     uint64_t cookie_mask;     /* Mask used to restrict the cookie bits that

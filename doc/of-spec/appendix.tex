@@ -239,8 +239,6 @@ The \verb|flags| field may include the follow flags:
 When the \verb|OFPFF_SEND_FLOW_REM| flag is set, the switch must send a flow removed message when the flow expires.  The default is for the switch to not send flow removed messages for newly added flows.  
 \\\\
 When the \verb|OFPFF_CHECK_OVERLAP| flag is set, the switch must check that there are no conflicting entries with the same priority. If there is one, the flow mod fails and an error code is returned.
-\\\\
-When the \verb|OFPFF_EMERG_| flag is set, the switch must consider this flow entry as an emergency entry, and only use it for forwarding when disconnected from the controller.
 
 \paragraph{Modify Group Entry Message}
 Modifications to the group table from the controller are done with the \verb|OFPT_GROUP_MOD| message:

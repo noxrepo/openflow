@@ -460,11 +460,11 @@ If the negotiated version is supported by the recipient, then the connection pro
 \subsection{Connection Interruption}
 In the case that a switch loses contact with the controller, as a result of a echo request timeout, TLS session timeout, or other disconnection, it should attempt to contact one or more backup controllers.  The ordering of the controller IP addresses is not specified by the protocol.
 \\\\
-If some number of attempts to contact a controller (zero or more) fail, the switch must enter ``emergency mode'' and immediately reset the current TCP connection.  In emergency mode, the matching process is dictated by the emergency flow table entries (those marked with the emergency bit when added to the switch).  All normal entries are deleted when entering emergency mode.
+If some number of attempts to contact a controller (zero or more) fail, the switch may either enter ``fail secure mode'' or ``fail standalone mode'', depending on the switch implementation and its configuration. In ``fail secure mode'', the switch continues to operate according to OpenFlow procedures, with the exception that packets and messages destined to the controller are dropped and no new flow table entries are set up by the controller. In ``fail standalone mode'', the switch process all packets using the \verb|OFPP_NORMAL| port; in other words, the switch acts as a legacy Ethernet switch. 
 \\\\
-Upon connecting to a controller again, the emergency flow entries remain.  The controller then has the option of deleting all flow entries, if desired.
+Upon connecting to a controller again, the existing flow entries remain.  The controller then has the option of deleting all flow entries, if desired.
 \\\\
-The first time a switch starts up, it is considered to be in emergency mode.  Configuration of the default set of flow entries is outside the scope of the OpenFlow protocol.
+The first time a switch starts up, it will operate in either ``fail secure mode'' or ``fail standalone mode'' mode.  Configuration of the default set of flow entries to be used at startup is outside the scope of the OpenFlow protocol.
 
 \subsection{Encryption}
 The switch and controller communicate through a TLS connection.  The TLS connection is initiated by the switch on startup to the controller's server, which is located by default on TCP port \input{define/OFP_TCP_PORT}.   The switch and controller mutually authenticate by exchanging certificates signed by a site-specific private key.  Each switch must be user-configurable with one certificate for authenticating the controller (controller certificate) and the other for authenticating to the controller (switch certificate).
@@ -487,7 +487,7 @@ If the action list in a flow mod message references a group that is not currentl
 \\\\
 For MODIFY requests, if a flow entry with identical match fields does not current reside in any table, the MODIFY acts like an ADD, and the new flow entry must be inserted with zeroed counters.  Otherwise, the actions field is changed on the existing entry and its counters and idle time fields are left unchanged.
 \\\\
-For DELETE requests, if no flow entry matches, no error is recorded, and no flow table modification occurs.  If flow entries match, and must be deleted, then each normal entry with the \verb|OFPFF_SEND_FLOW_REM| flag set should generate a flow removed message.  Deleted emergency flow entries generate no flow removed messages.
+For DELETE requests, if no flow entry matches, no error is recorded, and no flow table modification occurs.  If flow entries match, and must be deleted, then each normal entry with the \verb|OFPFF_SEND_FLOW_REM| flag set should generate a flow removed message.
 \\\\
 MODIFY and DELETE flow mod commands have corresponding \_STRICT versions.   Without \_STRICT appended, the wildcards are active and all flows that match the description are modified or removed.  If \_STRICT is appended, all fields, including the wildcards and priority, are strictly matched against the entry, and only an identical flow is modified or removed.  For example, if a message to remove entries is sent that has all the wildcard flags set, the DELETE command would delete all flows from all tables, while the DELETE\_STRICT command would only delete a rule that applies to all packets at the specified priority.
 \\\\
@@ -497,9 +497,7 @@ DELETE and DELETE\_STRICT commands can be optionally filtered by destination gro
 \\\\
 MODIFY, MODIFY\_STRICT, DELETE and DELETE\_STRICT commands can also be filtered by cookie value, if the \verb|cookie_mask| field contains a value other than 0. This constraint is that the bits specified by the \verb|cookie_mask| in both the \verb|cookie| field of the flow mod and a flow's \verb|cookie| value must be equal. In other words, (flow.cookie \& flow\_mod.cookie\_mask) == (flow\_mod.cookie \& flow\_mod.cookie\_mask).
 \\\\
-Emergency flow mod messages must have timeout values set to zero.  Otherwise, the switch must refuse the addition and respond with an \verb|ofp_error_msg| with \verb|OFPET_FLOW_MOD_FAILED| type and \verb|OFPFMFC_BAD_EMERG_TIMEOUT| code.
-\\\\
-\label{unsupported_flow}If a switch cannot process the action list for any flow mod message in the order specified, it must immediately return an \verb|OFPET_FLOW_MOD_FAILED| :
+\label{unsupported_flow}If a switch cannot process the action list for any flow mod message in the order specified, it must immediately return an \verb|OFPET_FLOW_MOD_FAILED|:
 \verb|OFPFMFC_UNSUPPORTED| error and reject the flow.
 
 \subsection{Flow Removal}
