@@ -153,7 +153,7 @@ extern char serial_num;
                                 | (1 << OFPAT_SET_NW_DST)   \
                                 | (1 << OFPAT_SET_TP_SRC)   \
                                 | (1 << OFPAT_SET_TP_DST)   \
-                                | (1 << OFPAT_ENQUEUE))
+                                | (1 << OFPAT_SET_QUEUE))
 
 /* The origin of a received OpenFlow message, to enable sending a reply. */
 struct sender {

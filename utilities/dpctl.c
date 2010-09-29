@@ -827,14 +827,13 @@ put_output_action(struct ofpbuf *b, uint16_t port)
     return oao;
 }
 
-static struct ofp_action_enqueue *
-put_enqueue_action(struct ofpbuf *b, uint16_t port, uint32_t queue)
+static struct ofp_action_set_queue *
+put_set_queue_action(struct ofpbuf *b, uint16_t port, uint32_t queue)
 {
-    struct ofp_action_enqueue *oao;
+    struct ofp_action_set_queue *oao;
 
-    oao = put_action(b, sizeof *oao, OFPAT_ENQUEUE);
+    oao = put_action(b, sizeof *oao, OFPAT_SET_QUEUE);
     oao->len = htons(sizeof(*oao));
-    oao->port = htons(port);
     oao->queue_id = htonl(queue);
     return oao;
 }
@@ -879,13 +878,13 @@ str_to_action(char *str, struct ofpbuf *b)
             struct ofp_action_header *ah;
             ah = put_action(b, sizeof *ah, OFPAT_STRIP_VLAN);
             ah->type = htons(OFPAT_STRIP_VLAN);
-        } else if (!strcasecmp(act, "enqueue")) {
+        } else if (!strcasecmp(act, "set_queue")) {
             arg2 = strchr(arg, ':');
             if (arg2) {
                 *arg2 = '\0';
                 arg2++;
             }
-            put_enqueue_action(b, str_to_u32(arg), str_to_u32(arg2));
+            put_set_queue_action(b, str_to_u32(arg), str_to_u32(arg2));
         } else if (!strcasecmp(act, "output")) {
             put_output_action(b, str_to_u32(arg));
         } else if (!strcasecmp(act, "TABLE")) {

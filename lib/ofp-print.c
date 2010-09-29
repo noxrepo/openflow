@@ -229,9 +229,9 @@ ofp_print_action(struct ds *string, const struct ofp_action_header *ah,
             sizeof(struct ofp_action_output),
             sizeof(struct ofp_action_output),
         },
-        [OFPAT_ENQUEUE] = {
-            sizeof(struct ofp_action_enqueue),
-            sizeof(struct ofp_action_enqueue),
+        [OFPAT_SET_QUEUE] = {
+            sizeof(struct ofp_action_set_queue),
+            sizeof(struct ofp_action_set_queue),
         },
         [OFPAT_SET_VLAN_VID] = {
             sizeof(struct ofp_action_vlan_vid),
@@ -323,12 +323,11 @@ ofp_print_action(struct ds *string, const struct ofp_action_header *ah,
         break;
     }
 
-    case OFPAT_ENQUEUE: {
-        struct ofp_action_enqueue *ea = (struct ofp_action_enqueue *)ah;
-        uint16_t port = ntohs(ea->port);
+    case OFPAT_SET_QUEUE: {
+        struct ofp_action_set_queue *ea = (struct ofp_action_set_queue *)ah;
         uint32_t queue = ntohl(ea->queue_id);
 
-        ds_put_format(string, "enqueue:%"PRIu16":%"PRIu32,port,queue);
+        ds_put_format(string, "set-queue:%"PRIu32,queue);
         break;
     }
 

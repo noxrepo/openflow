@@ -94,7 +94,7 @@ This structure is used for all actions related instructions. For the Clear-Actio
 A number of actions may be associated with flows, groups or packets.  The currently defined action types are:
 
 \input{enum/ofp_action_type} 
-Output, group, \qosupd{and enqueue} actions are described in Section \ref{ft:actions}, while Field-Modify actions are described in Table \ref{table:field modify actions}.  An action definition contains the action type, length, and any associated data:
+Output, group, \qosupd{and set-queue} actions are described in Section \ref{ft:actions}, while Field-Modify actions are described in Table \ref{table:field modify actions}.  An action definition contains the action type, length, and any associated data:
 
 \input{struct/ofp_action_header}
 An \verb|action_output| has the following fields:
@@ -107,20 +107,20 @@ An \verb|action_group| has the following fields:
 \input{struct/ofp_action_group}
 The \verb|group_id| indicates the group used top process this packet.  The set of buckets to apply depends on the group type.
 \\\\
-\qosupd{The enqueue action maps a flow to an already-configured queue, regardless of the TOS and VLAN PCP bits.
-  The packet should not change after an enqueue action. If the switch
+\qosupd{The set-queue action sets the queue id that will be used to map a flow to an already-configured queue, regardless of the TOS and VLAN PCP bits.
+  The packet should not change after an set-queue action. If the switch
   needs to set the TOS/PCP bits for internal handling, the original values
   should be restored before sending the packet out.
 \\\\
 A switch may support only queues that are tied to specific PCP/TOS
 bits. In that case, we cannot map an arbitrary flow to a specific
-queue, therefore the action ENQUEUE is not supported. The user can
+queue, therefore the action SET-QUEUE is not supported. The user can
 still use these queues and map
 flows to them by setting the relevant fields (TOS, VLAN PCP).
 \\\\
-The enqueue action has the following fields:
+An } \verb|action_set_queue| \qosupd{has the following fields:
 
-\input{struct/ofp_action_enqueue}}
+\input{struct/ofp_action_set_queue}}
 An \verb|action_vlan_vid| has the following fields:
 
 \input{struct/ofp_action_vlan_vid}

@@ -295,10 +295,7 @@ The switch may optionally support the following virtual ports:
 \end{itemize}
 The controller will only ask the switch to send to multiple physical ports simultaneously if the switch indicates it supports this behavior in the initial handshake (see section \ref{cts:handshake}).  
 \\\\
-\textbf{\qosupd{Optional Action:}} \emph{\qosupd{Enqueue}}. \qosupd{The enqueue action forwards
-a packet through a queue attached to a port. Forwarding behavior is
-dictated by the configuration of the queue and is used to provide
-basic Quality-of-Service (QoS) support (see section \ref{cts:qos}).}
+\textbf{\qosupd{Optional Action:}} \emph{\qosupd{Set-Queue}}. \qosupd{The set-queue action set the queue id for a packet. When the packet is forwarded to a port using the output action, the queue id determine which queue attached to this port is used for forwarding the packet. Forwarding behavior is dictated by the configuration of the queue and is used to provide basic Quality-of-Service (QoS) support (see section \ref{cts:qos}).}
 \\\\
 \textbf{Required Action:} \emph{Drop}.  A flow-entry with no specified action indicates that all matching packets should be dropped.
 \\\\

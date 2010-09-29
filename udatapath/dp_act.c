@@ -56,6 +56,7 @@ validate_output(struct datapath *dp UNUSED, const struct sw_flow_key *key,
     return ACT_VALIDATION_OK;
 }
 
+#if 0
 static uint16_t
 validate_queue(struct datapath *dp UNUSED, const struct sw_flow_key *key UNUSED,
                const struct ofp_action_header *ah)
@@ -68,6 +69,7 @@ validate_queue(struct datapath *dp UNUSED, const struct sw_flow_key *key UNUSED,
     }
     return ACT_VALIDATION_OK;
 }
+#endif
 
 static void
 do_output(struct datapath *dp, struct ofpbuf *buffer, int in_port,
@@ -280,12 +282,14 @@ static const struct openflow_action of_actions[] = {
         validate_output,
         NULL                   /* This is optimized into execute_actions */
     },
+#if 0
     [OFPAT_ENQUEUE] = {
         sizeof(struct ofp_action_enqueue),
         sizeof(struct ofp_action_enqueue),
         validate_queue,
         NULL         /* This is optimized into execute_actions */
     },
+#endif
     [OFPAT_SET_VLAN_VID] = {
         sizeof(struct ofp_action_vlan_vid),
         sizeof(struct ofp_action_vlan_vid),
@@ -505,11 +509,13 @@ void execute_actions(struct datapath *dp, struct ofpbuf *buffer,
             prev_port = ntohs(oa->port);
             prev_queue = 0; /* using the default best-effort queue */
             max_len = ntohs(oa->max_len);
+#if 0
         } else if (ah->type == htons(OFPAT_ENQUEUE)) {
             struct ofp_action_enqueue *ea = (struct ofp_action_enqueue *)p;
             prev_port = ntohs(ea->port);
             prev_queue = ntohl(ea->queue_id);
             max_len = 0; /* we will not send to the controller anyways - useless */
+#endif
         } else {
             uint16_t type = ntohs(ah->type);
 

@@ -362,7 +362,7 @@ enum ofp_action_type {
     OFPAT_SET_NW_TOS,       /* IP ToS (DSCP field, 6 bits). */
     OFPAT_SET_TP_SRC,       /* TCP/UDP source port. */
     OFPAT_SET_TP_DST,       /* TCP/UDP destination port. */
-    OFPAT_ENQUEUE,          /* Output to queue.  */
+    OFPAT_SET_QUEUE,        /* Set queue id used by Output action. */
     OFPAT_GROUP,            /* Apply group. */
     OFPAT_VENDOR = 0xffff
 };
@@ -988,10 +988,6 @@ struct ofp_aggregate_stats_request {
     uint32_t out_port;        /* Require matching entries to include this
                                  as an output port.  A value of OFPP_NONE
                                  indicates no restriction. */
-<<<<<<< HEAD
-};
-OFP_ASSERT(sizeof(struct ofp_aggregate_stats_request) == 48);
-=======
     uint8_t pad2[4];          /* Align to 64 bits. */
     uint64_t cookie;          /* Require matching entries to contain this
 				 cookie value */
@@ -1000,7 +996,6 @@ OFP_ASSERT(sizeof(struct ofp_aggregate_stats_request) == 48);
 				 no restriction. */
 };
 OFP_ASSERT(sizeof(struct ofp_aggregate_stats_request) == 64);
->>>>>>> spec: Improve cookie matching abilities
 
 /* Body of reply to OFPST_AGGREGATE request. */
 struct ofp_aggregate_stats_reply {
@@ -1175,17 +1170,13 @@ struct ofp_queue_get_config_reply {
 };
 OFP_ASSERT(sizeof(struct ofp_queue_get_config_reply) == 16);
 
-/* OFPAT_ENQUEUE action struct: send packets to given queue on port. */
-struct ofp_action_enqueue {
-    uint16_t type;            /* OFPAT_ENQUEUE. */
-    uint16_t len;             /* Len is 16. */
-    uint32_t port;            /* Port that queue belongs. Should
-                                 refer to a valid physical port
-                                 (i.e. < OFPP_MAX) or OFPP_IN_PORT. */
-    uint8_t pad[4];           /* Pad for 64-bit alignment. */
-    uint32_t queue_id;        /* Where to enqueue the packets. */
+/* OFPAT_SET_QUEUE action struct: send packets to given queue on port. */
+struct ofp_action_set_queue {
+    uint16_t type;            /* OFPAT_SET_QUEUE. */
+    uint16_t len;             /* Len is 8. */
+    uint32_t queue_id;        /* Queue id for the packets. */
 };
-OFP_ASSERT(sizeof(struct ofp_action_enqueue) == 16);
+OFP_ASSERT(sizeof(struct ofp_action_set_queue) == 8);
 
 struct ofp_queue_stats_request {
     uint32_t port_no;        /* All ports if OFPT_ALL. */
