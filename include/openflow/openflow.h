@@ -225,6 +225,7 @@ enum ofp_port_config {
 enum ofp_port_state {
     OFPPS_LINK_DOWN    = 1 << 0,  /* No physical link present. */
     OFPPS_BLOCKED      = 1 << 1,  /* Port is blocked */
+    OFPPS_LIVE         = 1 << 2,  /* Live for Fast Failover Group. */
 };
 
 /* Features of physical ports available in a datapath. */
@@ -701,7 +702,10 @@ struct ofp_bucket {
                                        64-bit aligned. */
     uint16_t weight;                /* Relative weight of bucket.  Only
                                        defined for multipath groups. */
-    uint32_t port;                  /* Port whose state affects whether this
+    uint32_t watch_port;            /* Port whose state affects whether this
+                                       bucket is live.  Only defined for fast
+                                       failover groups. */
+    uint32_t watch_group;           /* Group whose state affects whether this
                                        bucket is live.  Only defined for fast
                                        failover groups. */
     struct ofp_action_header actions[0]; /* The action length is inferred
@@ -820,6 +824,8 @@ enum ofp_group_mod_failed_code {
                                        * for a group has been exceeded. */
     OFPGMFC_CHAINING_UNSUPPORTED,     /* Switch does not support groups that
                                        * forward to groups. */
+    OFPGMFC_WATCH_UNSUPPORTED,        /* This group can not watch the
+					 watch_port or watch_group specified. */
     OFPGMFC_LOOP                      /* Group entry would cause a loop. */
 };
 

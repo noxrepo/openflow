@@ -128,6 +128,18 @@ The following group types are defined:
 \item \textbf{fast failover}: Execute the first live bucket.  Each action bucket is associated with a specific port that controls its liveness.  Enables the switch to change forwarding without requiring a round trip to the controller.  If no buckets are live, packets are dropped.  Conditions for liveness are outside the scope of the OpenFlow spec.
 \end{itemize}
 
+All \textit{fast failover groups} must support a liveness mechanism, where the group continuously watch the liveness of other ports and or groups to determine which bucket to use to process packets. Other group types are not required to implement the liveness mechanism, but may optionally implement it. When a port or a group of any type is watched by a \textit{fast failover group}, it must implement the liveness mechanism ; if the implementation can not support it it must refuse to install the \textit{fast failover group} and return an error.
+\\\\
+The \textbf{liveness mechanism} must follow those rules :
+\begin{itemize}
+\item 
+A port is considered \textit{live} if the state of the port contains the flag \verb|OFPPS_LIVE|. Port liveness is hardware dependant and managed by the switch, at a minimum, the port config should not contain \verb|OFPPC_PORT_DOWN| and its state should not contain \verb|OFPPS_LINK_DOWN|, the switch may also use Spanning Tree and some KeepAlive mechanism to determine port liveness.
+\item A bucket is considered \textit{live} if either the port or the group watched by the bucket are live.
+\item A group is considered \textit{live} if a least one of its bucket is live.
+\end{itemize}
+
+The controller can infer the liveness state of the group by monitoring the states of the various ports.
+
 \subsection{Match Fields}
 \begin{table}[hbp]
 \centering
@@ -515,6 +527,8 @@ If a switch does not support unequal load sharing with multipath groups (buckets
 If a switch cannot add the incoming group entry due to lack of space, the switch must send an \verb|ofp_error_msg| with \verb|OFPET_GROUP_MOD_FAILED| type and \verb|OFPGMFC_OUT_OF_GROUPS| code.
 \\\\
 If a switch cannot add the incoming group entry due to restrictions (hardware or otherwise) limiting the number of group buckets, it must refuse to add the group entry and must send an \verb|ofp_error_msg| with \verb|OFPET_GROUP_MOD_FAILED| type and \verb|OFPGMFC_OUT_OF_BUCKETS| code.
+\\\\
+If a switch cannot add the incoming group because it does not support the proposed liveleness configuration, the switch must send an \verb|ofp_error_msg| with \verb|OFPET_GROUP_MOD_FAILED| type and \verb|OFPGMFC_WATCH_UNSUPPORTED| code. This include specifying \verb|watch_port| or \verb|watch_group| for a group that does not support liveness, or specifying a port that does not support liveness in \verb|watch_port|, or specifying a group that does not support liveness in \verb|watch_group|.
 \\\\
 For DELETE requests, if no group entry with the specified group identifier currently exists in the group table, no error is recorded, and no group table modification occurs.  Otherwise, the group is removed, and all flows that forward to the group are also removed.  DELETE differs from an ADD or MODIFY with no buckets specified in that future attempts to ADD the group identifier will not result in a group exists error.  If one wishes to effectively delete a group yet leave in flow entries using it, that group can be cleared by sending a MODIFY with no buckets specified.
 \\\\
