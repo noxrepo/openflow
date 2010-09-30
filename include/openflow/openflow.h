@@ -627,13 +627,13 @@ enum ofp_mpls_label {
 
 /* Fields to match against flows */
 struct ofp_match {
-    uint32_t wildcards;        /* Wildcard fields. */
     uint32_t in_port;          /* Input switch port. */
+    uint32_t wildcards;        /* Wildcard fields. */
+    uint16_t length;           /* sizeof(struct ofp_match) */
     uint8_t dl_src[OFP_ETH_ALEN]; /* Ethernet source address. */
     uint8_t dl_src_mask[OFP_ETH_ALEN]; /* Ethernet source address mask. */
     uint8_t dl_dst[OFP_ETH_ALEN]; /* Ethernet destination address. */
     uint8_t dl_dst_mask[OFP_ETH_ALEN]; /* Ethernet destination address mask. */
-    uint8_t pad1[2];           /* Align to 64-bits */
     uint16_t dl_vlan;          /* Input VLAN id. */
     uint8_t dl_vlan_pcp;       /* Input VLAN priority. */
     uint8_t pad2[1];           /* Align to 32-bits */
@@ -641,6 +641,7 @@ struct ofp_match {
     uint8_t nw_tos;            /* IP ToS (actually DSCP field, 6 bits). */
     uint8_t nw_proto;          /* IP protocol or lower 8 bits of
                                 * ARP opcode. */
+    uint8_t pad2[6];           /* Align to 64 bits. */
     uint32_t nw_src;           /* IP source address. */
     uint32_t nw_src_mask;      /* IP source address mask. */
     uint32_t nw_dst;           /* IP destination address. */
@@ -649,11 +650,11 @@ struct ofp_match {
     uint16_t tp_dst;           /* TCP/UDP destination port. */
     uint32_t mpls_label;       /* MPLS label. */
     uint8_t mpls_tc;           /* MPLS TC. */
-    uint8_t pad3[5];           /* Align to 64-bits */
+    uint8_t pad3[7];           /* Align to 64-bits */
     uint64_t metadata;         /* Metadata passed between tables. */
     uint64_t metadata_mask;    /* Mask for metadata. */
 };
-OFP_ASSERT(sizeof(struct ofp_match) == 64);
+OFP_ASSERT(sizeof(struct ofp_match) == 72);
 
 /* The match fields for ICMP type and code use the transport source and
  * destination port fields, respectively. */
@@ -721,7 +722,6 @@ enum ofp_flow_mod_flags {
 /* Flow setup and teardown (controller -> datapath). */
 struct ofp_flow_mod {
     struct ofp_header header;
-    struct ofp_match match;      /* Fields to match */
     uint64_t cookie;             /* Opaque controller-issued identifier. */
     uint64_t cookie_mask;        /* Mask used to restrict the cookie bits
                                     that must match when the command is
@@ -742,6 +742,7 @@ struct ofp_flow_mod {
                                      indicates no restriction. */
     uint16_t flags;               /* One of OFPFF_*. */
     uint8_t pad[2];
+    struct ofp_match match;       /* Fields to match */
     struct ofp_instruction instructions[0]; /* Instruction set */
 };
 OFP_ASSERT(sizeof(struct ofp_flow_mod) == 80);
@@ -762,7 +763,7 @@ struct ofp_group_mod {
     struct ofp_header header;
     uint16_t command;             /* One of OFPGC_*. */
     uint8_t type;                 /* One of OFPGT_*. */
-    unit8_t pad;                  /* Pad to 64 bits. */
+    uint8_t pad;                  /* Pad to 64 bits. */
     uint32_t group_id;            /* Group identifier. */
     struct ofp_bucket buckets[0]; /* The bucket length is inferred from the
                                      length field in the header. */
@@ -807,7 +808,6 @@ enum ofp_flow_removed_reason {
 /* Flow removed (datapath -> controller). */
 struct ofp_flow_removed {
     struct ofp_header header;
-    struct ofp_match match;   /* Description of fields. */
     uint64_t cookie;          /* Opaque controller-issued identifier. */
 
     uint16_t priority;        /* Priority level of flow entry. */
@@ -821,6 +821,7 @@ struct ofp_flow_removed {
     uint8_t pad2[2];          /* Align to 64-bits. */
     uint64_t packet_count;
     uint64_t byte_count;
+    struct ofp_match match;   /* Description of fields. */
 };
 OFP_ASSERT(sizeof(struct ofp_flow_removed) == 88);
 
@@ -1031,7 +1032,6 @@ OFP_ASSERT(sizeof(struct ofp_desc_stats) == 1056);
 
 /* Body for ofp_stats_request of type OFPST_FLOW. */
 struct ofp_flow_stats_request {
-    struct ofp_match match;   /* Fields to match. */
     uint8_t table_id;         /* ID of table to read (from ofp_table_stats),
                                  0xff for all tables or 0xfe for emergency. */
     uint8_t pad[3];           /* Align to 64 bits. */
@@ -1043,6 +1043,7 @@ struct ofp_flow_stats_request {
     uint64_t cookie_mask;     /* Mask used to restrict the cookie bits that
 				 must match. A value of 0 indicates
 				 no restriction. */
+    struct ofp_match match;   /* Fields to match. */
 };
 OFP_ASSERT(sizeof(struct ofp_flow_stats_request) == 64);
 
@@ -1051,7 +1052,6 @@ struct ofp_flow_stats {
     uint16_t length;          /* Length of this entry. */
     uint8_t table_id;         /* ID of table flow came from. */
     uint8_t pad;
-    struct ofp_match match;   /* Description of fields. */
     uint32_t duration_sec;    /* Time flow has been alive in seconds. */
     uint32_t duration_nsec;   /* Time flow has been alive in nanoseconds beyond
                                  duration_sec. */
@@ -1063,13 +1063,13 @@ struct ofp_flow_stats {
     uint64_t cookie;          /* Opaque controller-issued identifier. */
     uint64_t packet_count;    /* Number of packets in flow. */
     uint64_t byte_count;      /* Number of bytes in flow. */
+    struct ofp_match match;   /* Description of fields. */
     struct ofp_instruction instructions[0]; /* Instruction set. */
 };
 OFP_ASSERT(sizeof(struct ofp_flow_stats) == 88);
 
 /* Body for ofp_stats_request of type OFPST_AGGREGATE. */
 struct ofp_aggregate_stats_request {
-    struct ofp_match match;   /* Fields to match. */
     uint8_t table_id;         /* ID of table to read (from ofp_table_stats)
                                  0xff for all tables or 0xfe for emergency. */
     uint8_t pad[3];           /* Align to 64 bits. */
@@ -1081,6 +1081,7 @@ struct ofp_aggregate_stats_request {
     uint64_t cookie_mask;     /* Mask used to restrict the cookie bits that
 				 must match. A value of 0 indicates
 				 no restriction. */
+    struct ofp_match match;   /* Fields to match. */
 };
 OFP_ASSERT(sizeof(struct ofp_aggregate_stats_request) == 64);
 
