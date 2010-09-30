@@ -161,10 +161,10 @@ An \verb|action_tp_port| has the following fields:
 \input{struct/ofp_action_tp_port}
 The \verb|tp_port| field is the TCP/UDP/other port to set.
 \\\\
-An \verb|action_vendor| has the following fields:
+An \verb|action_experimenter| has the following fields:
 
-\input{struct/ofp_action_vendor_header}
-The \verb|vendor| field is the Vendor ID, which takes the same form as in struct \verb|ofp_vendor|.
+\input{struct/ofp_action_experimenter_header}
+The \verb|experimenter| field is the Experimenter ID, which takes the same form as in struct \verb|ofp_experimenter|.
 
 \subsection{Controller-to-Switch Messages}
 
@@ -180,6 +180,8 @@ The \verb|n_tables| field describes the number of tables supported by the switch
 The \verb|capabilities| field uses the following flags:
 
 \input{enum/ofp_capabilities} 
+The \verb|actions| field is a bitmap of actions supported by the switch.  The list of actions is found in Section~\ref{ft:actions}; all actions marked Required must be supported. Experimenter actions should \emph{not} be reported via this bitmask. The bitmask uses the values from \verb|ofp_action_type| as the number of bits to shift left for an associated action. For example, \verb|OFPAT_SET_DL_VLAN| would use the flag \verb|0x00000002|.
+\\\\
 The \verb|ports| field is an array of \verb|ofp_port| structures that describe all the ports in the system that support OpenFlow.  The number of port elements is inferred from the length field in the OpenFlow header. 
 
 \subsubsection{Switch Configuration}
@@ -343,7 +345,7 @@ The body of the reply consists of an array of the following:
 \input{struct/ofp_table_stats}
 The \verb|body| contains a \verb|wildcards| field, which indicates the fields for which that particular table supports wildcarding. For example, a direct look-up hash table would have that field set to zero, while a sequentially searched table would have it set to \verb|OFPFW_ALL|. The entries are returned in the order that packets traverse the tables. 
 \\\\
-The \verb|actions| field is a bitmap of actions supported by the switch.  The list of actions is found in Section~\ref{ft:actions}. Vendor actions should \emph{not} be reported via this bitmask. The bitmask uses the values from \verb|ofp_action_type| as the number of bits to shift left for an associated action. For example, \verb|OFPAT_SET_DL_VLAN| would use the flag \verb|0x00000002|.
+The \verb|actions| field is a bitmap of actions supported by the switch.  The list of actions is found in Section~\ref{ft:actions}. Experimenter actions should \emph{not} be reported via this bitmask. The bitmask uses the values from \verb|ofp_action_type| as the number of bits to shift left for an associated action. For example, \verb|OFPAT_SET_DL_VLAN| would use the flag \verb|0x00000002|.
 \\\\
 \verb|OFP_MAX_TABLE_NAME_LEN| is \input{define/OFP_MAX_TABLE_NAME_LEN}.
 
@@ -388,10 +390,10 @@ The \verb|OFPST_GROUP_DESC| stats request message provides a way to list the set
 \input{struct/ofp_group_desc_stats}
 Fields for group description stats are the same as those used with the \verb|ofp_group_mod| struct.
 
-\paragraph{Vendor Statistics}
-Vendor-specific stats messages are requested with the \verb|OFPST_VENDOR| stats type. The first four bytes of the message are the vendor identifier. The rest of the body is vendor-defined.
+\paragraph{Experimenter Statistics}
+Experimenter-specific stats messages are requested with the \verb|OFPST_EXPERIMENTER| stats type. The first four bytes of the message are the experimenter identifier. The rest of the body is experimenter-defined.
 \\\\
-The \verb|vendor| field is a 32-bit value that uniquely identifies the vendor. If the most significant byte is zero, the next three bytes are the vendor's IEEE OUI. If vendor does not have (or wish to use) their OUI, they should contact the OpenFlow consortium to obtain one. 
+The \verb|experimenter| field is a 32-bit value that uniquely identifies the experimenter. If the most significant byte is zero, the next three bytes are the experimenter's IEEE OUI. If experimenter does not have (or wish to use) their OUI, they should contact the OpenFlow consortium to obtain one. 
 
 \subsubsection{Send Packet Message}
 When the controller wishes to send a packet out through the datapath, it uses the \verb|OFPT_PACKET_OUT| message:
@@ -502,11 +504,11 @@ An Echo Reply message consists of an OpenFlow header plus the unmodified data fi
 \\\\
 In an OpenFlow protocol implementation divided into multiple layers, the echo request/reply logic should be implemented in the "deepest" practical layer.  For example, in the OpenFlow reference implementation that includes a userspace process that relays to a kernel module, echo request/reply is implemented in the kernel module.  Receiving a correctly formatted echo reply then shows a greater likelihood of correct end-to-end functionality than if the echo request/reply were implemented in the userspace process, as well as providing more accurate end-to-end latency timing.
 
-\subsubsection{Vendor}
-The Vendor message is defined as follows:
+\subsubsection{Experimenter}
+The Experimenter message is defined as follows:
 
-\input{struct/ofp_vendor_header}
-The \verb|vendor| field is a 32-bit value that uniquely identifies the vendor. If the most significant byte is zero, the next three bytes are the vendor's IEEE OUI. If vendor does not have (or wish to use) their OUI, they should contact the OpenFlow consortium to obtain one. The rest of the body is uninterpreted.
+\input{struct/ofp_experimenter_header}
+The \verb|experimenter| field is a 32-bit value that uniquely identifies the experimenter. If the most significant byte is zero, the next three bytes are the experimenter's IEEE OUI. If experimenter does not have (or wish to use) their OUI, they should contact the OpenFlow consortium to obtain one. The rest of the body is uninterpreted.
 \\\\
-If a switch does not understand a vendor extension, it must send an \verb|OFPT_ERROR| message with a \verb|OFPBRC_BAD_VENDOR| error code and \verb|OFPET_BAD_REQUEST| error type. 
+If a switch does not understand a experimenter extension, it must send an \verb|OFPT_ERROR| message with a \verb|OFPBRC_BAD_EXPERIMENTER| error code and \verb|OFPET_BAD_REQUEST| error type. 
 

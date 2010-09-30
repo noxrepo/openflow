@@ -104,7 +104,7 @@ enum ofp_type {
     OFPT_ERROR,               /* Symmetric message */
     OFPT_ECHO_REQUEST,        /* Symmetric message */
     OFPT_ECHO_REPLY,          /* Symmetric message */
-    OFPT_VENDOR,              /* Symmetric message */
+    OFPT_EXPERIMENTER,        /* Symmetric message */
 
     /* Switch configuration messages. */
     OFPT_FEATURES_REQUEST,    /* Controller/switch message */
@@ -366,7 +366,7 @@ enum ofp_action_type {
     OFPAT_GROUP,            /* Apply group. */
     OFPAT_SET_NW_TTL,       /* IP TTL. */
     OFPAT_DEC_NW_TTL,       /* Decrement IP TTL. */
-    OFPAT_VENDOR = 0xffff
+    OFPAT_EXPERIMENTER = 0xffff
 };
 
 /* Action structure for OFPAT_OUTPUT, which sends packets out 'port'.
@@ -457,14 +457,16 @@ struct ofp_action_nw_ttl {
 };
 OFP_ASSERT(sizeof(struct ofp_action_nw_ttl) == 8);
 
-/* Action header for OFPAT_VENDOR. The rest of the body is vendor-defined. */
-struct ofp_action_vendor_header {
-    uint16_t type;                  /* OFPAT_VENDOR. */
+/* Action header for OFPAT_EXPERIMENTER.
+ * The rest of the body is experimenter-defined. */
+struct ofp_action_experimenter_header {
+    uint16_t type;                  /* OFPAT_EXPERIMENTER. */
     uint16_t len;                   /* Length is a multiple of 8. */
-    uint32_t vendor;                /* Vendor ID, which takes the same form
-                                       as in "struct ofp_vendor_header". */
+    uint32_t experimenter;          /* Experimenter ID, which takes the same
+                                       form as in
+				       "struct ofp_experimenter_header". */
 };
-OFP_ASSERT(sizeof(struct ofp_action_vendor_header) == 8);
+OFP_ASSERT(sizeof(struct ofp_action_experimenter_header) == 8);
 
 /* Action header that is common to all actions.  The length includes the
  * header and any padding used to make the action 64-bit aligned.
@@ -595,7 +597,7 @@ enum ofp_instruction_type {
     OFPIT_CLEAR_ACTIONS = 5,    /* Clears all actions from the datapath
                                    action set */
 
-    OFPIT_VENDOR = 0xFFFF       /* Vendor instructions */
+    OFPIT_EXPERIMENTER = 0xFFFF  /* Experimenter instruction */
 };
 
 struct ofp_instruction_goto_table {
@@ -623,11 +625,11 @@ struct ofp_instruction_actions {
 };
 OFP_ASSERT(sizeof(ofp_instruction_actions) == 12);
 
-struct ofp_instruction_vendor {
-    uint16_t type;		/* OFPI_VENDOR */
+struct ofp_instruction_experimenter {
+    uint16_t type;		/* OFPI_EXPERIMENTER */
     uint16_t len;               /* Length of this struct in bytes */
 };
-OFP_ASSERT(sizeof(ofp_instruction_vendor) == 4);
+OFP_ASSERT(sizeof(ofp_instruction_experimenter) == 4);
 
 enum ofp_flow_mod_flags {
     OFPFF_SEND_FLOW_REM = 1 << 0,  /* Send flow removed message when flow
@@ -767,9 +769,10 @@ enum ofp_bad_request_code {
     OFPBRC_BAD_VERSION,         /* ofp_header.version not supported. */
     OFPBRC_BAD_TYPE,            /* ofp_header.type not supported. */
     OFPBRC_BAD_STAT,            /* ofp_stats_request.type not supported. */
-    OFPBRC_BAD_VENDOR,          /* Vendor not supported (in ofp_vendor_header
+    OFPBRC_BAD_EXPERIMENTER,    /* Experimenter id not supported
+				 * (in ofp_experimenter_header
                                  * or ofp_stats_request or ofp_stats_reply). */
-    OFPBRC_BAD_SUBTYPE,         /* Vendor subtype not supported. */
+    OFPBRC_BAD_SUBTYPE,         /* Experimenter subtype not supported. */
     OFPBRC_EPERM,               /* Permissions error. */
     OFPBRC_BAD_LEN,             /* Wrong request length for type. */
     OFPBRC_BUFFER_EMPTY,        /* Specified buffer has already been used. */
@@ -782,9 +785,9 @@ enum ofp_bad_request_code {
 enum ofp_bad_action_code {
     OFPBAC_BAD_TYPE,           /* Unknown action type. */
     OFPBAC_BAD_LEN,            /* Length problem in actions. */
-    OFPBAC_BAD_VENDOR,         /* Unknown vendor id specified. */
-    OFPBAC_BAD_VENDOR_TYPE,    /* Unknown action type for vendor id. */
-    OFPBAC_BAD_OUT_PORT,       /* Invalid port in forward action. */
+    OFPBAC_BAD_EXPERIMENTER,   /* Unknown experimenter id specified. */
+    OFPBAC_BAD_EXPERIMENTER_TYPE, /* Unknown action type for experimenter id. */
+    OFPBAC_BAD_OUT_PORT,       /* Problem validating output action. */
     OFPBAC_BAD_ARGUMENT,       /* Bad action argument. */
     OFPBAC_EPERM,              /* Permissions error. */
     OFPBAC_TOO_MANY,           /* Can't handle this many actions. */
@@ -897,11 +900,11 @@ enum ofp_stats_types {
      * The reply body is struct ofp_group_desc_stats. */
     OFPST_GROUP_DESC,
 
-    /* Vendor extension.
-     * The request and reply bodies begin with a 32-bit vendor ID, which takes
-     * the same form as in "struct ofp_vendor_header".  The request and reply
-     * bodies are otherwise vendor-defined. */
-    OFPST_VENDOR = 0xffff
+    /* Experimenter extension.
+     * The request and reply bodies begin with a 32-bit experimenter ID,
+     * which takes the same form as in "struct ofp_experimenter_header".
+     * The request and reply bodies are otherwise experimenter-defined. */
+    OFPST_EXPERIMENTER = 0xffff
 };
 
 struct ofp_stats_request {
@@ -1099,16 +1102,16 @@ struct ofp_group_desc_stats {
 };
 OFP_ASSERT(sizeof(struct ofp_group_desc_stats) == 16);
 
-/* Vendor extension. */
-struct ofp_vendor_header {
-    struct ofp_header header;   /* Type OFPT_VENDOR. */
-    uint32_t vendor;            /* Vendor ID:
+/* Experimenter extension. */
+struct ofp_experimenter_header {
+    struct ofp_header header;   /* Type OFPT_EXPERIMENTER. */
+    uint32_t experimenter;      /* Experimenter ID:
                                  * - MSB 0: low-order bytes are IEEE OUI.
                                  * - MSB != 0: defined by OpenFlow
                                  *   consortium. */
-    /* Vendor-defined arbitrary additional data. */
+    /* Experimenter-defined arbitrary additional data. */
 };
-OFP_ASSERT(sizeof(struct ofp_vendor_header) == 12);
+OFP_ASSERT(sizeof(struct ofp_experimenter_header) == 12);
 
 /* All ones is used to indicate all queues in a port (for stats retrieval). */
 #define OFPQ_ALL      0xffffffff
