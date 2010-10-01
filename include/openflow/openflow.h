@@ -79,11 +79,9 @@
 /* Port numbering.  Physical ports are numbered starting from 1. */
 enum ofp_port {
     /* Maximum number of physical switch ports. */
-    OFPP_MAX = 0x7fffff00,
+    OFPP_MAX        = 0x7fffff00,
 
     /* Fake output "ports". */
-    OFPP_GROUP_ALL  = 0xfffffff7,  /* Represents all groups for group delete
-                                      commands. */
     OFPP_IN_PORT    = 0xfffffff8,  /* Send the packet out the input port.  This
                                       virtual port must be explicitly used
                                       in order to send back out of the input
@@ -337,10 +335,11 @@ enum ofp_packet_in_reason {
 struct ofp_packet_in {
     struct ofp_header header;
     uint32_t buffer_id;     /* ID assigned by datapath. */
+    uint32_t in_port;       /* Port on which frame was received. */
     uint16_t total_len;     /* Full length of frame. */
-    uint16_t in_port;       /* Port on which frame was received. */
     uint8_t reason;         /* Reason packet is being sent (one of OFPR_*) */
     uint8_t table_id;       /* ID of the table that was looked up */
+    unit8_t pad[2];         /* Pad to "special". */
     uint8_t data[0];        /* Ethernet frame, halfway through 32-bit word,
                                so the IP header is 32-bit aligned.  The
                                amount of data is inferred from the length
@@ -348,7 +347,7 @@ struct ofp_packet_in {
                                offsetof(struct ofp_packet_in, data) ==
                                sizeof(struct ofp_packet_in) - 2. */
 };
-OFP_ASSERT(sizeof(struct ofp_packet_in) == 20);
+OFP_ASSERT(sizeof(struct ofp_packet_in) == 24);
 
 enum ofp_action_type {
     OFPAT_OUTPUT,           /* Output to switch port or group. */
@@ -373,11 +372,12 @@ enum ofp_action_type {
  * packet should be sent.*/
 struct ofp_action_output {
     uint16_t type;                  /* OFPAT_OUTPUT. */
-    uint16_t len;                   /* Length is 8. */
+    uint16_t len;                   /* Length is 16. */
     uint32_t port;                  /* Output port. */
     uint16_t max_len;               /* Max length to send to controller. */
+    unit8_t pad[2];                 /* Pad to 32 bits. */
 };
-OFP_ASSERT(sizeof(struct ofp_action_output) == 8);
+OFP_ASSERT(sizeof(struct ofp_action_output) == 16);
 
 /* The VLAN id is 12 bits, so we can use the entire 16 bits to indicate
  * special conditions.  All ones is used to match that no VLAN id was
@@ -471,14 +471,15 @@ OFP_ASSERT(sizeof(struct ofp_action_header) == 8);
 struct ofp_packet_out {
     struct ofp_header header;
     uint32_t buffer_id;           /* ID assigned by datapath (-1 if none). */
-    uint16_t in_port;             /* Packet's input port (OFPP_NONE if none). */
+    uint32_t in_port;             /* Packet's input port (OFPP_NONE if none). */
     uint16_t actions_len;         /* Size of action array in bytes. */
+    uint8_t pad[2];
     struct ofp_action_header actions[0]; /* Actions. */
     /* uint8_t data[0]; */        /* Packet data.  The length is inferred
                                      from the length field in the header.
                                      (Only meaningful if buffer_id == -1.) */
 };
-OFP_ASSERT(sizeof(struct ofp_packet_out) == 16);
+OFP_ASSERT(sizeof(struct ofp_packet_out) == 20);
 
 enum ofp_flow_mod_command {
     OFPFC_ADD,              /* New flow. */
@@ -651,14 +652,26 @@ struct ofp_flow_mod {
     uint16_t priority;            /* Priority level of flow entry. */
     uint32_t buffer_id;           /* Buffered packet to apply to (or -1).
                                      Not meaningful for OFPFC_DELETE*. */
-    uint16_t out_port;            /* For OFPFC_DELETE* commands, require
+    uint32_t out_port;            /* For OFPFC_DELETE* commands, require
                                      matching entries to include this as an
                                      output port.  A value of OFPP_NONE
                                      indicates no restriction. */
     uint16_t flags;               /* One of OFPFF_*. */
+    uint8_t pad[2];
     struct ofp_instruction instructions[0]; /* Instruction set */
 };
 OFP_ASSERT(sizeof(struct ofp_flow_mod) == 72);
+
+/* Group numbering. Groups can use any number up to OFPG_MAX. */
+enum ofp_group {
+    /* Last usable group number. */
+    OFPG_MAX        = 0xffffff00,
+
+    /* Fake groups. */
+    OFPG_ALL        = 0xfffffffc,  /* Represents all groups for group delete
+                                      commands. */
+    OFPG_NONE       = 0xffffffff   /* No group specified. */
+};
 
 /* Group setup and teardown (controller -> datapath). */
 struct ofp_group_mod {
@@ -772,8 +785,7 @@ enum ofp_bad_action_code {
     OFPBAC_EPERM,              /* Permissions error. */
     OFPBAC_TOO_MANY,           /* Can't handle this many actions. */
     OFPBAC_BAD_QUEUE,          /* Problem validating output queue. */
-    OFPBAC_GROUP_CHAINING_UNSUPPORTED  /* Group chaining unsupported. */
-    OFPBAC_BAD_OUT_GROUP,        /* Invalid group id in forward action. */
+    OFPBAC_BAD_OUT_GROUP,      /* Invalid group id in forward action. */
 };
 
 /* ofp_error_msg 'code' values for OFPET_FLOW_MOD_FAILED.  'data' contains
@@ -800,11 +812,11 @@ enum ofp_group_mod_failed_code {
                                        * attempted to replace an
                                        * already-present group. */
     OFPGMFC_INVALID_GROUP,            /* Group not added because Group specified
-                                       *is invalid. */
-    OFPGMFC_NON_EQUAL_MP_UNSUPPORTED, /* Switch does not support unequal load
+                                       * is invalid. */
+    OFPGMFC_WEIGHT_UNSUPPORTED,       /* Switch does not support unequal load
                                        * sharing with multipath groups. */
     OFPGMFC_OUT_OF_GROUPS,            /* The group table is full. */
-    OFPGMFC_GROUP_OUT_OF_MP_MEMBERS,  /* The maximum number of action buckets
+    OFPGMFC_OUT_OF_BUCKETS,           /* The maximum number of action buckets
                                        * for a group has been exceeded. */
     OFPGMFC_CHAINING_UNSUPPORTED,     /* Switch does not support groups that
                                        * forward to groups. */

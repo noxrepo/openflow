@@ -510,15 +510,15 @@ For MODIFY requests, if a group entry with the specified group identifier alread
 \\\\
 If a specified group type is invalid (ie: includes fields such as \verb|weight| that are undefined for the specified group type) then the switch must refuse to add the group entry and must send an \verb|ofp_error_msg| with \verb|OFPET_GROUP_MOD_FAILED| type and \verb|OFPGMFC_INVALID_GROUP| code.
 \\\\
-If a switch does not support unequal load sharing with multipath groups, it must refuse to add the group entry and must send an \verb|ofp_error_msg| with \verb|OFPET_GROUP_MOD_FAILED| type and \verb|OFPGMFC_NON_EQUAL_MP_UNSUPPORTED| code.
+If a switch does not support unequal load sharing with multipath groups (buckets with weight different than 1), it must refuse to add the group entry and must send an \verb|ofp_error_msg| with \verb|OFPET_GROUP_MOD_FAILED| type and \verb|OFPGMFC_WEIGHT_UNSUPPORTED| code.
 \\\\
 If a switch cannot add the incoming group entry due to lack of space, the switch must send an \verb|ofp_error_msg| with \verb|OFPET_GROUP_MOD_FAILED| type and \verb|OFPGMFC_OUT_OF_GROUPS| code.
 \\\\
-If a switch cannot add the incoming group entry due to restrictions (hardware or otherwise) limiting the number of group members, is must refuse to add the group entry and must send an \verb|ofp_error_msg| with \verb|OFPET_GROUP_MOD_FAILED| type and \verb|OFPGMFC_OUT_OF_MP_MEMBERS| code.
+If a switch cannot add the incoming group entry due to restrictions (hardware or otherwise) limiting the number of group members (buckets), is must refuse to add the group entry and must send an \verb|ofp_error_msg| with \verb|OFPET_GROUP_MOD_FAILED| type and \verb|OFPGMFC_OUT_OF_BUCKETS| code.
 \\\\
 For DELETE requests, if no group entry with the specified group identifier currently exists in the group table, no error is recorded, and no group table modification occurs.  Otherwise, the group is removed, and all flows that forward to the group are also removed.  DELETE differs from an ADD or MODIFY with no buckets specified in that future attempts to ADD the group identifier will not result in a group exists error.  If one wishes to effectively delete a group yet leave in flow entries using it, that group can be cleared by sending a MODIFY with no buckets specified.
 \\\\
-To delete all groups with a single message, specify \verb|OFPP_GROUP_ALL| as the group value.
+To delete all groups with a single message, specify \verb|OFPG_ALL| as the group value.
 
 \input{appendix}
 
