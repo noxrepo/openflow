@@ -169,9 +169,6 @@ enum ofp_config_flags {
     /* TTL processing - applicable for IP and MPLS packets */
     OFPC_INVALID_TTL_TO_CONTROLLER = 1 << 2, /* Send packets with invalid TTL
                                                 ie. 0 or 1 to controller */
-
-    /* How to deal with blocked ports */
-    OFPC_BLOCKED_OVERRIDE = 1 << 3, /* Enable sending through blocked ports. */
 };
 
 /* Switch configuration. */
@@ -207,8 +204,6 @@ enum ofp_capabilities {
     OFPC_FLOW_STATS     = 1 << 0,  /* Flow statistics. */
     OFPC_TABLE_STATS    = 1 << 1,  /* Table statistics. */
     OFPC_PORT_STATS     = 1 << 2,  /* Port statistics. */
-    OFPC_RESERVED1      = 1 << 3,  /* Reserved, must be zero. */
-    OFPC_RESERVED2      = 1 << 4,  /* Reserved, must be zero. */
     OFPC_IP_REASM       = 1 << 5,  /* Can reassemble IP fragments. */
     OFPC_QUEUE_STATS    = 1 << 6,  /* Queue statistics. */
     OFPC_ARP_MATCH_IP   = 1 << 7   /* Match IP addresses in ARP pkts. */
