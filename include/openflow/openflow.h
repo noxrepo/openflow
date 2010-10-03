@@ -1066,8 +1066,6 @@ struct ofp_group_desc_stats {
     uint8_t type;                 /* One of OFPGT_*. */
     uint8_t pad;                  /* Pad to 64 bits. */
     uint32_t group_id;            /* Group identifier. */
-    uint64_t param;               /* Multipath only.  Meaning depends on value
-                                     of select field. */
     struct ofp_bucket buckets[0];
 };
 OFP_ASSERT(sizeof(struct ofp_group_desc_stats) == 16);

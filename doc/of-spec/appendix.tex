@@ -73,7 +73,7 @@ If no wildcards are set, then the \verb|ofp_match| exactly describes a flow, ove
 \\\\
 The source and destination netmasks are each specified with a 6-bit number in the wildcard description. It is interpreted similar to the CIDR suffix, but with the opposite meaning, since this is being used to indicate which bits in the IP address should be treated as ``wild". For example, a CIDR suffix of "24" means to use a netmask of ``255.255.255.0". However, a wildcard mask value of ``24" means that the least-significant 24-bits are wild, so it forms a netmask of ``255.0.0.0". 
 \\\\
-The metadata field is used to pass information between lookups across multiple tables. This value can be masked using the metadata mask (which is 0xFFFFFFFF by default). If the metadata wildcard bit is set, the contents of these fields are ignored in the lookup.
+The metadata field is used to pass information between lookups across multiple tables. This value can be masked using the metadata mask (which is 0xFFFFFFFFFFFFFFFF by default). If the metadata wildcard bit is set, the contents of these fields are ignored in the lookup.
 
 \subsubsection{Flow Instruction Structures}
 Flow instructions associated with a flow table entry are executed when a flow matches the entry. The list of instructions that are currently defined are:
