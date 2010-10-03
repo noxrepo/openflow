@@ -246,7 +246,7 @@ A switch may reject a flow entry if it is unable to execute the instructions ass
 
 \subsection{Action Set}
 \label{ft:actionset}
-Each packet that matches a flow entry is associated with an action set. This set is empty by default. A flow entry can interact with the action set using instructions associated with a particular match. The action set is carried between flow tables. When there is no \textit{Goto-Table} instruction, the actions in the action set are executed. If the action set does not contact an output action, the packet will be dropped. The actions may be executed in arbitrary order, except for the output action, which is executed last.
+Each packet that matches a flow entry is associated with an action set. This set is empty by default. A flow entry can interact with the action set using instructions associated with a particular match. The action set is carried between flow tables. When there is no \textit{Goto-Table} instruction, the actions in the action set are executed. If the action set does not contain an output action, the packet will be dropped. The output action in the action set is executed last.
 \\\\
 An action set has a single action of each type. When multiple actions of the same type are required, e.g. pushing multiple MPLS labels or popping multiple MPLS labels, the \emph{Apply-Actions} instruction may be used.
 \\\\
