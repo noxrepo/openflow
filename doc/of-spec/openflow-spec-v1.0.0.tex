@@ -50,17 +50,29 @@ This document describes the requirements of an OpenFlow Switch.  We recommend th
 \section{Switch Components}
 An OpenFlow Switch consists of one or more \emph{flow tables} and a \emph{group table}, which perform packet lookups and forwarding, as well as a \emph{secure channel} to an external controller (Figure \ref{fig:flow table and controller}).  The controller manages the switch over the secure channel using the OpenFlow protocol.
 \\\\
-Each flow table in the switch contains a set of flow entries; each flow entry consists of header values to match packets against, activity counters, and a set of instructions to apply to matching packets.  The group table contains group entries; each group entry includes a list of action buckets with specific semantics dependent on group type.
+Each flow table in the switch contains a set of flow entries; each flow entry consists of fields to match packets against, activity counters, and a set of instructions to apply to matching packets.  The group table contains group entries; each group entry includes a list of action buckets with specific semantics dependent on group type.
 \\\\
-Flow entries match packets in priority order. If a matching entry is found, the instructions associated with the specific flow entry are executed. If no match is found in a flow table, the packet is forwarded to the controller over the secure channel. The controller is responsible for determining how to handle packets without valid flow entries, and it manages the switch flow tables by adding, removing, and updating flow entries.
+Flow entries match packets in priority order. If a matching entry is found, the instructions associated with the specific flow entry are executed. If no match is found in a flow table, the packet is forwarded to the controller over the secure channel (or dropped based on configuration). The controller is responsible for determining how to handle packets without valid flow entries, and it manages the switch flow tables by adding, removing, and updating flow entries.
 \\\\
 Matching starts at the first table and may continue to additional tables. Flow entries may include actions to modify and/or forward the packet, as well as instructions to modify the pipeline processing.  Flow entries may also specify the next table in the pipeline as well as metadata that may be matched in that table. Table pipeline processing is stopped when a next table is not specified.
 \\\\
-Packets are forwarded to ports. This usually indicates a physical port but it could also indicate a variety of virtual ports such as multicast, multipath and fast-failover. In addition, there are reserved virtual ports that specify generic forwarding actions such as sending to the controller, flooding or normal forwarding using non-OpenFlow methods (see \ref{ft:actions}).
+Packets are forwarded to ports. This is usually a physical port but it could also be a group to support forwarding behaviors such as multicast, multipath and fast-failover. In addition, there are reserved virtual ports that specify generic forwarding actions such as sending to the controller, flooding or normal forwarding using non-OpenFlow methods (see \ref{ft:actions}).
 \\\\
-Groups can directly represent sets of ports for flooding, as well as more complex forwarding semantics (e.g. multipath, fast reroute, and link aggregation).  As a general layer of indirection, groups also enable multiple flows to forward to a single identifier (e.g.  IP forwarding to a common next hop).  This abstraction allows common output actions across flows to be changed atomically and efficiently.  
+Groups can directly represent sets of ports for flooding, as well as more complex forwarding semantics (e.g. multipath, fast reroute, and link aggregation).  As a general layer of indirection, groups also enable multiple flows to forward to a single identifier (e.g. IP forwarding to a common next hop).  This abstraction allows common output actions across flows to be changed atomically and efficiently.
 \\\\
 Additional port/group configuration may be handled by an external configuration protocol, which is beyond the scope of this document.
+
+\section{Glossary}
+This section describes key terms defined in this specification.
+\begin{itemize}
+\item \textbf{Match Fields}: are the list of fields that the packet is matched against. These include packet headers, ingress ports and metadata values.
+\item \textbf{Metadata}: is a maskable register value that can be used to carry information from one table to the next.
+\item \textbf{Instructions}: are operations that are executed when a packet matches a flow entry.
+\item \textbf{Actions}: dictate how the switch handles the packet, for instance, forward to a port, decrement ttl etc.
+\item \textbf{Action Set}: is a set of actions that are carried between tables along with the match fields.
+\item \textbf{Group}: consists of a list of action buckets and some means of choosing one or more of those buckets to apply on a per-packet basis.
+\item \textbf{Action Bucket}: is a set of actions that represents a unit within a group.
+\end{itemize}
 
 \section{Flow Tables}
 This section describes the components of flow table and group table entries, along with the mechanics of matching and action handling.
@@ -223,11 +235,11 @@ Table \ref{table:counters} contains the required set of counters.  Duration refe
 \label{ft:instructions}
 Each flow entry is associated with a set of instructions that are executed when a packet matches the entry. These instructions result in changes to the action set and/or pipeline processing (see: \ref{ft:actionset}). Supported instructions include:
 \begin{itemize} 
-\item \textbf{Goto-Table \textit{next-table-id}} : Indicates the next table in the processing pipeline. The table-id must be greater than the current table-id.
-\item \textbf{Write-Metadata \textit{metadata / mask}} : Writes the masked metadata value into the metadata field.
-\item \textbf{Write-Actions \textit{action(s)}} : Merges the specified action(s) into the current action set.  If the action exists in current set, overwrite it, otherwise add it.
-\item \textbf{Apply-Actions \textit{action(s)}} : Applies the specific action(s) immediately, without any change to the Action Set.
-\item \textbf{Clear-Actions} : Clears all the actions in the action set immediately.
+\item \textbf{Goto-Table \textit{next-table-id}}: Indicates the next table in the processing pipeline. The table-id must be greater than the current table-id.
+\item \textbf{Write-Metadata \textit{metadata / mask}}: Writes the masked metadata value into the metadata field.
+\item \textbf{Write-Actions \textit{action(s)}}: Merges the specified action(s) into the current action set.  If the action exists in current set, overwrite it, otherwise add it.
+\item \textbf{Apply-Actions \textit{action(s)}}: Applies the specific action(s) immediately, without any change to the Action Set.
+\item \textbf{Clear-Actions}: Clears all the actions in the action set immediately.
 \end{itemize} 
 
 A switch may reject a flow entry if it is unable to execute the instructions associated with the flow entry. In this case, the switch must return an unsupported flow error (see \ref{unsupported_flow}).  Flow tables may not support every match and every instruction.
