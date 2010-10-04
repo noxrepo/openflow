@@ -337,7 +337,6 @@ enum ofp_action_type {
     OFPAT_OUTPUT,           /* Output to switch port. */
     OFPAT_SET_VLAN_VID,     /* Set the 802.1q VLAN id. */
     OFPAT_SET_VLAN_PCP,     /* Set the 802.1q priority. */
-    OFPAT_STRIP_VLAN,       /* Strip the 802.1q header. */
     OFPAT_SET_DL_SRC,       /* Ethernet source address. */
     OFPAT_SET_DL_DST,       /* Ethernet destination address. */
     OFPAT_SET_NW_SRC,       /* IP source address. */
@@ -345,6 +344,19 @@ enum ofp_action_type {
     OFPAT_SET_NW_TOS,       /* IP ToS (DSCP field, 6 bits). */
     OFPAT_SET_TP_SRC,       /* TCP/UDP source port. */
     OFPAT_SET_TP_DST,       /* TCP/UDP destination port. */
+    OFPAT_COPY_TTL_OUT,     /* Copy TTL "outwards" -- from next-to-outermost to
+                               outermost */
+    OFPAT_COPY_TTL_IN,      /* Copy TTL "inwards" -- from outermost to
+                               next-to-outermost */
+    OFPAT_SET_MPLS_LABEL,   /* MPLS label */
+    OFPAT_SET_MPLS_TC,      /* MPLS TC */
+    OFPAT_SET_MPLS_TTL,     /* MPLS TTL */
+    OFPAT_DEC_MPLS_TTL,     /* Decrement MPLS TTL */
+
+    OFPAT_PUSH_VLAN,        /* Push a new VLAN tag */
+    OFPAT_POP_VLAN,         /* Pop the outer VLAN tag */
+    OFPAT_PUSH_MPLS,        /* Push a new MPLS tag */
+    OFPAT_POP_MPLS,         /* Pop the outer MPLS tag */
     OFPAT_ENQUEUE,          /* Output to queue.  */
     OFPAT_VENDOR = 0xffff
 };
