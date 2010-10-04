@@ -364,6 +364,8 @@ enum ofp_action_type {
     OFPAT_SET_TP_DST,       /* TCP/UDP destination port. */
     OFPAT_SET_QUEUE,        /* Set queue id used by Output action. */
     OFPAT_GROUP,            /* Apply group. */
+    OFPAT_SET_NW_TTL,       /* IP TTL. */
+    OFPAT_DEC_NW_TTL,       /* Decrement IP TTL. */
     OFPAT_VENDOR = 0xffff
 };
 
@@ -445,6 +447,15 @@ struct ofp_action_group {
     uint32_t group_id;              /* Group identifier. */
 };
 OFP_ASSERT(sizeof(struct ofp_action_group) == 8);
+
+/* Action structure for OFPAT_SET_NW_TTL. */
+struct ofp_action_nw_ttl {
+    uint16_t type;                  /* OFPAT_SET_NW_TTL. */
+    uint16_t len;                   /* Length is 8. */
+    uint8_t nw_ttl;                 /* IP TTL */
+    uint8_t pad[3];
+};
+OFP_ASSERT(sizeof(struct ofp_action_nw_ttl) == 8);
 
 /* Action header for OFPAT_VENDOR. The rest of the body is vendor-defined. */
 struct ofp_action_vendor_header {

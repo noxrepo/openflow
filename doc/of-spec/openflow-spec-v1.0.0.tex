@@ -340,6 +340,16 @@ Modify IPv4 ToS bits &
 Replace the existing IP ToS field.
 This action is only applied to IPv4 packets. \\
 \hline
+Set IPv4 TTL &
+8 bits: Value with which to replace existing IPv4 TTL field &
+Replace the existing IP TTL and update the IP checksum.
+Only applies to IPv4 packets. \\
+\hline
+Decrement IPv4 TTL &
+- &
+Decrement the IP TTL field and update the IP checksum.
+Only applies to IPv4 packets. \\
+\hline
 Modify transport source port &
 16 bits: Value with which to replace existing TCP or UDP source port &
 Replace the existing TCP/UDP source port with new value and update the TCP/UDP checksum.
