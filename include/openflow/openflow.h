@@ -703,10 +703,10 @@ struct ofp_bucket {
     uint16_t weight;                /* Relative weight of bucket.  Only
                                        defined for multipath groups. */
     uint32_t watch_port;            /* Port whose state affects whether this
-                                       bucket is live.  Only defined for fast
+                                       bucket is live.  Only required for fast
                                        failover groups. */
     uint32_t watch_group;           /* Group whose state affects whether this
-                                       bucket is live.  Only defined for fast
+                                       bucket is live.  Only required for fast
                                        failover groups. */
     struct ofp_action_header actions[0]; /* The action length is inferred
                                            from the length field in the

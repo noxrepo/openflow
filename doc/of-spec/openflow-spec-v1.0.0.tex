@@ -125,7 +125,7 @@ The following group types are defined:
 \item \textbf{flood}: Execute all buckets in the group.  Packets directed out the ingress port are dropped by default.  If the controller writer wants to forward out the ingress port, they should include a forward action to the \verb|OFPP_IN_PORT| in each bucket where this is desired.  This group is used for multicast or broadcast forwarding.
 \item \textbf{multipath}: Execute one bucket in the group.  Packets are sent to a single bucket in the group, based on a switch-computed selection algorithm (e.g. hash on some user-configured tuple or simple round robin).  All configuration and state for the selection algorithm is external to OpenFlow.  When a port specified in a bucket in a multipath group goes down, the switch may restrict bucket selection to the remaining set (those with forwarding actions to live ports). This behavior may reduce the disruption of a downed link or switch.
 \item \textbf{indirect}: Execute the one defined bucket in this group.  Allows multiple flows or groups to point to a common group identifier, supporting faster, more efficient convergence (e.g. next hops for IP forwarding).  This group type is effectively identical to flood groups with one bucket.
-\item \textbf{fast failover}: Execute the first live bucket.  Each action bucket is associated with a specific port that controls its liveness.  Enables the switch to change forwarding without requiring a round trip to the controller.  If no buckets are live, packets are dropped.  Conditions for liveness are outside the scope of the OpenFlow spec.
+\item \textbf{fast failover}: Execute the first live bucket.  Each action bucket is associated with a specific port and/or group that controls its liveness.  Enables the switch to change forwarding without requiring a round trip to the controller.  If no buckets are live, packets are dropped.  Conditions for liveness are outside the scope of the OpenFlow spec.
 \end{itemize}
 
 All \textit{fast failover groups} must support a liveness mechanism, where the group continuously watch the liveness of other ports and or groups to determine which bucket to use to process packets. Other group types are not required to implement the liveness mechanism, but may optionally implement it. When a port or a group of any type is watched by a \textit{fast failover group}, it must implement the liveness mechanism ; if the implementation can not support it it must refuse to install the \textit{fast failover group} and return an error.
@@ -533,6 +533,15 @@ If a switch cannot add the incoming group because it does not support the propos
 For DELETE requests, if no group entry with the specified group identifier currently exists in the group table, no error is recorded, and no group table modification occurs.  Otherwise, the group is removed, and all flows that forward to the group are also removed.  DELETE differs from an ADD or MODIFY with no buckets specified in that future attempts to ADD the group identifier will not result in a group exists error.  If one wishes to effectively delete a group yet leave in flow entries using it, that group can be cleared by sending a MODIFY with no buckets specified.
 \\\\
 To delete all groups with a single message, specify \verb|OFPG_ALL| as the group value.
+\\\\
+Fast failover group support requires liveness monitoring, to determine the specific bucket to execute. Other group types are not required to implement liveness monitoring, but may optionally implement it.  If a switch cannot implement liveness checking for any bucket in a group, it must refuse the group must and return an error.  The rules for determining liveness include:
+\begin{itemize}
+\item A port is considered live if it has the \verb|OFPPS_LIVE| flag set in its port state.  Port liveness may be managed by code outside of the OpenFlow portion of a switch, defined outside of the OpenFlow spec (such as Spanning Tree or a KeepAlive mechanism).  At a minimum, the port should not be considered live if the port config bit \verb|OFPPC_PORT_DOWN| indicates the port is down, or if the port state bit \verb|OFPPS_LINK_DOWN| indicates the switch is down.
+\item A bucket is considered live if either the port or the group watched by the bucket are live.
+\item A group is considered live if a least one of its buckets is live.
+\end{itemize}
+
+The controller can infer the liveness state of the group by monitoring the states of the various ports.
 
 \input{appendix}
 

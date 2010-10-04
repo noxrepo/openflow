@@ -256,7 +256,7 @@ Buckets use the following struct:
 \input{struct/ofp_bucket}
 The \verb|weight| field is only defined for multipath groups.  The bucket's share of the traffic processed by the group is defined by the individual bucket's weight divided by the sum of the bucket weights in the group.  When a port goes down, the change in traffic distribution is undefined.  The precision by which a switch's packet distribution should match bucket weights is undefined.
 \\\\
-The \verb|watch_port| and \verb|watch_group| fields are only required for fast failover groups, and may be optionally implemented for other groups.  It indicates the port and group whose liveness controls whether this bucket is a candidate for forwarding.  For fast failover groups, the first bucket defined is the highest-priority bucket, and only the highest-priority live bucket is used.
+The \verb|watch_port| and \verb|watch_group| fields are only required for fast failover groups, and may be optionally implemented for other group types.  These fields indicate the port and/or group whose liveness controls whether this bucket is a candidate for forwarding.  For fast failover groups, the first bucket defined is the highest-priority bucket, and only the highest-priority live bucket is used.
 
 \paragraph{Port Modification Message}
 The controller uses the \verb|OFPT_PORT_MOD| message to modify the behavior of the physical port:
