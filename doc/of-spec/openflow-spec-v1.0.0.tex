@@ -56,7 +56,7 @@ Flow entries match packets in priority order. If a matching entry is found, the 
 \\\\
 Matching starts at the first table and may continue to additional tables. Flow entries may include actions to modify and/or forward the packet, as well as instructions to modify the pipeline processing.  Flow entries may also specify the next table in the pipeline as well as metadata that may be matched in that table. Table pipeline processing is stopped when a next table is not specified.
 \\\\
-Packets are forwarded to ports. This is usually a physical port but it could also be a group to support forwarding behaviors such as multicast, multipath and fast-failover. In addition, there are reserved virtual ports that specify generic forwarding actions such as sending to the controller, flooding or normal forwarding using non-OpenFlow methods (see \ref{ft:actions}).
+Flow entries may forward to a port. Usually, this is a physical port, but it could also be a virtual port reserved by a switch or by the OpenFlow spec. Virtual ports may specify generic forwarding actions such as sending to the controller, flooding or normal forwarding using non-OpenFlow methods (see \ref{ft:actions}).  The zero port is reserved and cannot be used for forwarding.
 \\\\
 Groups can directly represent sets of ports for flooding, as well as more complex forwarding semantics (e.g. multipath, fast reroute, and link aggregation).  As a general layer of indirection, groups also enable multiple flows to forward to a single identifier (e.g. IP forwarding to a common next hop).  This abstraction allows common output actions across flows to be changed atomically and efficiently.
 \\\\
