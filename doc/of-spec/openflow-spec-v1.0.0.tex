@@ -63,15 +63,15 @@ Groups can directly represent sets of ports for flooding, as well as more comple
 Additional port/group configuration may be handled by an external configuration protocol, which is beyond the scope of this document.
 
 \section{Glossary}
-This section describes key terms defined in this specification.
+This section describes key OpenFlow specification terms:
 \begin{itemize}
-\item \textbf{Match Fields}: are the list of fields that the packet is matched against. These include packet headers, ingress ports and metadata values.
-\item \textbf{Metadata}: is a maskable register value that can be used to carry information from one table to the next.
-\item \textbf{Instructions}: are operations that are executed when a packet matches a flow entry.
-\item \textbf{Actions}: dictate how the switch handles the packet, for instance, forward to a port, decrement ttl etc.
-\item \textbf{Action Set}: is a set of actions that are carried between tables along with the match fields.
-\item \textbf{Group}: consists of a list of action buckets and some means of choosing one or more of those buckets to apply on a per-packet basis.
-\item \textbf{Action Bucket}: is a set of actions that represents a unit within a group.
+\item \textbf{Match Field}: a field against which a packet is matched, including packet headers, the ingress port, and the metadata value.
+\item \textbf{Metadata}: a maskable register value that can be used to carry information from one table to the next.
+\item \textbf{Instruction}: an operation executed when a packet matches a flow entry
+\item \textbf{Action}: a type of instruction that modifies a packet, including forwarding to a port, decrementing the TTL field, and others.
+\item \textbf{Action Set}: a set of actions that are carried between tables along with the match fields.
+\item \textbf{Group}: a list of action buckets and some means of choosing one or more of those buckets to apply on a per-packet basis.
+\item \textbf{Action Bucket}: a set of actions and associated parameters.
 \end{itemize}
 
 \section{Flow Tables}
