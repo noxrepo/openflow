@@ -534,8 +534,11 @@ struct ofp_match {
     uint32_t nw_dst;           /* IP destination address. */
     uint16_t tp_src;           /* TCP/UDP source port. */
     uint16_t tp_dst;           /* TCP/UDP destination port. */
+    uint32_t mpls_label;       /* MPLS label. */
+    uint8_t mpls_tc;           /* MPLS TC. */
+    uint8_t pad3[5];           /* Align to 64-bits */
 };
-OFP_ASSERT(sizeof(struct ofp_match) == 40);
+OFP_ASSERT(sizeof(struct ofp_match) == 48);
 
 /* The match fields for ICMP type and code use the transport source and
  * destination port fields, respectively. */
