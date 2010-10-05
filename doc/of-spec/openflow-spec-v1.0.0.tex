@@ -209,7 +209,17 @@ basic Quality-of-Service (QoS) support (see section \ref{cts:qos}).}
 \textbf{Required Action:} \emph{Drop}.  A flow-entry with no specified action indicates that all matching packets should be dropped.
 \\\\
 \textbf{Optional Action:} \emph{Push-Tag/Pop-Tag}.  Switches may support the ability to push/pop tags as shown in Table \ref{table:push pop actions}.  To aid integration with existing networks, we suggest that the ability to push/pop VLAN tags be supported.
-\\
+
+The currently supported ordering of header fields/tags is:
+\begin{center}
+\begin{tabular}{|l|l|l|l|l|}
+\hline
+Ethernet & VLAN & MPLS & ARP/IP & TCP/UDP (IP-only) \\
+\hline
+\end{tabular}
+\end{center}
+Newly pushed tags should \emph{always} be inserted as the outermost tag in this ordering. When a new VLAN tag is pushed, it should be the outermost VLAN tag inserted immediately after the Ethernet header. Likewise, when a new MPLS shim header is pushed, it should be the outermost MPLS tag, inserted after any VLAN tags.
+\\\\
 Note: Refer to section~\ref{sec:push field defaults} for information on default field values.
 \\\\
 \textbf{Optional Action:} \emph{Modify-Field}.  While not strictly required, the actions shown in Table \ref{table:field modify actions}  greatly increase the usefulness of an OpenFlow implementation.  To aid integration with existing networks, we suggest that VLAN modification actions be supported. Modify-Field actions should \emph{always} be applied to the outermost-possible header (e.g.~a ``Set VLAN ID'' action always sets the ID of the outermost VLAN tag).
