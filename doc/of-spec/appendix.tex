@@ -43,24 +43,24 @@ Multiple of these flags may be set simultaneously. If none of the port speed fla
 \\\\
 The \verb|curr_speed| and \verb|max_speed| fields indicate the current and maximum bit rate (raw transmission speed) of the link in kbps. The number should be rounded to match common usage. For example, an optical 10 Gb Ethernet port should have this field set to 10000000 (instead of 10312500), and an OC-192 port should have this field set to 10000000 (instead of 9953280).
 
-\subsubsection{\qosupd{Queue Structures}}
+\subsubsection{Queue Structures}
 \label{cts:qos}
-\qosupd{An OpenFlow switch provides limited Quality-of-Service support
+An OpenFlow switch provides limited Quality-of-Service support
   (QoS) through a simple queuing
 mechanism. One (or more) queues can attach to a port and be used to map flows
 on it. Flows mapped to a specific queue will be treated according to
 that queue's configuration (e.g. min rate).
 \\\\
-A queue is described by the} \verb|ofp_packet_queue| \qosupd{structure:
+A queue is described by the \verb|ofp_packet_queue| structure:
 \input{struct/ofp_packet_queue}
 Each queue is further described by a set of properties, each of a
 specific type and configuration.
 \input{enum/ofp_queue_properties}
 Each queue property description starts with a common header:
 \input{struct/ofp_queue_prop_header}
-Currently, there is only a minimum-rate type queue, described by the}
-\verb|ofp_queue_prop_min_rate| \qosupd{structure:
-\input{struct/ofp_queue_prop_min_rate}}
+Currently, there is only a minimum-rate type queue, described by the
+\verb|ofp_queue_prop_min_rate| structure:
+\input{struct/ofp_queue_prop_min_rate}
 
 \subsubsection{Flow Match Structures}
 When describing a flow entry, the following structure is used:
@@ -138,7 +138,7 @@ For the Clear-Actions instruction, the structure does not contain any actions.
 A number of actions may be associated with flows, groups or packets.  The currently defined action types are:
 
 \input{enum/ofp_action_type} 
-Output, group, \qosupd{and set-queue} actions are described in Section~\ref{ft:actions}, tag push/pop actions are described in Table~\ref{table:push pop actions}, and Field-Modify actions are described in Table~\ref{table:field modify actions}.  An action definition contains the action type, length, and any associated data:
+Output, group, and set-queue actions are described in Section~\ref{ft:actions}, tag push/pop actions are described in Table~\ref{table:push pop actions}, and Field-Modify actions are described in Table~\ref{table:field modify actions}.  An action definition contains the action type, length, and any associated data:
 
 \input{struct/ofp_action_header}
 An \verb|action_output| has the following fields:
@@ -151,7 +151,7 @@ An \verb|action_group| has the following fields:
 \input{struct/ofp_action_group}
 The \verb|group_id| indicates the group used top process this packet.  The set of buckets to apply depends on the group type.
 \\\\
-\qosupd{The set-queue action sets the queue id that will be used to map a flow to an already-configured queue, regardless of the TOS and VLAN PCP bits.
+The set-queue action sets the queue id that will be used to map a flow to an already-configured queue, regardless of the TOS and VLAN PCP bits.
   The packet should not change after an set-queue action. If the switch
   needs to set the TOS/PCP bits for internal handling, the original values
   should be restored before sending the packet out.
@@ -162,9 +162,9 @@ queue, therefore the action SET-QUEUE is not supported. The user can
 still use these queues and map
 flows to them by setting the relevant fields (TOS, VLAN PCP).
 \\\\
-An } \verb|action_set_queue| \qosupd{has the following fields:
+An \verb|action_set_queue| has the following fields:
 
-\input{struct/ofp_action_set_queue}}
+\input{struct/ofp_action_set_queue}
 An \verb|action_vlan_vid| has the following fields:
 
 \input{struct/ofp_action_vlan_vid}
@@ -355,19 +355,19 @@ The controller uses the \verb|OFPT_PORT_MOD| message to modify the behavior of t
 \input{struct/ofp_port_mod}
 The \verb|mask| field is used to select bits in the \verb|config| field to change.  The \verb|advertise| field has no mask; all port features change together.
 
-\subsubsection{\qosupd{Queue Configuration Messages}}
-\qosupd{Queue configuration takes place outside the OpenFlow protocol, either
+\subsubsection{Queue Configuration Messages}
+Queue configuration takes place outside the OpenFlow protocol, either
   through a command line tool or through an external dedicated configuration
 protocol.
 \\\\
 The controller can query the switch for configured queues on a port
 using the following structure:
 \input{struct/ofp_queue_get_config_request}
-The switch replies back with an} \verb|ofp_queue_get_config_reply| \qosupd{command, containing
+The switch replies back with an \verb|ofp_queue_get_config_reply| command, containing
 a list of configured queues.
 
 \input{struct/ofp_queue_get_config_reply}
-}
+
 
 \subsubsection{Read State Messages}
 While the system is running, the datapath may be queried about its current state using the \verb|OFPT_STATS_REQUEST| message:
@@ -441,19 +441,19 @@ The \verb|body| of the reply consists of an array of the following:
 \input{struct/ofp_port_stats}
 The switch should return a value of -1 for unavailable counters.
 
-\paragraph{\qosupd{Queue Statistics}}
-\qosupd{The} \verb|OFPST_QUEUE| \qosupd{stats request message provides
+\paragraph{Queue Statistics}
+The \verb|OFPST_QUEUE| stats request message provides
   queue statistics for one or more ports.
-  The request body consists of a} \verb|port_no| \qosupd{field
-identifying the port and a} \verb|queue_id|. \verb|OFPP_ALL|
-\qosupd{refers to all ports, while} \verb|OFPQ_ALL| \qosupd{refers to all queues configured
+  The request body consists of a \verb|port_no| field
+identifying the port and a \verb|queue_id|. \verb|OFPP_ALL|
+refers to all ports, while \verb|OFPQ_ALL| refers to all queues configured
 at a port.
 
 \input{struct/ofp_queue_stats_request}
 The body of the reply consists of an array of
 the following structure:
 
-\input{struct/ofp_queue_stats}}
+\input{struct/ofp_queue_stats}
 \paragraph{Group Statistics}
 The \verb|OFPST_GROUP| stats request message provides statistics for one or more groups.  The request body consists of a \verb|group_id| field, which can be set to \verb|OFPG_ALL| to refer to all groups on the switch.
 

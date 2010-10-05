@@ -41,9 +41,6 @@
 \fontfamily{cmr} % what about cmss?
 \selectfont
 
-\newcommand{\qosupd}[1]{{#1}}
-%\newcommand{\qosupd}[1]{{\color{blue} #1}}
-
 \title{OpenFlow Switch Specification}
 \author{Version \ofversion{} ( Wire Protocol \input{define/OFP_VERSION})}
 \date{\today}
@@ -242,10 +239,10 @@ Table \ref{table:counters} contains the set of counters.  Duration refers to the
 \hline Receive Overrun Errors & 64 \\
 \hline Receive CRC Errors & 64 \\
 \hline Collisions & 64 \\
-\hline  \multicolumn{2}{|c|}{\qosupd{Per Queue}} \\
-\hline \qosupd{Transmit Packets} & \qosupd{64} \\
-\hline \qosupd{Transmit Bytes} & \qosupd{64} \\
-\hline \qosupd{Transmit Overrun Errors} & \qosupd{64}\\
+\hline  \multicolumn{2}{|c|}{Per Queue} \\
+\hline Transmit Packets & 64 \\
+\hline Transmit Bytes & 64 \\
+\hline Transmit Overrun Errors & 64\\
 \hline \multicolumn{2}{|c|}{Per Group} \\
 \hline Ref Count & 32 \\
 \hline Packet Count & 64 \\
@@ -312,7 +309,7 @@ Note: Hybrid OpenFlow/non-OpenFlow switches may provide a classification mechani
 \end{itemize}
 The controller will only ask the switch to send to multiple physical ports simultaneously if the switch indicates it supports this behavior in the initial handshake (see section \ref{cts:handshake}).  
 \\\\
-\textbf{\qosupd{Optional Action:}} \emph{\qosupd{Set-Queue}}. \qosupd{The set-queue action sets the queue id for a packet. When the packet is forwarded to a port using the output action, the queue id determine which queue attached to this port is used for forwarding the packet. Forwarding behavior is dictated by the configuration of the queue and is used to provide basic Quality-of-Service (QoS) support (see section \ref{cts:qos}).}
+\textbf{Optional Action:} \emph{Set-Queue}. The set-queue action sets the queue id for a packet. When the packet is forwarded to a port using the output action, the queue id determine which queue attached to this port is used for forwarding the packet. Forwarding behavior is dictated by the configuration of the queue and is used to provide basic Quality-of-Service (QoS) support (see section \ref{cts:qos}).}
 \\\\
 \textbf{Required Action:} \emph{Drop}.  A flow entry with no specified action indicates that all matching packets should be dropped.
 \\\\
