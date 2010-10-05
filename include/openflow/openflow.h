@@ -709,8 +709,10 @@ enum ofp_flow_mod_failed_code {
     OFPFMFC_BAD_EMERG_TIMEOUT,  /* Flow not added because of non-zero idle/hard
                                  * timeout. */
     OFPFMFC_BAD_COMMAND,        /* Unknown command. */
-    OFPFMFC_UNSUPPORTED         /* Unsupported action list - cannot process in
+    OFPFMFC_UNSUPPORTED,        /* Unsupported action list - cannot process in
                                  * the order specified. */
+    OFPFMFC_BAD_TAG,            /* Instruction set uses an unsupported
+                                   tag/encap */
 };
 
 /* ofp_error_msg 'code' values for OFPET_PORT_MOD_FAILED.  'data' contains
