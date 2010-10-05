@@ -373,11 +373,6 @@ struct ofp_action_output {
 };
 OFP_ASSERT(sizeof(struct ofp_action_output) == 8);
 
-/* The VLAN id is 12 bits, so we can use the entire 16 bits to indicate
- * special conditions.  All ones is used to match that no VLAN id was
- * set. */
-#define OFP_VLAN_NONE      0xffff
-
 /* Action structure for OFPAT_SET_VLAN_VID. */
 struct ofp_action_vlan_vid {
     uint16_t type;                  /* OFPAT_SET_VLAN_VID. */
