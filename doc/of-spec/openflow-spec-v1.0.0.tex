@@ -208,7 +208,45 @@ basic Quality-of-Service (QoS) support (see section \ref{cts:qos}).}
 \\\\
 \textbf{Required Action:} \emph{Drop}.  A flow-entry with no specified action indicates that all matching packets should be dropped.
 \\\\
+\textbf{Optional Action:} \emph{Push-Tag/Pop-Tag}.  Switches may support the ability to push/pop tags as shown in Table \ref{table:push pop actions}.  To aid integration with existing networks, we suggest that the ability to push/pop VLAN tags be supported.
+\\
+Note: The default value is zero for \emph{all} fields when pushing a new header. Field values should be overridden using Modify-Field actions.
+\\\\
 \textbf{Optional Action:} \emph{Modify-Field}.  While not strictly required, the actions shown in Table \ref{table:field modify actions}  greatly increase the usefulness of an OpenFlow implementation.  To aid integration with existing networks, we suggest that VLAN modification actions be supported. 
+
+\begin{table}[hbp]
+\centering
+\footnotesize
+\begin{tabularx}{\textwidth}{ |l|X|X| }
+\hline
+Action & Associated Data & Description \\
+\hline
+Push VLAN header &
+- &
+Push a new VLAN header onto the packet.
+
+Ethertype for the new tag is 0x8100.
+\\
+\hline
+Pop VLAN header &
+- &
+Pop the outer-most VLAN header from the packet. \\
+\hline
+Push MPLS header &
+- &
+Push a new MPLS header onto the packet.
+
+Ethertype for the new tag is 0x8847.
+\\
+\hline
+Pop MPLS header &
+- &
+Pop the outer-most MPLS header from the packet. \\
+\hline
+\end{tabularx}
+\caption{Push/pop tag actions.}
+\label{table:push pop actions}
+\end{table}
 
 \begin{table}[hbp]
 \centering
@@ -287,21 +325,6 @@ Replace the existing TCP/UDP destination port with new value and update the TCP/
 
 This action is only applied to TCP and UDP packets.\\
 \hline
-Push VLAN header &
-- &
-Push a new VLAN header onto the packet. \\
-\hline
-Pop VLAN header &
-- &
-Pop the outer-most VLAN header from the packet. \\
-\hline
-Push MPLS header &
-- &
-Push a new MPLS header onto the packet. \\
-\hline
-Pop MPLS header &
-- &
-Pop the outer-most MPLS header from the packet. \\
 \hline
 Copy TTL outwards&
 - &
