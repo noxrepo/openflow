@@ -103,7 +103,7 @@ TCP/ UDP dst port
 \label{table:header fields}
 \end{table}
 
-Table \ref{table:header fields} shows the header fields an incoming packet is compared against. Each entry contains a specific value, or ANY, which matches any value. If the switch supports subnet masks on the IP source and/or destination fields, these can more precisely specify matches.  The fields in the OpenFlow 14-tuple are listed in Table \ref{table:header fields} and details on the properties of each field are described in Table \ref{table:header field details}.
+Table \ref{table:header fields} shows the header fields an incoming packet is compared against. Each entry contains a specific value, or ANY, which matches any value. If the switch supports subnet masks on the IP source and/or destination fields, these can more precisely specify matches.  The fields in the OpenFlow n-tuple are listed in Table \ref{table:header fields} and details on the properties of each field are described in Table \ref{table:header field details}.
 \\\\
 \begin{table}[hbp]
 \centering
@@ -353,7 +353,7 @@ Copy can be IP-to-IP, MPLS-to-MPLS, or MPLS-to-IP.
 
 \subsubsection{Default values for fields on push}
 \label{sec:push field defaults}
-Field values should be copied from existing outer headers to new outer headers when executing a push action. New fields without corresponeding existing fields should be set to \emph{zero}. Table~\ref{table:push field copy} details the existing fields from which a new field may take it's value.
+Field values should be copied from existing outer headers to new outer headers when executing a push action. New fields without corresponding existing fields should be set to \emph{zero}. Table~\ref{table:push field copy} details the existing fields from which a new field may take it's value.
 
 \begin{table}[hbp]
 \centering
@@ -382,7 +382,7 @@ IP TTL & IP TTL \\
 \label{table:push field copy}
 \end{table}
 
-Fields in new headers may be overridden by specify a ``set'' action for the appropriate field(s) after the push operation.
+Fields in new headers may be overridden by specifying a ``set'' action for the appropriate field(s) after the push operation.
 
 \subsection{Matching}
 \begin{figure}[!htb]
