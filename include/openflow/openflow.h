@@ -553,9 +553,26 @@ enum ofp_flow_wildcards {
 #define OFP_DL_TYPE_NOT_ETH_TYPE  0x05ff
 
 /* The VLAN id is 12-bits, so we can use the entire 16 bits to indicate
- * special conditions.  All ones indicates that no VLAN id was set.
+ * special conditions.
  */
-#define OFP_VLAN_NONE      0xffff
+enum ofp_vlan_id {
+    OFPVID_ANY  = 0xfffe, /* Indicate that a VLAN id is set but don't care
+                             about it's value. Note: only valid when specifying
+                             the VLAN id in a match */
+    OFPVID_NONE = 0xffff, /* No VLAN id was set. */
+};
+/* Define for compatibility */
+#define OFP_VLAN_NONE      OFPVID_NONE
+
+/* The MPLS label is 20-bits, so we can use the entire 24/32 bits to indicate
+ * special conditions.
+ */
+enum ofp_mpls_label {
+    OFPML_ANY  = 0xfffffe, /* Indicate that a MPLS label is set but don't care
+                              about it's value. Note: only valid when
+                              specifying the MPLS tag in a match */
+    OFPML_NONE = 0xffffff, /* No MPLS tag was set. */
+};
 
 /* Fields to match against flows */
 struct ofp_match {
