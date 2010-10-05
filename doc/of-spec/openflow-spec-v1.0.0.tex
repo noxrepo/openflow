@@ -176,7 +176,7 @@ Table \ref{table:counters} contains the required set of counters.  Duration refe
 
 \subsection{Actions}
 \label{ft:actions}
-Each flow entry is associated with zero or more actions that dictate how the switch handles matching packets.  If no forward actions are present, the packet is dropped.  Action lists for \emph{inserted} flow entries MUST be processed in the order specified.  However, there is no packet output ordering guaranteed within a port.   For example, an action list may result in two packets sent to two different VLANs on a single port.  These two packets may be arbitrarily re-ordered, but the packet bodies must match those generated from a sequential execution of the actions.
+Each flow entry is associated with zero or more actions that dictate how the switch handles matching packets.  If no forward actions are present, the packet is dropped.  Action lists for \emph{inserted} flow entries MUST be processed in the order specified.  However, there is no packet output ordering guaranteed within a port.   For example, an action list may result in two packets sent with two different tags on a single port.  These two packets may be arbitrarily re-ordered, but the packet bodies must match those generated from a sequential execution of the actions.
 \\\\
 A switch may reject a flow entry if it cannot process the action list in the order specified, in which case it should immediately return an unsupported flow error (see \ref{unsupported_flow}).  Ordering within a port may vary between vendor switch implementations.
 \\\\
@@ -234,14 +234,14 @@ Pop the outer-most VLAN header from the packet. \\
 \hline
 Push MPLS header &
 - &
-Push a new MPLS header onto the packet.
+Push a new MPLS shim header onto the packet.
 
 Ethertype for the new tag is 0x8847.
 \\
 \hline
 Pop MPLS header &
 - &
-Pop the outer-most MPLS header from the packet. \\
+Pop the outer-most MPLS tag or shim header from the packet. \\
 \hline
 \end{tabularx}
 \caption{Push/pop tag actions.}
@@ -278,22 +278,22 @@ Replace the existing Ethernet destination MAC address with the new value. \\
 Set MPLS label &
 20 bits: Value with which to replace existing MPLS label field &
 Replace the existing MPLS label.
-Only applies to packets with an MPLS tag. \\
+Only applies to packets with an existing MPLS shim header. \\
 \hline
 Set MPLS traffic class &
 3 bits: Value with which to replace existing MPLS traffic class field &
 Replace the existing MPLS traffic class.
-Only applies to packets with an MPLS tag. \\
+Only applies to packets with an existing MPLS shim header. \\
 \hline
 Set MPLS TTL &
 8 bits: Value with which to replace existing MPLS TTL field &
 Replace the existing MPLS TTL.
-Only applies to packets with an MPLS tag. \\
+Only applies to packets with an existing MPLS shim header. \\
 \hline
 Decrement MPLS TTL &
 - &
 Decrement the MPLS TTL.
-Only applies to packets with an MPLS tag. \\
+Only applies to packets with an existing MPLS shim header. \\
 \hline
 Modify IPv4 source address & 
 32 bits: Value with which to replace existing IPv4 source address &
@@ -399,7 +399,7 @@ On receipt of a packet, an OpenFlow Switch performs the functions shown in Figur
 \item Rules specifying an ingress port are matched against the physical port that received the packet.
 \item The Ethernet headers as specified in Table \ref{table:header fields} are used for all packets.
 \item If the packet is VLAN tagged (Ethernet type 0x8100, 0x88a8, 0x9100, 0x9200, or 0x9300), the \emph{outermost} VLAN ID and PCP fields are used in the lookup. The encapsulated Ethernet type is used in subsequent rules.
-\item (Optional) For MPLS packets (Ethernet type equal to 0x8847 or 0x8848), the \emph{outermost} MPLS label and traffic class are used. Headers \emph{after} the MPLS tag are not considered as part of the match.
+\item (Optional) For MPLS packets (Ethernet type equal to 0x8847 or 0x8848), the \emph{outermost} MPLS label and traffic class are used.
 \item (Optional) For ARP packets (Ethernet type equal to 0x0806), the lookup fields include the contained IP source and destination fields and the ARP opcode.
 \item For IP packets (Ethernet type equal to 0x0800), the lookup fields also include those in the IP header.
 \item For IP packets that are TCP or UDP (IP protocol is equal to 6 or 17), the lookup includes the transport ports.
