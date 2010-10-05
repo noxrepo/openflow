@@ -317,28 +317,28 @@ Strip VLAN header &
 - &
 Strip VLAN header if present. \\
 \hline
-Modify Ethernet source MAC address &
+Set Ethernet source MAC address &
 48 bits: New source MAC address &
 Replace the existing Ethernet source MAC address with the new value \\
 \hline
-Modify Ethernet destination MAC address &
+Set Ethernet destination MAC address &
 48 bits: New destination MAC address &
 Replace the existing Ethernet destination MAC address with the new value. \\
 \hline
-Modify IPv4 source address & 
+Set IPv4 source address &
 32 bits: New IPv4 source address &
 Replace the existing IP source address with new value and update the IP checksum (and TCP/UDP 
 checksum if applicable). 
 
 This action is only applicable to IPv4 packets. \\
 \hline
-Modify IPv4 destination address & 
+Set IPv4 destination address &
 32 bits: New IPv4 destination address &
 Replace the existing IP destination address with new value and update the IP checksum (and TCP/UDP checksum if applicable).
 
 This action is only applied to IPv4 packets. \\
 \hline
-Modify IPv4 ToS bits &
+Set IPv4 ToS bits &
 6 bits: New IPv4 ToS &
 Replace the existing IP ToS and update the IP checksum.
 Only applies to IPv4 packets. \\
@@ -353,13 +353,13 @@ Decrement IPv4 TTL &
 Decrement the IP TTL field and update the IP checksum.
 Only applies to IPv4 packets. \\
 \hline
-Modify transport source port &
+Set transport source port &
 16 bits: New TCP or UDP source port &
 Replace the existing TCP/UDP source port with new value and update the TCP/UDP checksum.
 
 This action is only applicable to TCP and UDP packets.\\
 \hline
-Modify transport destination port & 
+Set transport destination port &
 16 bits: New TCP or UDP destination port &
 Replace the existing TCP/UDP destination port with new value and update the TCP/UDP checksum
 
