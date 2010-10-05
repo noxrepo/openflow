@@ -302,13 +302,13 @@ The controller will only ask the switch to send to multiple physical ports simul
 Action & Associated Data & Description \\
 \hline
 Set VLAN ID &
-12 bits &
+12 bits: New VLAN ID &
 If no VLAN is present, a new header is added with the specified VLAN ID and priority of zero.
 
 If a VLAN header already exists, the VLAN ID is replaced with the specified value. \\
 \hline
 Set VLAN priority &
-3 bits &
+3 bits: New VLAN priority &
 If no VLAN is present, a new header is added with the specified priority and a VLAN ID of zero.  
 
 If a VLAN header already exists, the priority field is replaced with the specified value. \\
@@ -318,33 +318,33 @@ Strip VLAN header &
 Strip VLAN header if present. \\
 \hline
 Modify Ethernet source MAC address &
-48 bits: Value with which to replace existing source MAC address &
+48 bits: New source MAC address &
 Replace the existing Ethernet source MAC address with the new value \\
 \hline
 Modify Ethernet destination MAC address &
-48 bits: Value with which to replace existing destination MAC address &
+48 bits: New destination MAC address &
 Replace the existing Ethernet destination MAC address with the new value. \\
 \hline
 Modify IPv4 source address & 
-32 bits: Value with which to replace existing IPv4 source address &
+32 bits: New IPv4 source address &
 Replace the existing IP source address with new value and update the IP checksum (and TCP/UDP 
 checksum if applicable). 
 
 This action is only applicable to IPv4 packets. \\
 \hline
 Modify IPv4 destination address & 
-32 bits: Value with which to replace existing IPv4 destination address &
+32 bits: New IPv4 destination address &
 Replace the existing IP destination address with new value and update the IP checksum (and TCP/UDP checksum if applicable).
 
 This action is only applied to IPv4 packets. \\
 \hline
 Modify IPv4 ToS bits &
-6 bits: Value with which to replace existing IPv4 ToS field &
-Replace the existing IP ToS field.
-This action is only applied to IPv4 packets. \\
+6 bits: New IPv4 ToS &
+Replace the existing IP ToS and update the IP checksum.
+Only applies to IPv4 packets. \\
 \hline
 Set IPv4 TTL &
-8 bits: Value with which to replace existing IPv4 TTL field &
+8 bits: New IPv4 TTL &
 Replace the existing IP TTL and update the IP checksum.
 Only applies to IPv4 packets. \\
 \hline
@@ -354,13 +354,13 @@ Decrement the IP TTL field and update the IP checksum.
 Only applies to IPv4 packets. \\
 \hline
 Modify transport source port &
-16 bits: Value with which to replace existing TCP or UDP source port &
+16 bits: New TCP or UDP source port &
 Replace the existing TCP/UDP source port with new value and update the TCP/UDP checksum.
 
 This action is only applicable to TCP and UDP packets.\\
 \hline
 Modify transport destination port & 
-16 bits: Value with which to replace existing TCP or UDP destination port &
+16 bits: New TCP or UDP destination port &
 Replace the existing TCP/UDP destination port with new value and update the TCP/UDP checksum
 
 This action is only applied to TCP and UDP packets.\\
