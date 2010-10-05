@@ -69,7 +69,7 @@ When describing a flow entry, the following structure is used:
 The \verb|wildcards| field has a number of flags that may be set:
 
 \input{enum/ofp_flow_wildcards}
-\\\\
+
 The metadata field is used to pass information between lookups across multiple tables. This value can be masked using the metadata mask (which is 0xFFFFFFFFFFFFFFFF by default). If the metadata wildcard bit is set, the contents of these fields are ignored in the lookup.
 \\\\
 There are four mask fields defined in addition to the \verb|wildcards| field: \verb|dl_src_mask|, \verb|dl_dst_mask|, \verb|nw_src_mask|, and \verb|nw_dst_mask|. These mask fields allow the corresponding fields (\verb|dl_src|, \verb|dl_dst|, \verb|nw_src|, and \verb|nw_dst|) to be masked arbitrarily. The masks are defined such that a 1 in a given bit position indicates a ``don't care'' match for the same bit in the corresponding field, whereas a 0 means match the bit exactly.
@@ -148,6 +148,13 @@ An \verb|action_nw_tos| has the following fields:
 
 \input{struct/ofp_action_nw_tos}
 The \verb|nw_tos| field is the 6 upper bits of the ToS field to set, in the original bit positions (shifted to the left by 2).
+\\\\
+An \verb|action_nw_ttl| has the following fields:
+
+\input{struct/ofp_action_nw_ttl}
+The \verb|nw_ttl| field is the TTL address to set in the IP header.
+\\\\
+An \verb|action_dec_nw_ttl| takes no arguments and consists only of a generic \verb|ofp_action_header|.  This action decrement the TTL in the IP header if one is present.
 \\\\
 An \verb|action_tp_port| has the following fields:
 
