@@ -5,8 +5,9 @@ TGIF   := tgif
 XFIG   := xfig
 GNUPLOT:= gnuplot
 
-SOURCES=openflow-spec-v1.0.0.tex\
-	appendix.tex
+SOURCES=$(TARGET).tex\
+	appendix.tex\
+	credits.tex
 
 all: $(TARGET).ps
 pdf: all
