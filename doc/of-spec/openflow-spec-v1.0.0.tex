@@ -104,7 +104,7 @@ Each flow table entry (see Table \ref{table:flow entry}) contains:
 \end{itemize} 
 
 \subsection{Group Table}
-A group table consists of group entries.  The ability for a flow to point to a \emph{group} enables OpenFlow to represent additional methods of forwarding (e.g. multipath and multicast).
+A group table consists of group entries.  The ability for a flow to point to a \emph{group} enables OpenFlow to represent additional methods of forwarding (e.g. multipath and flood).
 \\\\
 \begin{table}[hbp]
 \centering
@@ -183,7 +183,7 @@ Table \ref{table:match fields} shows the match fields an incoming packet is comp
 \end{tabularx}
 \caption{Field lengths and the way they must be applied to flow entries.}
 \label{table:header field details}
-\end{table}Switch designers are free to implement the internals in any way convenient provided that correct functionality is preserved. For example, while a flow may use a multicast group to forward to multiple ports, a switch designer may choose to implement this as a single bitmask within the hardware forwarding table.
+\end{table}Switch designers are free to implement the internals in any way convenient provided that correct functionality is preserved. For example, while a flow may use a flood group to forward to multiple ports, a switch designer may choose to implement this as a single bitmask within the hardware forwarding table.
 
 \subsection{Counters}
 
@@ -395,7 +395,7 @@ On receipt of a packet, an OpenFlow Switch performs the functions shown in Figur
 \begin{itemize}
 \item Rules specifying an ingress port are matched against the physical port that received the packet.
 \item The Ethernet headers as specified in Table \ref{table:match fields} are used for all packets.
-\item If the packet is a VLAN (Ethernet type 0x8100), the VLAN ID and PCP fields are used in the lookup.
+\item If the packet has a VLAN header (Ethernet type 0x8100), the VLAN ID and PCP fields are used in the lookup.
 \item (Optional) For ARP packets (Ethernet type equal to 0x0806), the lookup fields may also include the contained IP source and destination fields.
 \item For IP packets (Ethernet type equal to 0x0800), the lookup fields also include those in the IP header.
 \item For IP packets that are TCP or UDP (IP protocol is equal to 6 or 17), the lookup includes the transport ports.
@@ -482,7 +482,7 @@ Flow table modification messages can have the following types:
 \input{enum/ofp_flow_mod_command}
 For ADD requests with the \verb|OFPFF_CHECK_OVERLAP| flag set, the switch must first check for any overlapping flow entries.  Two flow entries overlap if a single packet may match both, and both entries have the same priority.  If an overlap conflict exists between an existing flow entry and the ADD request, the switch must refuse the addition and respond with an \verb|ofp_error_msg| with \verb|OFPET_FLOW_MOD_FAILED| type and \verb|OFPFMFC_OVERLAP| code.
 \\\\
-For valid (non-overlapping) ADD requests, or those with no overlap checking, the switch must insert the flow entry at the lowest numbered table for which the switch supports all wildcards set in the \verb|flow_match| struct, and for which the priority would be observed during the matching process.  If a flow entry with identical match fields and priority already resides in any table, then that entry, including its counters, must be removed, and the new flow entry added.
+For valid (non-overlapping) ADD requests, or those with no overlap checking, the switch must insert the flow entry to the requested table.  If a flow entry with identical match fields and priority already resides in any table, then that entry, including its counters, must be removed, and the new flow entry added.
 \\\\
 If a switch cannot find any table in which to add the incoming flow entry, the switch should send an \verb|ofp_error_msg| with \verb|OFPET_FLOW_MOD_FAILED| type and \verb|OFPFMFC_ALL_TABLES_FULL| code.
 \\\\
@@ -516,7 +516,7 @@ Each flow entry has an \verb|idle_timeout| and a \verb|hard_timeout| associated 
 Group table modification messages can have the following types:
 \input{enum/ofp_group_mod_command}
 
-The action set for each bucket must be validated using the same rules as those for flow mods (Section \ref{flow_table:sec_chan:flow_add}, with additional group-specific checks.  Groups which consist of a single bucket are allowed. A group may also include buckets which themselves forward to other groups. For example, a fast reroute group may have two buckets, where each points to a multipath group. If a switch does not support groups of groups, it must send an \verb|ofp_error_msg| with \verb|OFPET_GROUP_MOD_FAILED| type and \verb|OFPGMFC_CHAINING_UNSUPPORTED| code.  If a group mod is sent such that a forwarding loop would be created, the switch should send an \verb|ofp_error_msg| with \verb|OFPET_GROUP_MOD_FAILED| type and \verb|OFPGMFC_LOOP| code.  If the switch does not support such checking, the forwarding behavior is undefined.
+The action set for each bucket must be validated using the same rules as those for flow mods (Section \ref{flow_table:sec_chan:flow_add}, with additional group-specific checks.  Groups may consist of zero or more buckets. A group with no buckets will not alter the action set associated witha packet. A group may also include buckets which themselves forward to other groups. For example, a fast reroute group may have two buckets, where each points to a multipath group. If a switch does not support groups of groups, it must send an \verb|ofp_error_msg| with \verb|OFPET_GROUP_MOD_FAILED| type and \verb|OFPGMFC_CHAINING_UNSUPPORTED| code.  If a group mod is sent such that a forwarding loop would be created, the switch should send an \verb|ofp_error_msg| with \verb|OFPET_GROUP_MOD_FAILED| type and \verb|OFPGMFC_LOOP| code.  If the switch does not support such checking, the forwarding behavior is undefined.
 \\\\
 For ADD requests, if a group entry with the specified group identifier already resides in the group table, then the switch must refuse to add the group entry and must send an \verb|ofp_error_msg| with \verb|OFPET_GROUP_MOD_FAILED| type and \verb|OFPGMFC_GROUP_EXISTS| code.
 \\\\
@@ -532,7 +532,7 @@ If a switch cannot add the incoming group entry due to restrictions (hardware or
 \\\\
 If a switch cannot add the incoming group because it does not support the proposed liveleness configuration, the switch must send an \verb|ofp_error_msg| with \verb|OFPET_GROUP_MOD_FAILED| type and \verb|OFPGMFC_WATCH_UNSUPPORTED| code. This include specifying \verb|watch_port| or \verb|watch_group| for a group that does not support liveness, or specifying a port that does not support liveness in \verb|watch_port|, or specifying a group that does not support liveness in \verb|watch_group|.
 \\\\
-For DELETE requests, if no group entry with the specified group identifier currently exists in the group table, no error is recorded, and no group table modification occurs.  Otherwise, the group is removed, and all flows that forward to the group are also removed.  DELETE differs from an ADD or MODIFY with no buckets specified in that future attempts to ADD the group identifier will not result in a group exists error.  If one wishes to effectively delete a group yet leave in flow entries using it, that group can be cleared by sending a MODIFY with no buckets specified.
+For DELETE requests, if no group entry with the specified group identifier currently exists in the group table, no error is recorded, and no group table modification occurs.  Otherwise, the group is removed, and all flows that forward to the group are also removed. The group type need not be specified for the DELETE request. DELETE also differs from an ADD or MODIFY with no buckets specified in that future attempts to ADD the group identifier will not result in a group exists error.  If one wishes to effectively delete a group yet leave in flow entries using it, that group can be cleared by sending a MODIFY with no buckets specified.
 \\\\
 To delete all groups with a single message, specify \verb|OFPG_ALL| as the group value.
 \\\\
