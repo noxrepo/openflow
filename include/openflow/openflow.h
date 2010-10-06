@@ -354,7 +354,6 @@ enum ofp_action_type {
     OFPAT_OUTPUT,           /* Output to switch port. */
     OFPAT_SET_VLAN_VID,     /* Set the 802.1q VLAN id. */
     OFPAT_SET_VLAN_PCP,     /* Set the 802.1q priority. */
-    OFPAT_STRIP_VLAN,       /* Strip the 802.1q header. */
     OFPAT_SET_DL_SRC,       /* Ethernet source address. */
     OFPAT_SET_DL_DST,       /* Ethernet destination address. */
     OFPAT_SET_NW_SRC,       /* IP source address. */
@@ -362,6 +361,19 @@ enum ofp_action_type {
     OFPAT_SET_NW_TOS,       /* IP ToS (DSCP field, 6 bits). */
     OFPAT_SET_TP_SRC,       /* TCP/UDP source port. */
     OFPAT_SET_TP_DST,       /* TCP/UDP destination port. */
+    OFPAT_COPY_TTL_OUT,     /* Copy TTL "outwards" -- from next-to-outermost to
+                               outermost */
+    OFPAT_COPY_TTL_IN,      /* Copy TTL "inwards" -- from outermost to
+                               next-to-outermost */
+    OFPAT_SET_MPLS_LABEL,   /* MPLS label */
+    OFPAT_SET_MPLS_TC,      /* MPLS TC */
+    OFPAT_SET_MPLS_TTL,     /* MPLS TTL */
+    OFPAT_DEC_MPLS_TTL,     /* Decrement MPLS TTL */
+
+    OFPAT_PUSH_VLAN,        /* Push a new VLAN tag */
+    OFPAT_POP_VLAN,         /* Pop the outer VLAN tag */
+    OFPAT_PUSH_MPLS,        /* Push a new MPLS tag */
+    OFPAT_POP_MPLS,         /* Pop the outer MPLS tag */
     OFPAT_SET_QUEUE,        /* Set queue id used by Output action. */
     OFPAT_GROUP,            /* Apply group. */
     OFPAT_SET_NW_TTL,       /* IP TTL. */
@@ -381,11 +393,6 @@ struct ofp_action_output {
     unit8_t pad[2];                 /* Pad to 32 bits. */
 };
 OFP_ASSERT(sizeof(struct ofp_action_output) == 16);
-
-/* The VLAN id is 12 bits, so we can use the entire 16 bits to indicate
- * special conditions.  All ones is used to match that no VLAN id was
- * set. */
-#define OFP_VLAN_NONE      0xffff
 
 /* Action structure for OFPAT_SET_VLAN_VID. */
 struct ofp_action_vlan_vid {
@@ -439,6 +446,50 @@ struct ofp_action_nw_tos {
     uint8_t pad[3];
 };
 OFP_ASSERT(sizeof(struct ofp_action_nw_tos) == 8);
+
+/* Action structure for OFPAT_SET_MPLS_LABEL. */
+struct ofp_action_mpls_label {
+    uint16_t type;                  /* OFPAT_SET_MPLS_LABEL. */
+    uint16_t len;                   /* Length is 8. */
+    uint32_t mpls_label;            /* MPLS label */
+};
+OFP_ASSERT(sizeof(struct ofp_action_mpls_label) == 8);
+
+/* Action structure for OFPAT_SET_MPLS_TC. */
+struct ofp_action_mpls_tc {
+    uint16_t type;                  /* OFPAT_SET_MPLS_TC. */
+    uint16_t len;                   /* Length is 8. */
+    uint8_t mpls_tc;                /* MPLS TC */
+    uint8_t pad[3];
+};
+OFP_ASSERT(sizeof(struct ofp_action_mpls_tc) == 8);
+
+/* Action structure for OFPAT_SET_MPLS_TTL. */
+struct ofp_action_mpls_ttl {
+    uint16_t type;                  /* OFPAT_SET_MPLS_TTL. */
+    uint16_t len;                   /* Length is 8. */
+    uint8_t mpls_ttl;               /* MPLS TTL */
+    uint8_t pad[3];
+};
+OFP_ASSERT(sizeof(struct ofp_action_mpls_ttl) == 8);
+
+/* Action structure for OFPAT_PUSH_VLAN/MPLS. */
+struct ofp_action_push {
+    uint16_t type;                  /* OFPAT_PUSH_VLAN/MPLS. */
+    uint16_t len;                   /* Length is 8. */
+    uint8_t ethertype;              /* Ethertype */
+    uint8_t pad[2];
+};
+OFP_ASSERT(sizeof(struct ofp_action_push) == 8);
+
+/* Action structure for OFPAT_POP_MPLS. */
+struct ofp_action_pop_mpls {
+    uint16_t type;                  /* OFPAT_POP_MPLS. */
+    uint16_t len;                   /* Length is 8. */
+    uint8_t ethertype;              /* Ethertype */
+    uint8_t pad[2];
+};
+OFP_ASSERT(sizeof(struct ofp_action_pop_mpls) == 8);
 
 /* Action structure for OFPAT_GROUP. */
 struct ofp_action_group {
@@ -522,8 +573,11 @@ enum ofp_flow_wildcards {
     OFPFW_TP_DST   = 1 << 7,  /* TCP/UDP destination port. */
     OFPFW_METADATA = 1 << 8, /* Metadata field */
 
+    OFPFW_MPLS_LABEL   = 1 << 9, /* MPLS label. */
+    OFPFW_MPLS_TC      = 1 << 10, /* MPLS TC. */
+
     /* Wildcard all fields. */
-    OFPFW_ALL = ((1 << 9) - 1)
+    OFPFW_ALL = ((1 << 11) - 1)
 };
 
 /* The wildcards for ICMP type and code fields use the transport source
@@ -543,9 +597,26 @@ enum ofp_flow_wildcards {
 #define OFP_DL_TYPE_NOT_ETH_TYPE  0x05ff
 
 /* The VLAN id is 12-bits, so we can use the entire 16 bits to indicate
- * special conditions.  All ones indicates that no VLAN id was set.
+ * special conditions.
  */
-#define OFP_VLAN_NONE      0xffff
+enum ofp_vlan_id {
+    OFPVID_ANY  = 0xfffe, /* Indicate that a VLAN id is set but don't care
+                             about it's value. Note: only valid when specifying
+                             the VLAN id in a match */
+    OFPVID_NONE = 0xffff, /* No VLAN id was set. */
+};
+/* Define for compatibility */
+#define OFP_VLAN_NONE      OFPVID_NONE
+
+/* The MPLS label is 20-bits, so we can use the entire 24/32 bits to indicate
+ * special conditions.
+ */
+enum ofp_mpls_label {
+    OFPML_ANY  = 0xfffffe, /* Indicate that a MPLS label is set but don't care
+                              about it's value. Note: only valid when
+                              specifying the MPLS tag in a match */
+    OFPML_NONE = 0xffffff, /* No MPLS tag was set. */
+};
 
 /* Fields to match against flows */
 struct ofp_match {
@@ -569,10 +640,13 @@ struct ofp_match {
     uint32_t nw_dst_mask;      /* IP destination address mask. */
     uint16_t tp_src;           /* TCP/UDP source port. */
     uint16_t tp_dst;           /* TCP/UDP destination port. */
+    uint32_t mpls_label;       /* MPLS label. */
+    uint8_t mpls_tc;           /* MPLS TC. */
+    uint8_t pad3[5];           /* Align to 64-bits */
     uint64_t metadata;         /* Metadata passed between tables. */
     uint64_t metadata_mask;    /* Mask for metadata. */
 };
-OFP_ASSERT(sizeof(struct ofp_match) == 56);
+OFP_ASSERT(sizeof(struct ofp_match) == 64);
 
 /* The match fields for ICMP type and code use the transport source and
  * destination port fields, respectively. */
@@ -808,6 +882,8 @@ enum ofp_flow_mod_failed_code {
     OFPFMFC_BAD_COMMAND,        /* Unknown command. */
     OFPFMFC_UNSUPPORTED,        /* Unsupported action list - cannot process in
                                  * the order specified. */
+    OFPFMFC_BAD_TAG,            /* Instruction set uses an unsupported
+                                   tag/encap */
     OFPFMFC_TABLE_FULL,         /* Table specified by the flow mod */
     OFPFMFC_BAD_INSTRUCTION     /* Unsupported instruction specified by the
                                    flow mod */

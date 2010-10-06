@@ -7,6 +7,9 @@
 \usepackage{tabularx}
 \usepackage{color}
 \usepackage{alltt}
+\usepackage{rotating}
+\usepackage{xtab}
+\usepackage{calc}
 
 \hbadness=10000 % No "underfull hbox" messages
 
@@ -16,6 +19,16 @@
 
 % Define the OpenFlow version here
 \newcommand{\ofversion}{1.1.0}
+
+% Calculations of widths for multipage tables
+%
+% Action table
+\newlength{\atactionwidth}
+\newlength{\atassocwidth}
+\newlength{\atdescwidth}
+\setlength{\atactionwidth}{0.25\textwidth - 2 \tabcolsep}
+\setlength{\atassocwidth}{0.30\textwidth - 2 \tabcolsep}
+\setlength{\atdescwidth}{0.45\textwidth - 2 \tabcolsep}
 
 \pagestyle{fancy}
 \fancyhead{}
@@ -138,21 +151,23 @@ The following group types are defined:
 \begin{table}[hbp]
 \centering
 \footnotesize
-\begin{tabularx}{\textwidth}{ |X|X|X|X|X|X|X|X|X|X|X|X|X| }
+\begin{tabularx}{\textwidth}{ |X|X|X|X|X|X|X|X|X|X|X|X|X|X|X| }
 \hline
-In Port &
-Meta data &
-Ether src&
-Ether dst &
-Ether type &
-VLAN id &
-VLAN priority &
-IP src &
-IP dst &
-IP proto &
-IP ToS bits &
-TCP/ UDP src port &
-TCP/ UDP dst port
+\begin{sideways}Ingress Port \end{sideways} &
+\begin{sideways}Meta data \end{sideways} &
+\begin{sideways}Ether source \end{sideways} &
+\begin{sideways}Ether dst \end{sideways} &
+\begin{sideways}Ether type \end{sideways} &
+\begin{sideways}VLAN id \end{sideways} &
+\begin{sideways}VLAN priority \end{sideways} &
+\begin{sideways}MPLS label \end{sideways} &
+\begin{sideways}MPLS traffic class \end{sideways} &
+\begin{sideways}IP src \end{sideways} &
+\begin{sideways}IP dst \end{sideways} &
+\begin{sideways}IP proto \end{sideways} &
+\begin{sideways}IP ToS bits \end{sideways} &
+\begin{sideways}TCP/ UDP src port \end{sideways} &
+\begin{sideways}TCP/ UDP dst port \end{sideways}
 \\ 
 \hline
 \end{tabularx}
@@ -172,8 +187,10 @@ Table \ref{table:match fields} shows the match fields an incoming packet is comp
 \hline Ethernet source address & 48 & All packets on enabled ports & Can use arbitrary bitmask \\
 \hline Ethernet destination address & 48 & All packets on enabled ports & Can use arbitrary bitmask \\
 \hline Ethernet type & 16 & All packets on enabled ports & An OpenFlow switch is required to match the type in both standard Ethernet and 802.2 with a SNAP header and OUI of 0x000000.  The special value of 0x05FF is used to match all 802.3 packets without SNAP headers. \\
-\hline VLAN id & 12 & All packets of Ethernet type 0x8100 & \\
-\hline VLAN priority & 3 & All packets of Ethernet type 0x8100 & VLAN PCP field \\
+\hline VLAN id & 12 & All packets with VLAN tags & VLAN identifier of \emph{outermost} VLAN tag. \\
+\hline VLAN priority & 3 & All packets with VLAN tags & VLAN PCP field of \emph{outermost} VLAN tag. \\
+\hline MPLS label & 20 & All packets with MPLS tags & Match on \emph{outermost} MPLS tag. \\
+\hline MPLS traffic class & 3 & All packets with MPLS tags & Match on \emph{outermost} MPLS tag. \\
 \hline IP source address & 32 & All IP and ARP packets & Can use subnet mask or arbitrary bitmask \\
 \hline IP destination address & 32 & All IP and ARP packets & Can use subnet mask or arbitrary bitmask \\
 \hline IP protocol & 8 & All IP and IP over Ethernet, ARP packets & Only the lower 8 bits of the ARP opcode are used \\
@@ -296,17 +313,80 @@ The controller will only ask the switch to send to multiple physical ports simul
 \\\\
 \textbf{Required Action:} \emph{Drop}.  A flow-entry with no specified action indicates that all matching packets should be dropped.
 \\\\
-\textbf{Optional Action:} \emph{Modify-Field}.  While not strictly required, the actions shown in Table \ref{table:field modify actions}  greatly increase the usefulness of an OpenFlow implementation.  To aid integration with existing networks, we suggest that VLAN modification actions be supported. 
+\textbf{Optional Action:} \emph{Push-Tag/Pop-Tag}.  Switches may support the ability to push/pop tags as shown in Table \ref{table:push pop actions}.  To aid integration with existing networks, we suggest that the ability to push/pop VLAN tags be supported.
+
+The currently supported ordering of header fields/tags is:
+\begin{center}
+\begin{tabular}{|l|l|l|l|l|}
+\hline
+Ethernet & VLAN & MPLS & ARP/IP & TCP/UDP (IP-only) \\
+\hline
+\end{tabular}
+\end{center}
+Newly pushed tags should \emph{always} be inserted as the outermost tag in this ordering. When a new VLAN tag is pushed, it should be the outermost VLAN tag inserted immediately after the Ethernet header. Likewise, when a new MPLS shim header is pushed, it should be the outermost MPLS tag, inserted after any VLAN tags.
+\\\\
+Note: Refer to section~\ref{sec:push field defaults} for information on default field values.
+\\\\
+\textbf{Optional Action:} \emph{Modify-Field}.  While not strictly required, the actions shown in Table \ref{table:field modify actions}  greatly increase the usefulness of an OpenFlow implementation.  To aid integration with existing networks, we suggest that VLAN modification actions be supported. Modify-Field actions should \emph{always} be applied to the outermost-possible header (e.g.~a ``Set VLAN ID'' action always sets the ID of the outermost VLAN tag).
 \\\\
 \textbf{Required Action:} \emph{Group}.  Process the packet through the specified group.  The exact interpretation depends on group type. 
 
 \begin{table}[hbp]
 \centering
 \footnotesize
-\begin{tabularx}{\linewidth}{ |X|X|X| }
+\begin{tabularx}{\textwidth}{ |l|c|X| }
 \hline
 Action & Associated Data & Description \\
 \hline
+Push VLAN header &
+Ethertype &
+Push a new VLAN header onto the packet.
+
+The ethertype is used as the ethertype for the tag. Only well-known values for ethertype should be used.
+\\
+\hline
+Pop VLAN header &
+- &
+Pop the outer-most VLAN header from the packet. \\
+\hline
+Push MPLS header &
+Ethertype &
+Push a new MPLS shim header onto the packet.
+
+The ethertype is used as the ethertype for the header only if the new tag being pushed is the bottom of stack. Only well-known values for ethertype should be used.
+\\
+\hline
+Pop MPLS header &
+Ethertype &
+Pop the outer-most MPLS tag or shim header from the packet.
+
+The ethertype is only used when popping the bottom of stack and indicates the ethertype of the payload.
+\\
+\hline
+\end{tabularx}
+\caption{Push/pop tag actions.}
+\label{table:push pop actions}
+\end{table}
+
+\bottomcaption{Field-modify actions.}
+\label{table:field modify actions}
+\tablefirsthead{\hline \textbf{Action} & \textbf{Associated Data} &
+                       \textbf{Description} \\
+		       \hline }
+\tablehead{\multicolumn{3}{c}%
+           {{\bfseries \tablename\ \thetable{} -- continued from previous page}} \\
+           \hline \textbf{Action} & \textbf{Associated Data} &
+                  \textbf{Description} \\
+	          \hline }
+\tablelasthead{\multicolumn{3}{c}%
+           {{\bfseries \tablename\ \thetable{} -- concluded from previous page}} \\
+           \hline \textbf{Action} & \textbf{Associated Data} &
+                  \textbf{Description} \\
+	          }
+\tabletail{\hline \multicolumn{3}{|r|}{{Continued on next page}} \\ \hline}
+\tablelasttail{\hline}
+\xentrystretch{0}
+\begin{xtabular}{ |p{\atactionwidth}|p{\atassocwidth}|p{\atdescwidth}| }
 Set VLAN ID &
 12 bits: New VLAN ID &
 If no VLAN is present, a new header is added with the specified VLAN ID and priority of zero.
@@ -319,10 +399,6 @@ If no VLAN is present, a new header is added with the specified priority and a V
 
 If a VLAN header already exists, the priority field is replaced with the specified value. \\
 \hline
-Strip VLAN header &
-- &
-Strip VLAN header if present. \\
-\hline
 Set Ethernet source MAC address &
 48 bits: New source MAC address &
 Replace the existing Ethernet source MAC address with the new value \\
@@ -330,6 +406,26 @@ Replace the existing Ethernet source MAC address with the new value \\
 Set Ethernet destination MAC address &
 48 bits: New destination MAC address &
 Replace the existing Ethernet destination MAC address with the new value. \\
+\hline
+Set MPLS label &
+20 bits: Value with which to replace existing MPLS label field &
+Replace the existing MPLS label.
+Only applies to packets with an existing MPLS shim header. \\
+\hline
+Set MPLS traffic class &
+3 bits: Value with which to replace existing MPLS traffic class field &
+Replace the existing MPLS traffic class.
+Only applies to packets with an existing MPLS shim header. \\
+\hline
+Set MPLS TTL &
+8 bits: Value with which to replace existing MPLS TTL field &
+Replace the existing MPLS TTL.
+Only applies to packets with an existing MPLS shim header. \\
+\hline
+Decrement MPLS TTL &
+- &
+Decrement the MPLS TTL.
+Only applies to packets with an existing MPLS shim header. \\
 \hline
 Set IPv4 source address &
 32 bits: New IPv4 source address &
@@ -371,10 +467,53 @@ Replace the existing TCP/UDP destination port with new value and update the TCP/
 
 This action is only applied to TCP and UDP packets.\\
 \hline
-\end{tabularx}
-\caption{Field-modify actions.}
-\label{table:field modify actions}
+Copy TTL outwards&
+- &
+Copy the TTL from next-to-outermost to outermost header with TTL.
+
+Copy can be IP-to-IP, MPLS-to-MPLS, or IP-to-MPLS.
+\\
+\hline
+Copy TTL inwards&
+- &
+Copy the TTL from outermost to next-to-outermost header with TTL.
+
+Copy can be IP-to-IP, MPLS-to-MPLS, or MPLS-to-IP.
+\\
+\end{xtabular}
+
+\subsubsection{Default values for fields on push}
+\label{sec:push field defaults}
+Field values should be copied from existing outer headers to new outer headers when executing a push action. New fields without corresponding existing fields should be set to \emph{zero}. Table~\ref{table:push field copy} details the existing fields from which a new field may take it's value.
+
+\begin{table}[hbp]
+\centering
+\begin{tabular}{p{0.3\textwidth}p{0.3\textwidth}}
+\textbf{New Fields} & \textbf{Existing Field(s)} \\
+\hline
+VLAN ID & VLAN ID \\
+\hline
+VLAN priority & VLAN priority \\
+\hline
+MPLS label & MPLS label \\
+\hline
+MPLS traffic class & MPLS traffic class \\
+\hline
+MPLS TTL & MPLS TTL \\
+ & IP TTL \\
+\hline
+IP source address & IP source address \\
+\hline
+IP destination address & IP destination address \\
+\hline
+IP TTL & IP TTL \\
+ & MPLS TTL \\
+\end{tabular}
+\caption{Existing fields that may be copied into new fields on a push action.}
+\label{table:push field copy}
 \end{table}
+
+Fields in new headers may be overridden by specifying a ``set'' action for the appropriate field(s) after the push operation.
 
 \subsection{Matching}
 \begin{figure}[!htb]
@@ -386,7 +525,7 @@ This action is only applied to TCP and UDP packets.\\
 
 \begin{figure}[!htb]
 \centering
-\includegraphics[height=2.9in]{header_parsing_flowchart}
+\includegraphics[width=\textwidth]{header_parsing_flowchart}
 \caption{Flowchart showing how match fields are parsed for matching.}
 \label{fig:header_parsing}
 \end{figure}
@@ -396,8 +535,9 @@ On receipt of a packet, an OpenFlow Switch performs the functions shown in Figur
 \begin{itemize}
 \item Rules specifying an ingress port are matched against the port that received the packet.
 \item The Ethernet headers as specified in Table \ref{table:match fields} are used for all packets.
-\item If the packet has a VLAN header (Ethernet type 0x8100), the VLAN ID and PCP fields are used in the lookup.
-\item (Optional) For ARP packets (Ethernet type equal to 0x0806), the lookup fields may also include the contained IP source and destination fields.
+\item If the first header \emph{after} the Ethernet header is a VLAN header (Ethernet type 0x8100 or 0x88a8), the \emph{outermost} VLAN ID and PCP fields are used in the lookup. The Ethernet type following the \emph{last} VLAN header is used in subsequent rules. Additional VLAN headers are skipped.
+\item (Optional) If the first header \emph{after} the Ethernet or VLAN header is an MPLS shim header (Ethernet type equal to 0x8847 or 0x8848), the \emph{outermost} MPLS label and traffic class are used. Additional MPLS shim headers are skipped and lookup is performed immediately without considering any further fields.
+\item (Optional) For ARP packets (Ethernet type equal to 0x0806), the lookup fields include the contained IP source and destination fields and the ARP opcode.
 \item For IP packets (Ethernet type equal to 0x0800), the lookup fields also include those in the IP header.
 \item For IP packets that are TCP or UDP (IP protocol is equal to 6 or 17), the lookup includes the transport ports.
 \item For IP packets that are ICMP (IP prototcol is equal to 1), the lookup includes the Type and Code fields.  

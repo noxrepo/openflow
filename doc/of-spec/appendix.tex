@@ -75,6 +75,46 @@ The metadata field is used to pass information between lookups across multiple t
 There are four mask fields defined in addition to the \verb|wildcards| field: \verb|dl_src_mask|, \verb|dl_dst_mask|, \verb|nw_src_mask|, and \verb|nw_dst_mask|. These mask fields allow the corresponding fields (\verb|dl_src|, \verb|dl_dst|, \verb|nw_src|, and \verb|nw_dst|) to be masked arbitrarily. The masks are defined such that a 1 in a given bit position indicates a ``don't care'' match for the same bit in the corresponding field, whereas a 0 means match the bit exactly.
 \\\\
 If no wildcards are set and the \verb|_mask| fields are all zero, then the \verb|ofp_match| exactly describes a flow, over the entire OpenFlow tuple.  On the other extreme, if all the wildcard flags and \verb|_mask| fields are set, then every flow will match.
+\\\\
+Setting the \verb|OFPFW_DL_VLAN| or \verb|OFPFW_MPLS_LABEL| bits specifies that flow should match packets regardless of whether they contain the corresponding tag. Special values are defined for the VLAN tag and MPLS label to allow the matching of packets without a tag, or packets with a tag independent of the tag's value. The special values defined for \verb|dl_vlan| are:
+\input{enum/ofp_vlan_id}
+The special values defined for \verb|mpls_label| are:
+\input{enum/ofp_mpls_label}
+Tables~\ref{table:vlan wildcards} and \ref{table:mpls wildcards} summarize the combinations of wildcard bits and field values for particular matches.
+
+\begin{table}[hbp]
+\centering
+\begin{tabularx}{\textwidth}{|c|c|X|}
+\hline
+Wildcard bit & \verb|dl_vlan| value & Matching packets \\
+\hline
+\verb|OFPFW_DL_VLAN| & * & Packets with and without a VLAN tag \\
+\hline
+- & \verb|OFPVID_NONE| & Only packets \emph{without} a VLAN tag \\
+\hline
+- & \verb|OFPVID_ANY| & Only packets \emph{with} a VLAN tag regardless of it's value \\
+\hline
+\end{tabularx}
+\caption{Match combinations for VLAN tags.}
+\label{table:vlan wildcards}
+\end{table}
+
+\begin{table}[hbp]
+\centering
+\begin{tabularx}{\textwidth}{|c|c|X|}
+\hline
+Wildcard bit & \verb|mpls_label| value & Matching packets \\
+\hline
+\verb|OFPFW_MPLS_LABEL| & * & Packets with and without a MPLS shim header \\
+\hline
+- & \verb|OFPML_NONE| & Only packets \emph{without} a MPLS shim header \\
+\hline
+- & \verb|OFPML_ANY| & Only packets \emph{with} a MPLS shim header regardless of it's value \\
+\hline
+\end{tabularx}
+\caption{Match combinations for MPLS headers.}
+\label{table:mpls wildcards}
+\end{table}
 
 \subsubsection{Flow Instruction Structures}
 Flow instructions associated with a flow table entry are executed when a flow matches the entry. The list of instructions that are currently defined are:
@@ -95,7 +135,7 @@ This structure is used for all actions related instructions. For the Clear-Actio
 A number of actions may be associated with flows, groups or packets.  The currently defined action types are:
 
 \input{enum/ofp_action_type} 
-Output, group, \qosupd{and set-queue} actions are described in Section \ref{ft:actions}, while Field-Modify actions are described in Table \ref{table:field modify actions}.  An action definition contains the action type, length, and any associated data:
+Output, group, \qosupd{and set-queue} actions are described in Section~\ref{ft:actions}, tag push/pop actions are described in Table~\ref{table:push pop actions}, and Field-Modify actions are described in Table~\ref{table:field modify actions}.  An action definition contains the action type, length, and any associated data:
 
 \input{struct/ofp_action_header}
 An \verb|action_output| has the following fields:
@@ -132,7 +172,22 @@ An \verb|action_vlan_pcp| has the following fields:
 \input{struct/ofp_action_vlan_pcp}
 The \verb|vlan_pcp| field is 8 bits long, but only the lower 3 bits have meaning.  
 \\\\
-An \verb|action_strip_vlan| takes no arguments and consists only of a generic \verb|ofp_action_header|.  This action strips the VLAN tag if one is present.
+An \verb|action_mpls_label| has the following fields:
+
+\input{struct/ofp_action_mpls_label}
+The \verb|mpls_label| field is 32 bits long, but only the lower 20 bits have meaning.
+\\\\
+An \verb|action_mpls_tc| has the following fields:
+
+\input{struct/ofp_action_mpls_tc}
+The \verb|mpls_tc| field is 8 bits long, but only the lower 3 bits have meaning.
+\\\\
+An \verb|action_mpls_ttl| has the following fields:
+
+\input{struct/ofp_action_mpls_ttl}
+The \verb|mpls_ttl| field is the MPLS TTL to set.
+\\\\
+An \verb|action_dec_mpls_ttl| takes no arguments and consists only of a generic \verb|ofp_action_header|. The action decrements the MPLS TTL.
 \\\\
 An \verb|action_dl_addr| has the following fields:
 
@@ -160,6 +215,22 @@ An \verb|action_tp_port| has the following fields:
 
 \input{struct/ofp_action_tp_port}
 The \verb|tp_port| field is the TCP/UDP/other port to set.
+\\\\
+An \verb|action_copy_ttl_out| takes no arguments and consists only of a generic \verb|ofp_action_header|. The action copies the TTL from the next-to-outermost header with TTL to the outermost header with TTL.
+\\\\
+An \verb|action_copy_ttl_in| takes no arguments and consists only of a generic \verb|ofp_action_header|. The action copies the TTL from the outermost header with TTL to the next-to-outermost header with TTL.
+\\\\
+An \verb|action_push| has the following fields:
+
+\input{struct/ofp_action_push}
+The \verb|ethertype| indicates the Ethertype of the new tag. It is used when pushing any new VLAN tags and the bottom of stack MPLS header.
+\\\\
+An \verb|action_pop_vlan| takes no arguments and consists only of a generic \verb|ofp_action_header|. The action pops the outermost VLAN tag from the packet.
+\\\\
+An \verb|action_pop_mpls| has the following fields:
+
+\input{struct/ofp_action_pop_mpls}
+The \verb|ethertype| indicates the Ethertype of the payload and is only used when popping the bottom of stack.
 \\\\
 An \verb|action_experimenter| has the following fields:
 
