@@ -626,7 +626,7 @@ struct ofp_instruction_actions {
 OFP_ASSERT(sizeof(ofp_instruction_actions) == 12);
 
 struct ofp_instruction_experimenter {
-    uint16_t type;		/* OFPI_EXPERIMENTER */
+    uint16_t type;		/* OFPIT_EXPERIMENTER */
     uint16_t len;               /* Length of this struct in bytes */
 };
 OFP_ASSERT(sizeof(ofp_instruction_experimenter) == 4);
