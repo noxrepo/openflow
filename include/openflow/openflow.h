@@ -595,7 +595,7 @@ enum ofp_instruction_type {
     OFPIT_CLEAR_ACTIONS = 5,    /* Clears all actions from the datapath
                                    action set */
 
-    OFPIT_EXTENSION = 0xFFFF    /* Experimental instructions */
+    OFPIT_VENDOR = 0xFFFF       /* Vendor instructions */
 };
 
 struct ofp_instruction_goto_table {

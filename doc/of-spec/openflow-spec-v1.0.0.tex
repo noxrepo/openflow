@@ -59,7 +59,7 @@ Each flow table in the switch contains a set of flow entries; each flow entry co
 \\\\
 Flow entries match packets in priority order. If a matching entry is found, the instructions associated with the specific flow entry are executed. If no match is found in a flow table, the packet is forwarded to the controller over the secure channel (or dropped based on configuration). The controller is responsible for determining how to handle packets without valid flow entries, and it manages the switch flow tables by adding, removing, and updating flow entries.
 \\\\
-Matching starts at the first table and may continue to additional tables. Flow entries may include instructions to modify/forward the packets and/or alter the pipeline processing.  Flow entries may also specify the next table in the pipeline as well as metadata that may be matched in that table. Table pipeline processing is stopped when a next table is not specified.
+Matching starts at the first table and may continue to additional tables. Flow entries may include instructions that have actions to modify/forward the packets and/or instructions that alter the pipeline processing.  Flow entries may also specify the next table in the pipeline as well as metadata that may be matched in that table. Table pipeline processing is stopped when a next table is not specified.
 \\\\
 Flow entries may forward to a port. Usually, this is a physical port, but it could also be a virtual port reserved by a switch or by this specification. Virtual ports may specify generic forwarding actions such as sending to the controller, flooding or normal forwarding using non-OpenFlow methods (see \ref{ft:actions}).  The zero port is reserved and cannot be used for forwarding.
 \\\\
@@ -72,11 +72,11 @@ This section describes key OpenFlow specification terms:
 \begin{itemize}
 \item \textbf{Match Field}: a field against which a packet is matched, including packet headers, the ingress port, and the metadata value.
 \item \textbf{Metadata}: a maskable register value that can be used to carry information from one table to the next.
-\item \textbf{Instruction}: an operation executed when a packet matches a flow entry
-\item \textbf{Action}: a type of instruction that modifies a packet, including forwarding to a port, decrementing the TTL field, and others.
+\item \textbf{Instruction}: an operation executed when a packet matches a flow entry. An instruction either contains a set of actions or modify pipeline processing.
+\item \textbf{Action}: a type of instruction that modifies a packet, including forwarding to a port, decrementing the TTL field, and others. Actions are either part of instructions or action buckets.
 \item \textbf{Action Set}: a set of actions that are carried between tables along with the match fields.
 \item \textbf{Group}: a list of action buckets and some means of choosing one or more of those buckets to apply on a per-packet basis.
-\item \textbf{Action Bucket}: a set of actions and associated parameters.
+\item \textbf{Action Bucket}: a set of actions and associated parameters, part of a group.
 \end{itemize}
 
 \section{OpenFlow Tables}
