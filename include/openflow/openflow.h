@@ -79,7 +79,7 @@
 /* Port numbering.  Physical ports are numbered starting from 1. */
 enum ofp_port {
     /* Maximum number of physical switch ports. */
-    OFPP_MAX        = 0x7fffff00,
+    OFPP_MAX        = 0xffffff00,
 
     /* Fake output "ports". */
     OFPP_IN_PORT    = 0xfffffff8,  /* Send the packet out the input port.  This
@@ -351,7 +351,7 @@ struct ofp_packet_in {
 OFP_ASSERT(sizeof(struct ofp_packet_in) == 24);
 
 enum ofp_action_type {
-    OFPAT_OUTPUT,           /* Output to switch port or group. */
+    OFPAT_OUTPUT,           /* Output to switch port. */
     OFPAT_SET_VLAN_VID,     /* Set the 802.1q VLAN id. */
     OFPAT_SET_VLAN_PCP,     /* Set the 802.1q priority. */
     OFPAT_STRIP_VLAN,       /* Strip the 802.1q header. */
@@ -595,7 +595,7 @@ enum ofp_instruction_type {
     OFPIT_CLEAR_ACTIONS = 5,    /* Clears all actions from the datapath
                                    action set */
 
-    OFPI_VENDOR = 0xFFFF        /* Vendor instruction */
+    OFPIT_EXTENSION = 0xFFFF    /* Experimental instructions */
 };
 
 struct ofp_instruction_goto_table {
@@ -615,7 +615,7 @@ struct ofp_instruction_write_metadata {
 OFP_ASSERT(sizeof(struct ofp_instruction_write_metadata) == 20);
 
 struct ofp_instruction_actions {
-    uint16_t type;              /* One of OFPI_*_ACTIONS */
+    uint16_t type;              /* One of OFPIT_*_ACTIONS */
     uint16_t len;               /* Length of this struct in bytes. */
     struct ofp_action_header actions[0];  /* Actions associated with
                                              OFPI_WRITE_ACTIONS and
@@ -643,7 +643,7 @@ struct ofp_flow_mod {
     uint64_t cookie_mask;        /* Mask used to restrict the cookie bits
                                     that must match when the command is
                                     OFPFC_MODIFY* or OFPFC_DELETE*. A value
-				    of 0 indicates no restriction. */
+                                    of 0 indicates no restriction. */
 
     /* Flow actions. */
     uint8_t table_id;             /* ID of the table to put the flow in */
@@ -795,12 +795,13 @@ enum ofp_bad_action_code {
 /* ofp_error_msg 'code' values for OFPET_FLOW_MOD_FAILED.  'data' contains
  * at least the first 64 bytes of the failed request. */
 enum ofp_flow_mod_failed_code {
+    OFPFMFC_UNKNOWN,            /* Unspecified error */
     OFPFMFC_ALL_TABLES_FULL,    /* Flow not added because of full tables. */
     OFPFMFC_OVERLAP,            /* Attempted to add overlapping flow with
                                  * CHECK_OVERLAP flag set. */
     OFPFMFC_EPERM,              /* Permissions error. */
     OFPFMFC_BAD_TIMEOUT,        /* Flow not added because of unsupported
-				 * idle/hard timeout. */
+                                 * idle/hard timeout. */
     OFPFMFC_BAD_COMMAND,        /* Unknown command. */
     OFPFMFC_UNSUPPORTED,        /* Unsupported action list - cannot process in
                                  * the order specified. */

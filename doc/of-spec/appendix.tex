@@ -19,7 +19,7 @@ This section describes structures used by multiple messages.
 Physical ports are described with the following structure:
 
 \input{struct/ofp_phy_port}
-The \verb|port_no| field is a value the datapath associates with a physical port.  The \verb|hw_addr| field typically is the MAC address for the port; \verb|OFP_MAX_ETH_ALEN| is 6.  The name field is a null-terminated string containing a human-readable name for the interface.  The value of \verb|OFP_MAX_PORT_NAME_LEN| is 16.  
+The \verb|port_no| field is a value the datapath associates with a port.  The \verb|hw_addr| field typically is the MAC address for the port; \verb|OFP_MAX_ETH_ALEN| is 6.  The name field is a null-terminated string containing a human-readable name for the interface.  The value of \verb|OFP_MAX_PORT_NAME_LEN| is 16.  
 \\\\
 The \verb|config| field describes administrative settings with the following structure:
 
