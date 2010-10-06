@@ -76,8 +76,8 @@
 
 #define OFP_ETH_ALEN 6          /* Bytes in an Ethernet address. */
 
-/* Port numbering.  Physical ports are numbered starting from 1. */
-enum ofp_port {
+/* Port numbering. Ports are numbered starting from 1. */
+enum ofp_port_no {
     /* Maximum number of physical switch ports. */
     OFPP_MAX        = 0xffffff00,
 
@@ -208,7 +208,7 @@ enum ofp_capabilities {
 };
 
 /* Flags to indicate behavior of the physical port.  These flags are
- * used in ofp_phy_port to describe the current configuration.  They are
+ * used in ofp_port to describe the current configuration.  They are
  * used in the ofp_port_mod message to configure the port's behavior.
  */
 enum ofp_port_config {
@@ -228,7 +228,7 @@ enum ofp_port_state {
     OFPPS_LIVE         = 1 << 2,  /* Live for Fast Failover Group. */
 };
 
-/* Features of physical ports available in a datapath. */
+/* Features of ports available in a datapath. */
 enum ofp_port_features {
     OFPPF_10MB_HD    = 1 << 0,  /* 10 Mb half-duplex rate support. */
     OFPPF_10MB_FD    = 1 << 1,  /* 10 Mb full-duplex rate support. */
@@ -244,8 +244,8 @@ enum ofp_port_features {
     OFPPF_PAUSE_ASYM = 1 << 11  /* Asymmetric pause. */
 };
 
-/* Description of a physical port */
-struct ofp_phy_port {
+/* Description of a port */
+struct ofp_port {
     uint32_t port_no;
     uint8_t pad[4];
     uint8_t hw_addr[OFP_ETH_ALEN];
@@ -265,7 +265,7 @@ struct ofp_phy_port {
     uint32_t curr_speed;    /* Current port bitrate in kbps. */
     uint8_t pad3[4];        /* Align to 64 bits. */
 };
-OFP_ASSERT(sizeof(struct ofp_phy_port) == 64);
+OFP_ASSERT(sizeof(struct ofp_port) == 64);
 
 /* Switch features. */
 struct ofp_switch_features {
@@ -284,9 +284,9 @@ struct ofp_switch_features {
     uint32_t reserved;
 
     /* Port info.*/
-    struct ofp_phy_port ports[0];  /* Port definitions.  The number of ports
-                                      is inferred from the length field in
-                                      the header. */
+    struct ofp_port ports[0];  /* Port definitions.  The number of ports
+                                  is inferred from the length field in
+                                  the header. */
 };
 OFP_ASSERT(sizeof(struct ofp_switch_features) == 32);
 
@@ -302,7 +302,7 @@ struct ofp_port_status {
     struct ofp_header header;
     uint8_t reason;          /* One of OFPPR_*. */
     uint8_t pad[7];          /* Align to 64-bits. */
-    struct ofp_phy_port desc;
+    struct ofp_port desc;
 };
 OFP_ASSERT(sizeof(struct ofp_port_status) == 64);
 
@@ -315,7 +315,7 @@ struct ofp_port_mod {
                                       configurable.  This is used to
                                       sanity-check the request, so it must
                                       be the same as returned in an
-                                      ofp_phy_port struct. */
+                                      ofp_port struct. */
     uint8_t pad2[2];        /* Pad to 64 bits. */
     uint32_t config;        /* Bitmap of OFPPC_* flags. */
     uint32_t mask;          /* Bitmap of OFPPC_* flags to be changed. */
@@ -337,10 +337,10 @@ struct ofp_packet_in {
     struct ofp_header header;
     uint32_t buffer_id;     /* ID assigned by datapath. */
     uint32_t in_port;       /* Port on which frame was received. */
+    uint32_t in_phy_port;   /* Physical Port on which frame was received. */
     uint16_t total_len;     /* Full length of frame. */
     uint8_t reason;         /* Reason packet is being sent (one of OFPR_*) */
     uint8_t table_id;       /* ID of the table that was looked up */
-    unit8_t pad[2];         /* Pad to "special". */
     uint8_t data[0];        /* Ethernet frame, halfway through 32-bit word,
                                so the IP header is 32-bit aligned.  The
                                amount of data is inferred from the length
@@ -877,7 +877,7 @@ enum ofp_stats_types {
      * The reply body is an array of struct ofp_table_stats. */
     OFPST_TABLE,
 
-    /* Physical port statistics.
+    /* Port statistics.
      * The request body is struct ofp_port_stats_request.
      * The reply body is an array of struct ofp_port_stats. */
     OFPST_PORT,

@@ -16,10 +16,10 @@ The version specifies the OpenFlow protocol version being used.  During the curr
 This section describes structures used by multiple messages.
 
 \subsubsection{Port Structures}
-Physical ports are described with the following structure:
+Ports are described with the following structure:
 
-\input{struct/ofp_phy_port}
-The \verb|port_no| field is a value the datapath associates with a port.  The \verb|hw_addr| field typically is the MAC address for the port; \verb|OFP_MAX_ETH_ALEN| is 6.  The name field is a null-terminated string containing a human-readable name for the interface.  The value of \verb|OFP_MAX_PORT_NAME_LEN| is 16.  
+\input{struct/ofp_port}
+The \verb|port_no| field is a value the datapath associates with a port. The \verb|hw_addr| field typically is the MAC address for the port; \verb|OFP_MAX_ETH_ALEN| is 6.  The name field is a null-terminated string containing a human-readable name for the interface.  The value of \verb|OFP_MAX_PORT_NAME_LEN| is 16.  
 \\\\
 The \verb|config| field describes administrative settings with the following structure:
 
@@ -35,7 +35,7 @@ All port state bits are read-only, representing the state of the physical link o
 \\\\
 The port numbers use the following conventions:
 
-\input{enum/ofp_port}
+\input{enum/ofp_port_no}
 The \verb|curr|, \verb|advertised|, \verb|supported|, and \verb|peer| fields indicate link modes (10M to 10G full and half-duplex), link type (copper/fiber) and link features (autonegotiation and pause).  Port features are represent by the following structure:
 
 \input{enum/ofp_port_features}
@@ -180,7 +180,7 @@ The \verb|n_tables| field describes the number of tables supported by the switch
 The \verb|capabilities| field uses the following flags:
 
 \input{enum/ofp_capabilities} 
-The \verb|ports| field is an array of \verb|ofp_phy_port| structures that describe all the physical ports in the system that support OpenFlow.  The number of port elements is inferred from the length field in the OpenFlow header. 
+The \verb|ports| field is an array of \verb|ofp_port| structures that describe all the ports in the system that support OpenFlow.  The number of port elements is inferred from the length field in the OpenFlow header. 
 
 \subsubsection{Switch Configuration}
 The controller is able to set and query configuration parameters in the switch with the \verb|OFPT_SET_CONFIG| and \verb|OFPT_GET_CONFIG_REQUEST| messages, respectively.  The switch responds to a configuration request with an \verb|OFPT_GET_CONFIG_REPLY| message; it does not reply to a request to set the configuration.  
@@ -267,7 +267,7 @@ The \verb|weight| field is only defined for multipath groups.  The bucket's shar
 The \verb|watch_port| and \verb|watch_group| fields are only required for fast failover groups, and may be optionally implemented for other group types.  These fields indicate the port and/or group whose liveness controls whether this bucket is a candidate for forwarding.  For fast failover groups, the first bucket defined is the highest-priority bucket, and only the highest-priority live bucket is used.
 
 \paragraph{Port Modification Message}
-The controller uses the \verb|OFPT_PORT_MOD| message to modify the behavior of the physical port:
+The controller uses the \verb|OFPT_PORT_MOD| message to modify the behavior of the port:
 
 \input{struct/ofp_port_mod}
 The \verb|mask| field is used to select bits in the \verb|config| field to change.  The \verb|advertise| field has no mask; all port features change together.
@@ -348,7 +348,7 @@ The \verb|actions| field is a bitmap of actions supported by the switch.  The li
 \verb|OFP_MAX_TABLE_NAME_LEN| is \input{define/OFP_MAX_TABLE_NAME_LEN}.
 
 \paragraph{Port Statistics}
-Information about physical ports is requested with the \verb|OFPST_PORT| stats request type:
+Information about ports is requested with the \verb|OFPST_PORT| stats request type:
 
 \input{struct/ofp_port_stats_request}
 The \verb|port_no| field optionally filters the stats request to the given port.  To request all port statistics, \verb|port_no| must be set to \verb|OFPP_NONE|.
@@ -407,7 +407,7 @@ When the controller wants to ensure message dependencies have been met or wants 
 When packets are received by the datapath and sent to the controller, they use the \verb|OFPT_PACKET_IN| message:
 
 \input{struct/ofp_packet_in}
-The \verb|buffer_id| is an opaque value used by the datapath to identify a buffered packet.  When a packet is buffered, some number of bytes from the message will be included in the data portion of the message.  If the packet is sent because of a ``send to controller'' action, then \verb|max_len| bytes from the \verb|action_output| of the flow setup request are sent.  If the packet is sent because of a flow table miss, then at least \verb|miss_send_len| bytes from the \verb|OFPT_SET_CONFIG| message are sent.  The default \verb|miss_send_len| is \input{define/OFP_DEFAULT_MISS_SEND_LEN}bytes.  If the packet is not buffered, the entire packet is included in the data portion, and the \verb|buffer_id| is -1.  
+The \verb|in_phy_port| is the physical port on which the packet was received. The \verb|in_port| may represent a higher level port abstraction such as a tunnel or lag. If no higher level port abstraction is defined, this has the same value as \verb|in_phy_port|. The \verb|buffer_id| is an opaque value used by the datapath to identify a buffered packet.  When a packet is buffered, some number of bytes from the message will be included in the data portion of the message.  If the packet is sent because of a ``send to controller'' action, then \verb|max_len| bytes from the \verb|action_output| of the flow setup request are sent.  If the packet is sent because of a flow table miss, then at least \verb|miss_send_len| bytes from the \verb|OFPT_SET_CONFIG| message are sent.  The default \verb|miss_send_len| is \input{define/OFP_DEFAULT_MISS_SEND_LEN}bytes.  If the packet is not buffered, the entire packet is included in the data portion, and the \verb|buffer_id| is -1.  
 \\\\
 Switches that implement buffering are expected to expose, through documentation, both the amount of available buffering, and the length of time before buffers may be reused.  A switch must gracefully handle the case where a buffered \verb|packet_in| message yields no response from the controller.  A switch should prevent a buffer from being reused until it has been handled by the controller, or some amount of time (indicated in documentation) has passed.
 \\\\
@@ -433,7 +433,7 @@ With the above three fields, one can find both the amount of time the flow was a
 The \verb|packet_count| and \verb|byte_count| indicate the number of packets and bytes that were associated with this flow, respectively. 
  
 \subsubsection{Port Status Message}
-As physical ports are added, modified, and removed from the datapath, the controller needs to be informed with the \verb|OFPT_PORT_STATUS| message:
+As ports are added, modified, and removed from the datapath, the controller needs to be informed with the \verb|OFPT_PORT_STATUS| message:
 
 \input{struct/ofp_port_status}
 The \verb|status| can be one of the following values:

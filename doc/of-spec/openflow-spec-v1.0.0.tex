@@ -70,6 +70,7 @@ Additional port/group configuration may be handled by an external configuration 
 \section{Glossary}
 This section describes key OpenFlow specification terms:
 \begin{itemize}
+\item \textbf{Port}: is a physical or virtual port. Virtual ports include reserved ports defined by this specification as well as higher level abstractions that may be defined in the switch using non-OpenFlow methods (e.g. link aggregation groups, tunnels, loopback interfaces).
 \item \textbf{Match Field}: a field against which a packet is matched, including packet headers, the ingress port, and the metadata value.
 \item \textbf{Metadata}: a maskable register value that can be used to carry information from one table to the next.
 \item \textbf{Instruction}: an operation executed when a packet matches a flow entry. An instruction either contains a set of actions or modifies pipeline processing.
@@ -166,7 +167,7 @@ Table \ref{table:match fields} shows the match fields an incoming packet is comp
 \footnotesize
 \begin{tabularx}{\textwidth}{ |X|X|X|X| }
 \hline Field & Bits & When applicable & Notes \\
-\hline Ingress Port & 32 & All packets & Numerical representation of incoming port, starting at 1.  \\
+\hline Ingress Port & 32 & All packets & Numerical representation of incoming port, starting at 1. This may be a physical or virtual port as defined by the switch implementation. \\
 \hline Metadata & 64 & On table 1 and above & \\
 \hline Ethernet source address & 48 & All packets on enabled ports & Can use arbitrary bitmask \\
 \hline Ethernet destination address & 48 & All packets on enabled ports & Can use arbitrary bitmask \\
@@ -393,7 +394,7 @@ This action is only applied to TCP and UDP packets.\\
 On receipt of a packet, an OpenFlow Switch performs the functions shown in Figure \ref{fig:packet_flow}. Match fields used for the table lookup depend on the packet type as described below (and shown in Figure \ref{fig:header_parsing}).
 
 \begin{itemize}
-\item Rules specifying an ingress port are matched against the physical port that received the packet.
+\item Rules specifying an ingress port are matched against the port that received the packet.
 \item The Ethernet headers as specified in Table \ref{table:match fields} are used for all packets.
 \item If the packet has a VLAN header (Ethernet type 0x8100), the VLAN ID and PCP fields are used in the lookup.
 \item (Optional) For ARP packets (Ethernet type equal to 0x0806), the lookup fields may also include the contained IP source and destination fields.
