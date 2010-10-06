@@ -795,7 +795,7 @@ enum ofp_bad_action_code {
 /* ofp_error_msg 'code' values for OFPET_FLOW_MOD_FAILED.  'data' contains
  * at least the first 64 bytes of the failed request. */
 enum ofp_flow_mod_failed_code {
-    OFPFMFC_UNKNOWN,            /* Unspecified error */
+    OFPFMFC_UNKNOWN,            /* Unspecified error. */
     OFPFMFC_ALL_TABLES_FULL,    /* Flow not added because of full tables. */
     OFPFMFC_OVERLAP,            /* Attempted to add overlapping flow with
                                  * CHECK_OVERLAP flag set. */
