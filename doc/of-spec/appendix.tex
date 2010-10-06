@@ -26,7 +26,7 @@ The \verb|config| field describes administrative settings with the following str
 \input{enum/ofp_port_config}
 The port config bits indicate whether a port has been administratively brought down and how to handle incoming and outgoing packets.
 \\\\
-When the port flags are changed, the switch sends an \verb|OFPT_PORT_STATUS| message to notify the controller of the change. The \verb|OFPPFL_NO_RECV|, \verb|OFPPFL_NO_FWD|, and \verb|OFPPFL_NO_PACKET_IN| bits in the OpenFlow port flags may be useful for the controller to implement STP, BFD or the like, although they interact poorly with in-band control.
+When the port flags are changed, the switch sends an \verb|OFPT_PORT_STATUS| message to notify the controller of the change. The \verb|OFPPFL_NO_RECV|, \verb|OFPPFL_NO_FWD|, and \verb|OFPPFL_NO_PACKET_IN| bits in the OpenFlow port flags may be useful for the controller to implement protocols such as STP or BFD.
 \\\\
 The \verb|state| field describes the physical link state with the following structure:
 
@@ -36,12 +36,12 @@ All port state bits are read-only, representing the state of the physical link o
 The port numbers use the following conventions:
 
 \input{enum/ofp_port_no}
-The \verb|curr|, \verb|advertised|, \verb|supported|, and \verb|peer| fields indicate link modes (10M to 10G full and half-duplex), link type (copper/fiber) and link features (autonegotiation and pause).  Port features are represent by the following structure:
+The \verb|curr|, \verb|advertised|, \verb|supported|, and \verb|peer| fields indicate link modes (speed and duplexity), link type (copper/fiber) and link features (autonegotiation and pause).  Port features are represent by the following structure:
 
 \input{enum/ofp_port_features}
-Multiple of these flags may be set simultaneously.
+Multiple of these flags may be set simultaneously. If none of the port speed flags are set, the \verb|max_speed| or \verb|curr_speed| are used.
 \\\\
-The \verb|curr_speed| fields indicate the current bit rate (raw transmission speed) of the link in kbps. The number should be rounded to match common usage. For example, an optical 10 Gb Ethernet port should have this field set to 10000000 (instead of 10312500), and an OC-192 port should have this field set to 10000000 (instead of 9953280).
+The \verb|curr_speed| and \verb|max_speed| fields indicate the current and maximum bit rate (raw transmission speed) of the link in kbps. The number should be rounded to match common usage. For example, an optical 10 Gb Ethernet port should have this field set to 10000000 (instead of 10312500), and an OC-192 port should have this field set to 10000000 (instead of 9953280).
 
 \subsubsection{\qosupd{Queue Structures}}
 \label{cts:qos}

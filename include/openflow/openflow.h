@@ -239,11 +239,16 @@ enum ofp_port_features {
     OFPPF_1GB_HD     = 1 << 4,  /* 1 Gb half-duplex rate support. */
     OFPPF_1GB_FD     = 1 << 5,  /* 1 Gb full-duplex rate support. */
     OFPPF_10GB_FD    = 1 << 6,  /* 10 Gb full-duplex rate support. */
-    OFPPF_COPPER     = 1 << 7,  /* Copper medium. */
-    OFPPF_FIBER      = 1 << 8,  /* Fiber medium. */
-    OFPPF_AUTONEG    = 1 << 9,  /* Auto-negotiation. */
-    OFPPF_PAUSE      = 1 << 10, /* Pause. */
-    OFPPF_PAUSE_ASYM = 1 << 11  /* Asymmetric pause. */
+    OFPPF_40GB_FD    = 1 << 7,  /* 40 Gb full-duplex rate support. */
+    OFPPF_100GB_FD   = 1 << 8,  /* 100 Gb full-duplex rate support. */
+    OFPPF_1TB_FD     = 1 << 9,  /* 1 Tb full-duplex rate support. */
+    OFPPF_LUDICROUS  = 1 << 10, /* Ludicrous rate either full or half duplex */
+
+    OFPPF_COPPER     = 1 << 11, /* Copper medium. */
+    OFPPF_FIBER      = 1 << 12, /* Fiber medium. */
+    OFPPF_AUTONEG    = 1 << 13, /* Auto-negotiation. */
+    OFPPF_PAUSE      = 1 << 14, /* Pause. */
+    OFPPF_PAUSE_ASYM = 1 << 15  /* Asymmetric pause. */
 };
 
 /* Description of a port */
@@ -265,7 +270,7 @@ struct ofp_port {
     uint32_t peer;          /* Features advertised by peer. */
 
     uint32_t curr_speed;    /* Current port bitrate in kbps. */
-    uint8_t pad3[4];        /* Align to 64 bits. */
+    uint32_t max_speed;     /* Max port bitrate in kbps */
 };
 OFP_ASSERT(sizeof(struct ofp_port) == 64);
 
