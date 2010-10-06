@@ -452,6 +452,24 @@ struct ofp_action_mpls_ttl {
 };
 OFP_ASSERT(sizeof(struct ofp_action_mpls_ttl) == 8);
 
+/* Action structure for OFPAT_PUSH_VLAN/MPLS. */
+struct ofp_action_push {
+    uint16_t type;                  /* OFPAT_PUSH_VLAN/MPLS. */
+    uint16_t len;                   /* Length is 8. */
+    uint8_t ethertype;              /* Ethertype */
+    uint8_t pad[2];
+};
+OFP_ASSERT(sizeof(struct ofp_action_push) == 8);
+
+/* Action structure for OFPAT_POP_MPLS. */
+struct ofp_action_pop_mpls {
+    uint16_t type;                  /* OFPAT_POP_MPLS. */
+    uint16_t len;                   /* Length is 8. */
+    uint8_t ethertype;              /* Ethertype */
+    uint8_t pad[2];
+};
+OFP_ASSERT(sizeof(struct ofp_action_pop_mpls) == 8);
+
 /* Action header for OFPAT_VENDOR. The rest of the body is vendor-defined. */
 struct ofp_action_vendor_header {
     uint16_t type;                  /* OFPAT_VENDOR. */

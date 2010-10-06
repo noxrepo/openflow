@@ -192,13 +192,17 @@ An \verb|action_copy_ttl_out| takes no arguments and consists only of a generic 
 \\\\
 An \verb|action_copy_ttl_in| takes no arguments and consists only of a generic \verb|ofp_action_header|. The action copies the TTL from the outermost header with TTL to the next-to-outermost header with TTL.
 \\\\
-An \verb|action_push_vlan| takes no arguments and consists only of a generic \verb|ofp_action_header|. The action pushes a new VLAN tag onto the packet.
+An \verb|action_push| has the following fields:
+
+\input{struct/ofp_action_push}
+The \verb|ethertype| indicates the Ethertype of the new tag. It is used when pushing any new VLAN tags and the bottom of stack MPLS header.
 \\\\
 An \verb|action_pop_vlan| takes no arguments and consists only of a generic \verb|ofp_action_header|. The action pops the outermost VLAN tag from the packet.
 \\\\
-An \verb|action_push_mpls| takes no arguments and consists only of a generic \verb|ofp_action_header|. The action pushes a new MPLS tag onto the packet.
-\\\\
-An \verb|action_pop_mpls| takes no arguments and consists only of a generic \verb|ofp_action_header|. The action pops the outermost MPLS tag from the packet.
+An \verb|action_pop_mpls| has the following fields:
+
+\input{struct/ofp_action_pop_mpls}
+The \verb|ethertype| indicates the Ethertype of the payload and is only used when popping the bottom of stack.
 \\\\
 An \verb|action_vendor| has the following fields:
 
