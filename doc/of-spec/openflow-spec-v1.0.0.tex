@@ -7,6 +7,7 @@
 \usepackage{tabularx}
 \usepackage{color}
 \usepackage{alltt}
+\usepackage{rotating}
 
 \hbadness=10000 % No "underfull hbox" messages
 
@@ -82,20 +83,20 @@ Each flow table entry (see Table \ref{table:flow entry}) contains:
 \footnotesize
 \begin{tabularx}{\textwidth}{ |X|X|X|X|X|X|X|X|X|X|X|X|X|X| }
 \hline
-Ingress Port &
-Ether source &
-Ether dst &
-Ether type &
-VLAN id &
-VLAN priority &
-MPLS label &
-MPLS traffic class &
-IP src &
-IP dst &
-IP proto &
-IP ToS bits &
-TCP/ UDP src port &
-TCP/ UDP dst port
+\begin{sideways}Ingress Port \end{sideways} &
+\begin{sideways}Ether source \end{sideways} &
+\begin{sideways}Ether dst \end{sideways} &
+\begin{sideways}Ether type \end{sideways} &
+\begin{sideways}VLAN id \end{sideways} &
+\begin{sideways}VLAN priority \end{sideways} &
+\begin{sideways}MPLS label \end{sideways} &
+\begin{sideways}MPLS traffic class \end{sideways} &
+\begin{sideways}IP src \end{sideways} &
+\begin{sideways}IP dst \end{sideways} &
+\begin{sideways}IP proto \end{sideways} &
+\begin{sideways}IP ToS bits \end{sideways} &
+\begin{sideways}TCP/ UDP src port \end{sideways} &
+\begin{sideways}TCP/ UDP dst port \end{sideways}
 \\ 
 \hline
 \end{tabularx}
