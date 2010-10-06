@@ -890,10 +890,16 @@ enum ofp_flow_mod_failed_code {
     OFPFMFC_UNSUPPORTED,        /* Unsupported action list - cannot process in
                                  * the order specified. */
     OFPFMFC_BAD_TAG,            /* Instruction set uses an unsupported
-                                   tag/encap */
-    OFPFMFC_TABLE_FULL,         /* Table specified by the flow mod */
+                                   tag/encap. */
+    OFPFMFC_BAD_DL_ADDR_MASK,   /* Unsupported datalink addr mask - switch does
+				   not support arbitrary datalink address
+                                   mask. */
+    OFPFMFC_BAD_NW_ADDR_MASK,   /* Unsupported network addr mask - switch does
+				   not support arbitrary network address
+                                   mask. */
+    OFPFMFC_TABLE_FULL,         /* Table specified by the flow mod. */
     OFPFMFC_BAD_INSTRUCTION     /* Unsupported instruction specified by the
-                                   flow mod */
+                                   flow mod. */
 };
 
 /* ofp_error_msg 'code' values for OFPET_GROUP_MOD_FAILED.  'data' contains
