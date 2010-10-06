@@ -8,6 +8,8 @@
 \usepackage{color}
 \usepackage{alltt}
 \usepackage{rotating}
+\usepackage{xtab}
+\usepackage{calc}
 
 \hbadness=10000 % No "underfull hbox" messages
 
@@ -17,6 +19,16 @@
 
 % Define the OpenFlow version here
 \newcommand{\ofversion}{1.0.0}
+
+% Calculations of widths for multipage tables
+%
+% Action table
+\newlength{\atactionwidth}
+\newlength{\atassocwidth}
+\newlength{\atdescwidth}
+\setlength{\atactionwidth}{0.25\textwidth - 2 \tabcolsep}
+\setlength{\atassocwidth}{0.30\textwidth - 2 \tabcolsep}
+\setlength{\atdescwidth}{0.45\textwidth - 2 \tabcolsep}
 
 \pagestyle{fancy}
 \fancyhead{}
@@ -262,13 +274,25 @@ The ethertype is only used when popping the bottom of stack and indicates the et
 \label{table:push pop actions}
 \end{table}
 
-\begin{table}[hbp]
-\centering
-\footnotesize
-\begin{tabularx}{\linewidth}{ |X|X|X| }
-\hline
-Action & Associated Data & Description \\
-\hline
+\bottomcaption{Field-modify actions.}
+\label{table:field modify actions}
+\tablefirsthead{\hline \textbf{Action} & \textbf{Associated Data} &
+                       \textbf{Description} \\
+		       \hline }
+\tablehead{\multicolumn{3}{c}%
+           {{\bfseries \tablename\ \thetable{} -- continued from previous page}} \\
+           \hline \textbf{Action} & \textbf{Associated Data} &
+                  \textbf{Description} \\
+	          \hline }
+\tablelasthead{\multicolumn{3}{c}%
+           {{\bfseries \tablename\ \thetable{} -- concluded from previous page}} \\
+           \hline \textbf{Action} & \textbf{Associated Data} &
+                  \textbf{Description} \\
+	          }
+\tabletail{\hline \multicolumn{3}{|r|}{{Continued on next page}} \\ \hline}
+\tablelasttail{\hline}
+\xentrystretch{0}
+\begin{xtabular}{ |p{\atactionwidth}|p{\atassocwidth}|p{\atdescwidth}| }
 Set VLAN ID &
 12 bits &
 If no VLAN is present, a new header is added with the specified VLAN ID and priority of zero.
@@ -339,7 +363,6 @@ Replace the existing TCP/UDP destination port with new value and update the TCP/
 
 This action is only applied to TCP and UDP packets.\\
 \hline
-\hline
 Copy TTL outwards&
 - &
 Copy the TTL from next-to-outermost to outermost header with TTL.
@@ -353,11 +376,7 @@ Copy the TTL from outermost to next-to-outermost header with TTL.
 
 Copy can be IP-to-IP, MPLS-to-MPLS, or MPLS-to-IP.
 \\
-\hline
-\end{tabularx}
-\caption{Field-modify actions.}
-\label{table:field modify actions}
-\end{table}
+\end{xtabular}
 
 \subsubsection{Default values for fields on push}
 \label{sec:push field defaults}
