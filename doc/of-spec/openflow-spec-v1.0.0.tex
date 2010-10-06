@@ -227,27 +227,34 @@ Note: Refer to section~\ref{sec:push field defaults} for information on default 
 \begin{table}[hbp]
 \centering
 \footnotesize
-\begin{tabularx}{\textwidth}{ |l|X| }
+\begin{tabularx}{\textwidth}{ |l|c|X| }
 \hline
-Action & Description \\
+Action & Associated Data & Description \\
 \hline
 Push VLAN header &
+Ethertype &
 Push a new VLAN header onto the packet.
 
-Ethertype for the new tag is 0x8100.
+The ethertype is used as the ethertype for the tag. Only well-known values for ethertype should be used.
 \\
 \hline
 Pop VLAN header &
+- &
 Pop the outer-most VLAN header from the packet. \\
 \hline
 Push MPLS header &
+Ethertype &
 Push a new MPLS shim header onto the packet.
 
-Ethertype for the new tag is 0x8847.
+The ethertype is used as the ethertype for the header only if the new tag being pushed is the bottom of stack. Only well-known values for ethertype should be used.
 \\
 \hline
 Pop MPLS header &
-Pop the outer-most MPLS tag or shim header from the packet. \\
+Ethertype &
+Pop the outer-most MPLS tag or shim header from the packet.
+
+The ethertype is only used when popping the bottom of stack and indicates the ethertype of the payload.
+\\
 \hline
 \end{tabularx}
 \caption{Push/pop tag actions.}
