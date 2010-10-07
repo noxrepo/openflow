@@ -178,14 +178,16 @@ struct ofp_switch_config {
 };
 OFP_ASSERT(sizeof(struct ofp_switch_config) == 12);
 
-/* Flags to indicate behavior of the flow table. These flags are used in
-   ofp_table_stats to describe the current configuration. They are used in
-   ofp_table_mod message to configure the table's behavior */
+/* Flags to indicate behavior of the flow table for unmatched packets.
+   These flags are used in ofp_table_stats messages to describe the current
+   configuration and in ofp_table_mod messages to configure table behavior. */
 enum ofp_table_config {
-    OFPTC_TABLE_MISS_CONTINUE = 1, /* Continue to the next table in the
-                                      pipeline (OpenFlow 1.0 behavior) */
-    OFPTC_TABLE_MISS_DROP     = 2, /* Drop the packet */
-    OFPTC_TABLE_MISS_MASK     = 3
+    OFPTC_TABLE_MISS_CONTROLLER = 0,      /* Apply instruction set. */
+    OFPTC_TABLE_MISS_CONTINUE   = 1 << 0, /* Continue to the next table in the
+                                             pipeline (OpenFlow 1.0
+                                             behavior). */
+    OFPTC_TABLE_MISS_DROP       = 1 << 1, /* Drop the packet. */
+    OFPTC_TABLE_MISS_MASK       = 3
 };
 
 /* Configure/Modify behavior of a flow table */

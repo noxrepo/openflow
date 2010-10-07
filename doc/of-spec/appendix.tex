@@ -274,10 +274,12 @@ The \verb|miss_send_len| field defines the number of bytes of each packet sent t
 The controller can configure and query table state in the switch with the \verb|OFP_TABLE_MOD| and \verb|OFPST_TABLE_STATS| requests, respectively. The switch responds to a table stats request with a \verb|OFPT_STATS_REPLY| message.
 
 \input{struct/ofp_table_mod}
-The \verb|config| field is a bitmap that is used to configure the \verb|table_id| specified. If the \verb|table_id| is \verb|0xFF|, the configuration is applied to all tables in the switch.
+The \verb|table_id| chooses the table to which the configuration change should be applied. If the \verb|table_id| is \verb|0xFF|, the configuration is applied to all tables in the switch.
+
+The \verb|config| field is a bitmap that is used to configure the default behavior of unmatched packets.  By default, any packet that does not match a table is sent to the controller for processing.  This behavior can be modified by using the following flags:
 
 \input{enum/ofp_table_config}
-Any packet that does not match a table is sent to the controller for processing. This default behavior can be modified by either using \verb|OFPTC_TABLE_MISS_CONTINUE| or \verb|OFPTC_TABLE_MISS_DROP| flags. The latter configures the table to drop the packet if it does not match on a table. The former requires the packet to match in the next available table (This is the behavior from an earlier version of the specification).
+\verb|OFPTC_TABLE_MISS_CONTINUE| directs unmatched packets to the next table in the pipeline, matching the multiple-table behavior in the OpenFlow 1.1 specification. \verb|OFPTC_TABLE_MISS_DROP| drops unmatched packets.
 
 \subsubsection{Modify State Messages}
 \paragraph{Modify Flow Entry Message}
