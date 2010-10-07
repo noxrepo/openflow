@@ -36,7 +36,7 @@ All port state bits are read-only, representing the state of the physical link o
 The port numbers use the following conventions:
 
 \input{enum/ofp_port_no}
-The \verb|curr|, \verb|advertised|, \verb|supported|, and \verb|peer| fields indicate link modes (speed and duplexity), link type (copper/fiber) and link features (autonegotiation and pause).  Port features are represent by the following structure:
+The \verb|curr|, \verb|advertised|, \verb|supported|, and \verb|peer| fields indicate link modes (speed and duplexity), link type (copper/fiber) and link features (autonegotiation and pause).  Port features are represented by the following structure:
 
 \input{enum/ofp_port_features}
 Multiple of these flags may be set simultaneously. If none of the port speed flags are set, the \verb|max_speed| or \verb|curr_speed| are used.
