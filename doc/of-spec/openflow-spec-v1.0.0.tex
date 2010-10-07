@@ -311,11 +311,11 @@ The controller will only ask the switch to send to multiple physical ports simul
 \\\\
 \textbf{\qosupd{Optional Action:}} \emph{\qosupd{Set-Queue}}. \qosupd{The set-queue action set the queue id for a packet. When the packet is forwarded to a port using the output action, the queue id determine which queue attached to this port is used for forwarding the packet. Forwarding behavior is dictated by the configuration of the queue and is used to provide basic Quality-of-Service (QoS) support (see section \ref{cts:qos}).}
 \\\\
-\textbf{Required Action:} \emph{Drop}.  A flow-entry with no specified action indicates that all matching packets should be dropped.
+\textbf{Required Action:} \emph{Drop}.  A flow entry with no specified action indicates that all matching packets should be dropped.
 \\\\
 \textbf{Optional Action:} \emph{Push-Tag/Pop-Tag}.  Switches may support the ability to push/pop tags as shown in Table \ref{table:push pop actions}.  To aid integration with existing networks, we suggest that the ability to push/pop VLAN tags be supported.
 
-The currently supported ordering of header fields/tags is:
+The ordering of header fields/tags is:
 \begin{center}
 \begin{tabular}{|l|l|l|l|l|}
 \hline
