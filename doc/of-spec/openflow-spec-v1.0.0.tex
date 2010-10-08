@@ -87,7 +87,7 @@ This section describes key OpenFlow specification terms:
 \item \textbf{Match Field}: a field against which a packet is matched, including packet headers, the ingress port, and the metadata value.
 \item \textbf{Metadata}: a maskable register value that can be used to carry information from one table to the next.
 \item \textbf{Instruction}: an operation executed when a packet matches a flow entry. An instruction either contains a set of actions or modifies pipeline processing.
-\item \textbf{Action}: a type of instruction that modifies a packet, including forwarding to a port, decrementing the TTL field, and others. Actions are either part of instructions or action buckets.
+\item \textbf{Action}: an operation that forwards the packet to a port or modifies the packet, such as decrementing the TTL field. Actions may be specified as part of the instruction set associated with a flow entry or in an action bucket associated with a group entry.
 \item \textbf{Action Set}: a set of actions that are carried between tables along with the match fields.
 \item \textbf{Group}: a list of action buckets and some means of choosing one or more of those buckets to apply on a per-packet basis.
 \item \textbf{Action Bucket}: a set of actions and associated parameters, defined for groups.
