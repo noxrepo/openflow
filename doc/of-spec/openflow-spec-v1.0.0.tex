@@ -291,8 +291,8 @@ Each packet is associated with an action set \ref{ft:actionset}. The action set 
 \\\\
 A switch is not required to support all action types --- just those marked ``Required Actions'' below. When connecting to the controller, a switch indicates which of the ``Optional Actions'' it supports.
 \\\\
-OpenFlow-compliant switches come in two types: \emph{OpenFlow-only}, and \emph{OpenFlow-enabled}.
-OpenFlow-only switches do not support the \textbf{Forward-to-NORMAL} action, while OpenFlow-enabled switches may support the \textbf{Forward-to-NORMAL} action.  Either type of switch can also support the \textbf{Forward-to-FLOOD} action.
+OpenFlow-compliant switches come in two types: \emph{OpenFlow-only}, and \emph{Hybrid OpenFlow/non-OpenFlow}.
+OpenFlow-only switches do not support the \textbf{Forward-to-NORMAL} action, while Hybrid OpenFlow/non-OpenFlow switches may support the \textbf{Forward-to-NORMAL} action.  Either type of switch can also support the \textbf{Forward-to-FLOOD} action.
 \\\\
 \textbf{Required Action:} \textit{Forward}. 
 OpenFlow switches must support forwarding the packet to physical ports and the following virtual ones:
