@@ -347,7 +347,7 @@ Push VLAN header &
 Ethertype &
 Push a new VLAN header onto the packet.
 
-The ethertype is used as the ethertype for the tag. Only well-known values for ethertype should be used.
+The ethertype is used as the ethertype for the tag. Only ethertype 0x8100 and 0x88a8 should be used.
 \\
 \hline
 Pop VLAN header &
@@ -358,7 +358,7 @@ Push MPLS header &
 Ethertype &
 Push a new MPLS shim header onto the packet.
 
-The ethertype is used as the ethertype for the header only if the new tag being pushed is the bottom of stack. Only well-known values for ethertype should be used.
+The ethertype is used as the ethertype for the header only if the new tag being pushed is the bottom of stack. Only ethertype 0x8847 and 0x8848 should be used.
 \\
 \hline
 Pop MPLS header &
