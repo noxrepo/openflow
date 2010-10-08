@@ -307,9 +307,7 @@ Note: Hybrid OpenFlow/non-OpenFlow switches may provide a classification mechani
 \item \textbf{FLOOD:} Send the packet out all physical ports and the \verb|LOCAL| port, but not to the ingress port, ports that are configured \verb|OFPPC_NO_FWD|, or ports that are in \verb|OFPPS_BLOCKED| state. The switch may optionally restrict forwarding to the VLAN matching the packet VLAN header field.
 
 \end{itemize}
-The controller will only ask the switch to send to multiple physical ports simultaneously if the switch indicates it supports this behavior in the initial handshake (see section \ref{cts:handshake}).  
-\\\\
-\textbf{Optional Action:} \emph{Set-Queue}. The set-queue action sets the queue id for a packet. When the packet is forwarded to a port using the output action, the queue id determine which queue attached to this port is used for forwarding the packet. Forwarding behavior is dictated by the configuration of the queue and is used to provide basic Quality-of-Service (QoS) support (see section \ref{cts:qos}).}
+\textbf{Optional Action:} \emph{Set-Queue}. The set-queue action sets the queue id for a packet. When the packet is forwarded to a port using the output action, the queue id determine which queue attached to this port is used for forwarding the packet. Forwarding behavior is dictated by the configuration of the queue and is used to provide basic Quality-of-Service (QoS) support (see section \ref{cts:qos}).
 \\\\
 \textbf{Required Action:} \emph{Drop}.  A flow entry with no specified action indicates that all matching packets should be dropped.
 \\\\
