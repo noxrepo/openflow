@@ -491,26 +491,19 @@ Field values should be copied from existing outer headers to new outer headers w
 
 \begin{table}[hbp]
 \centering
-\begin{tabular}{p{0.3\textwidth}p{0.3\textwidth}}
-\textbf{New Fields} & \textbf{Existing Field(s)} \\
+\begin{tabular}{lcl}
+\textbf{New Fields} & & \textbf{Existing Field(s)} \\
 \hline
-VLAN ID & VLAN ID \\
-\hline
-VLAN priority & VLAN priority \\
-\hline
-MPLS label & MPLS label \\
-\hline
-MPLS traffic class & MPLS traffic class \\
-\hline
-MPLS TTL & MPLS TTL \\
- & IP TTL \\
-\hline
-IP source address & IP source address \\
-\hline
-IP destination address & IP destination address \\
-\hline
-IP TTL & IP TTL \\
- & MPLS TTL \\
+VLAN ID & $\leftarrow$ & VLAN ID \\
+VLAN priority & $\leftarrow$ & VLAN priority \\
+MPLS label & $\leftarrow$ & MPLS label \\
+MPLS traffic class & $\leftarrow$ & MPLS traffic class \\
+MPLS TTL & $\leftarrow$ &
+$\left\{
+\begin{array}{l}
+  \mathrm{MPLS\ TTL} \\ \mathrm{IP\ TTL}
+\end{array}
+\right.$ \\
 \end{tabular}
 \caption{Existing fields that may be copied into new fields on a push action.}
 \label{table:push field copy}
