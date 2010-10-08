@@ -268,7 +268,7 @@ Each flow entry is associated with a set of instructions that are executed when 
 \item \textbf{Goto-Table \textit{next-table-id}}: Indicates the next table in the processing pipeline. The table-id must be greater than the current table-id.
 \end{itemize} 
 
-A switch may reject a flow entry if it is unable to execute the instructions associated with the flow entry. In this case, the switch must return an unsupported flow error (see \ref{unsupported_flow}).  Flow tables may not support every match and every instruction.
+A switch may reject a flow entry if it is unable to execute the instructions associated with the flow entry. In this case, the switch must return an unsupported flow error (see \ref{sec:flow mod messages}).  Flow tables may not support every match and every instruction.
 
 \subsection{Action Set}
 \label{ft:actionset}
@@ -614,6 +614,7 @@ The first time a switch starts up, it will operate in either ``fail secure mode'
 The switch and controller communicate through a TLS connection.  The TLS connection is initiated by the switch on startup to the controller's server, which is located by default on TCP port \input{define/OFP_TCP_PORT}.   The switch and controller mutually authenticate by exchanging certificates signed by a site-specific private key.  Each switch must be user-configurable with one certificate for authenticating the controller (controller certificate) and the other for authenticating to the controller (switch certificate).
 
 \subsection{Flow Table Modification Messages}
+\label{sec:flow mod messages}
 \label{flow_table:sec_chan:flow_add}
 \label{flow_table:sec_chan:flow_mod}
 \label{flow_table:sec_chan:flow_removal}
