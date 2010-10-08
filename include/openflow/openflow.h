@@ -895,10 +895,10 @@ enum ofp_flow_mod_failed_code {
     OFPFMFC_BAD_TAG,            /* Instruction set uses an unsupported
                                    tag/encap. */
     OFPFMFC_BAD_DL_ADDR_MASK,   /* Unsupported datalink addr mask - switch does
-				   not support arbitrary datalink address
+                                   not support arbitrary datalink address
                                    mask. */
     OFPFMFC_BAD_NW_ADDR_MASK,   /* Unsupported network addr mask - switch does
-				   not support arbitrary network address
+                                   not support arbitrary network address
                                    mask. */
     OFPFMFC_TABLE_FULL,         /* Table specified by the flow mod. */
     OFPFMFC_BAD_INSTRUCTION     /* Unsupported instruction specified by the
@@ -1041,10 +1041,10 @@ struct ofp_flow_stats_request {
                                  as an output port.  A value of OFPP_NONE
                                  indicates no restriction. */
     uint64_t cookie;          /* Require matching entries to contain this
-				 cookie value */
+                                 cookie value */
     uint64_t cookie_mask;     /* Mask used to restrict the cookie bits that
-				 must match. A value of 0 indicates
-				 no restriction. */
+                                 must match. A value of 0 indicates
+                                 no restriction. */
     struct ofp_match match;   /* Fields to match. */
 };
 OFP_ASSERT(sizeof(struct ofp_flow_stats_request) == 64);
@@ -1079,10 +1079,10 @@ struct ofp_aggregate_stats_request {
                                  as an output port.  A value of OFPP_NONE
                                  indicates no restriction. */
     uint64_t cookie;          /* Require matching entries to contain this
-				 cookie value */
+                                 cookie value */
     uint64_t cookie_mask;     /* Mask used to restrict the cookie bits that
-				 must match. A value of 0 indicates
-				 no restriction. */
+                                 must match. A value of 0 indicates
+                                 no restriction. */
     struct ofp_match match;   /* Fields to match. */
 };
 OFP_ASSERT(sizeof(struct ofp_aggregate_stats_request) == 64);
