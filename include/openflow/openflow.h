@@ -685,7 +685,7 @@ enum ofp_instruction_type {
 };
 
 struct ofp_instruction_goto_table {
-    uint16_t type;                /* OFPI_GOTO_TABLE */
+    uint16_t type;                /* OFPIT_GOTO_TABLE */
     uint16_t len;                 /* Length of this struct in bytes. */
     uint8_t table_id;             /* Set next table in the lookup pipeline */
     uint8_t pad[3];               /* Pad to 64 bits. */
@@ -693,7 +693,7 @@ struct ofp_instruction_goto_table {
 OFP_ASSERT(sizeof(struct ofp_instruction_goto_table) == 8);
 
 struct ofp_instruction_write_metadata {
-    uint16_t type;                /* OFPI_WRITE_METADATA */
+    uint16_t type;                /* OFPIT_WRITE_METADATA */
     uint16_t len;                 /* Length of this struct in bytes. */
     uint64_t metadata;            /* Metadata value to write */
     uint64_t metadata_mask;       /* Metadata write bitmask */
@@ -704,8 +704,8 @@ struct ofp_instruction_actions {
     uint16_t type;              /* One of OFPIT_*_ACTIONS */
     uint16_t len;               /* Length of this struct in bytes. */
     struct ofp_action_header actions[0];  /* Actions associated with
-                                             OFPI_WRITE_ACTIONS and
-                                             OFPI_APPLY_ACTIONS */
+                                             OFPIT_WRITE_ACTIONS and
+                                             OFPIT_APPLY_ACTIONS */
 };
 OFP_ASSERT(sizeof(ofp_instruction_actions) == 12);
 
