@@ -91,6 +91,8 @@ This section describes key OpenFlow specification terms:
 \item \textbf{Action Set}: a set of actions that are carried between tables along with the match fields and are executed when the instruction set instructs the packet to exit the processing pipeline
 \item \textbf{Group}: a list of action buckets and some means of choosing one or more of those buckets to apply on a per-packet basis.
 \item \textbf{Action Bucket}: a set of actions and associated parameters, defined for groups.
+\item \textbf{Tag}: a header that can be inserted or removed from a packet via push and pop actions.
+\item \textbf{Outermost Tag}: the tag that appears closest to the beginning of a packet.
 \end{itemize}
 
 \section{OpenFlow Tables}
