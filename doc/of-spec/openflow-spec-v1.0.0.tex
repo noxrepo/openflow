@@ -269,7 +269,7 @@ Each flow entry contains a set of instructions that are executed when a packet m
 \item \textbf{Goto-Table \textit{next-table-id}}: Indicates the next table in the processing pipeline. The table-id must be greater than the current table-id.
 \end{itemize} 
 
-A switch may reject a flow entry if it is unable to execute the instructions associated with the flow entry. In this case, the switch must return an unsupported flow error (see \ref{sec:flow mod messages}).  Flow tables may not support every match and every instruction.
+A switch may reject a flow entry if it is unable to execute the instructions associated with the flow entry. In this case, the switch must return an unsupported flow error.  Flow tables may not support every match and every instruction.
 
 \subsection{Action Set}
 \label{ft:actionset}
