@@ -883,15 +883,19 @@ enum ofp_bad_action_code {
  * at least the first 64 bytes of the failed request. */
 enum ofp_flow_mod_failed_code {
     OFPFMFC_UNKNOWN,            /* Unspecified error. */
-    OFPFMFC_ALL_TABLES_FULL,    /* Flow not added because of full tables. */
+    OFPFMFC_TABLE_FULL,         /* Flow not added because table was full. */
+    OFPFMFC_BAD_TABLE,          /* Table does not exist */
     OFPFMFC_OVERLAP,            /* Attempted to add overlapping flow with
-                                 * CHECK_OVERLAP flag set. */
+                                   CHECK_OVERLAP flag set. */
     OFPFMFC_EPERM,              /* Permissions error. */
     OFPFMFC_BAD_TIMEOUT,        /* Flow not added because of unsupported
-                                 * idle/hard timeout. */
-    OFPFMFC_BAD_COMMAND,        /* Unknown command. */
-    OFPFMFC_UNSUPPORTED,        /* Unsupported action list - cannot process in
-                                 * the order specified. */
+                                   idle/hard timeout. */
+    OFPFMFC_BAD_COMMAND,        /* Unsupported or unknown command. */
+    OFPFMFC_BAD_ACTION,         /* Unsupported or unknown action. */
+    OFPFMFC_BAD_INSTRUCTION,    /* Unsupported instruction specified by the
+                                   flow mod. */
+    OFPFMFC_BAD_MATCH,          /* Unsupported match specified by the
+                                   flow mod. */
     OFPFMFC_BAD_TAG,            /* Instruction set uses an unsupported
                                    tag/encap. */
     OFPFMFC_BAD_DL_ADDR_MASK,   /* Unsupported datalink addr mask - switch does
@@ -900,9 +904,6 @@ enum ofp_flow_mod_failed_code {
     OFPFMFC_BAD_NW_ADDR_MASK,   /* Unsupported network addr mask - switch does
                                    not support arbitrary network address
                                    mask. */
-    OFPFMFC_TABLE_FULL,         /* Table specified by the flow mod. */
-    OFPFMFC_BAD_INSTRUCTION     /* Unsupported instruction specified by the
-                                   flow mod. */
 };
 
 /* ofp_error_msg 'code' values for OFPET_GROUP_MOD_FAILED.  'data' contains
@@ -920,8 +921,8 @@ enum ofp_group_mod_failed_code {
                                        * for a group has been exceeded. */
     OFPGMFC_CHAINING_UNSUPPORTED,     /* Switch does not support groups that
                                        * forward to groups. */
-    OFPGMFC_WATCH_UNSUPPORTED,        /* This group can not watch the
-					 watch_port or watch_group specified. */
+    OFPGMFC_WATCH_UNSUPPORTED,        /* This group cannot watch the
+                                         watch_port or watch_group specified. */
     OFPGMFC_LOOP                      /* Group entry would cause a loop. */
 };
 
