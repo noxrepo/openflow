@@ -572,21 +572,23 @@ enum ofp_group_mod_command {
 
 /* Flow wildcards. */
 enum ofp_flow_wildcards {
-    OFPFW_IN_PORT  = 1 << 0,  /* Switch input port. */
-    OFPFW_DL_VLAN  = 1 << 1,  /* VLAN id. */
-    OFPFW_DL_VLAN_PCP = 1 << 2, /* VLAN priority. */
-    OFPFW_DL_TYPE  = 1 << 3,  /* Ethernet frame type. */
-    OFPFW_NW_TOS   = 1 << 4,  /* IP ToS (DSCP field, 6 bits). */
-    OFPFW_NW_PROTO = 1 << 5,  /* IP protocol. */
-    OFPFW_TP_SRC   = 1 << 6,  /* TCP/UDP source port. */
-    OFPFW_TP_DST   = 1 << 7,  /* TCP/UDP destination port. */
-    OFPFW_METADATA = 1 << 8, /* Metadata field */
+    OFPFW_IN_PORT       = 1 << 0,  /* Switch input port. */
 
-    OFPFW_MPLS_LABEL   = 1 << 9, /* MPLS label. */
-    OFPFW_MPLS_TC      = 1 << 10, /* MPLS TC. */
+    OFPFW_DL_VLAN       = 1 << 1,  /* VLAN id. */
+    OFPFW_DL_VLAN_PCP   = 1 << 2,  /* VLAN priority. */
+    OFPFW_DL_TYPE       = 1 << 3,  /* Ethernet frame type. */
+
+    OFPFW_NW_TOS        = 1 << 4,  /* IP ToS (DSCP field, 6 bits). */
+    OFPFW_NW_PROTO      = 1 << 5,  /* IP protocol. */
+
+    OFPFW_TP_SRC        = 1 << 6,  /* TCP/UDP source port. */
+    OFPFW_TP_DST        = 1 << 7,  /* TCP/UDP destination port. */
+
+    OFPFW_MPLS_LABEL    = 1 << 8,  /* MPLS label. */
+    OFPFW_MPLS_TC       = 1 << 9,  /* MPLS TC. */
 
     /* Wildcard all fields. */
-    OFPFW_ALL = ((1 << 11) - 1)
+    OFPFW_ALL           = ((1 << 10) - 1)
 };
 
 /* The wildcards for ICMP type and code fields use the transport source
