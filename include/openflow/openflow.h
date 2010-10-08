@@ -366,6 +366,7 @@ enum ofp_action_type {
     OFPAT_SET_NW_SRC,       /* IP source address. */
     OFPAT_SET_NW_DST,       /* IP destination address. */
     OFPAT_SET_NW_TOS,       /* IP ToS (DSCP field, 6 bits). */
+    OFPAT_SET_NW_ECN,       /* IP ECN (2 bits). */
     OFPAT_SET_TP_SRC,       /* TCP/UDP/SCTP source port. */
     OFPAT_SET_TP_DST,       /* TCP/UDP/SCTP destination port. */
     OFPAT_COPY_TTL_OUT,     /* Copy TTL "outwards" -- from next-to-outermost to
@@ -453,6 +454,15 @@ struct ofp_action_nw_tos {
     uint8_t pad[3];
 };
 OFP_ASSERT(sizeof(struct ofp_action_nw_tos) == 8);
+
+/* Action structure for OFPAT_SET_NW_ECN. */
+struct ofp_action_nw_ecn {
+    uint16_t type;                  /* OFPAT_SET_TW_SRC/DST. */
+    uint16_t len;                   /* Length is 8. */
+    uint8_t nw_ecn;                 /* IP ECN (2 bits). */
+    uint8_t pad[3];
+};
+OFP_ASSERT(sizeof(struct ofp_action_nw_ecn) == 8);
 
 /* Action structure for OFPAT_SET_MPLS_LABEL. */
 struct ofp_action_mpls_label {

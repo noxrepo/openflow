@@ -204,6 +204,11 @@ An \verb|action_nw_tos| has the following fields:
 \input{struct/ofp_action_nw_tos}
 The \verb|nw_tos| field is the 6 upper bits of the ToS field to set, in the original bit positions (shifted to the left by 2).
 \\\\
+An \verb|action_nw_ecn| has the following fields:
+
+\input{struct/ofp_action_nw_ecn}
+The \verb|nw_ecn| field is the 2 lower bits of the ECN field to set, in the original bit positions.
+\\\\
 An \verb|action_nw_ttl| has the following fields:
 
 \input{struct/ofp_action_nw_ttl}
