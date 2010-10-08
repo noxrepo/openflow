@@ -276,8 +276,6 @@ A switch may reject a flow entry if it is unable to execute the instructions ass
 An action set is associated with each packet. This set is empty by default. A flow entry can modify the action set using instructions associated with a particular match. The action set is carried between flow tables. When an instruction set does not contain a \textit{Goto-Table} instruction, the actions in the action set are executed. If the action set does not contain an output action, the packet will be dropped. The output action in the action set is executed last.
 \\\\
 An action set contains a maximum of one action of each type, and may not simultaneously contain both Forward and Group actions. When multiple actions of the same type are required, e.g. pushing multiple MPLS labels or popping multiple MPLS labels, the \emph{Apply-Actions} instruction may be used.
-\\\\
-If a packet does not match any entry in a flow table, it is forwarded to the controller. The controller may forward or drop the packet. The controller may also respond by installing appropriate flow entries to process similar packets. The controller can prevent this default behavior by installing a low priority catch-all flow entry to drop unmatched packets.
 
 \begin{figure}[htbp]
 \centering
