@@ -171,8 +171,8 @@ The following group types are defined:
 \begin{sideways}IP dst \end{sideways} &
 \begin{sideways}IP proto \end{sideways} &
 \begin{sideways}IP ToS bits \end{sideways} &
-\begin{sideways}TCP/ UDP src port \end{sideways} &
-\begin{sideways}TCP/ UDP dst port \end{sideways}
+\begin{sideways}TCP/ UDP / SCTP src port \end{sideways} &
+\begin{sideways}TCP/ UDP / SCTP dst port \end{sideways}
 \\ 
 \hline
 \end{tabularx}
@@ -200,8 +200,8 @@ Table \ref{table:match fields} shows the match fields an incoming packet is comp
 \hline IP destination address & 32 & All IP and ARP packets & Can use subnet mask or arbitrary bitmask \\
 \hline IP protocol & 8 & All IP and IP over Ethernet, ARP packets & Only the lower 8 bits of the ARP opcode are used \\
 \hline IP ToS bits & 6 & All IP packets & Specify as 8-bit value and place ToS in upper 6 bits. \\
-\hline Transport source port / ICMP Type & 16 & All TCP, UDP, and ICMP packets & Only lower 8 bits used for ICMP Type \\
-\hline Transport destination port / ICMP Code & 16 & All TCP, UDP, and ICMP packets & Only lower 8 bits used for ICMP Code \\
+\hline Transport source port / ICMP Type & 16 & All TCP, UDP, SCTP, and ICMP packets & Only lower 8 bits used for ICMP Type \\
+\hline Transport destination port / ICMP Code & 16 & All TCP, UDP, SCTP, and ICMP packets & Only lower 8 bits used for ICMP Code \\
 \hline
 \end{tabularx}
 \caption{Field lengths and the way they must be applied to flow entries.}
@@ -321,7 +321,7 @@ The ordering of header fields/tags is:
 \begin{center}
 \begin{tabular}{|l|l|l|l|l|}
 \hline
-Ethernet & VLAN & MPLS & ARP/IP & TCP/UDP (IP-only) \\
+Ethernet & VLAN & MPLS & ARP/IP & TCP/UDP/SCTP (IP-only) \\
 \hline
 \end{tabular}
 \end{center}
@@ -429,13 +429,16 @@ Only applies to packets with an existing MPLS shim header. \\
 \hline
 Set IPv4 source address &
 32 bits: New IPv4 source address &
-Replace the existing IP source address and update the IP checksum (and TCP/UDP checksum if applicable).
-Only applies to IPv4 packets. \\
+Replace the existing IP source address with new value and update the IP checksum (and TCP/UDP/SCTP 
+checksum if applicable). 
+
+This action is only applicable to IPv4 packets. \\
 \hline
 Set IPv4 destination address &
 32 bits: New IPv4 destination address &
-Replace the existing IP destination address and update the IP checksum (and TCP/UDP checksum if applicable).
-Only applies to IPv4 packets. \\
+Replace the existing IP destination address with and update the IP checksum (and TCP/UDP/SCTP checksum if applicable).
+
+This action is only applied to IPv4 packets. \\
 \hline
 Set IPv4 ToS bits &
 6 bits: New IPv4 ToS &
@@ -453,14 +456,16 @@ Decrement the IP TTL field and update the IP checksum.
 Only applies to IPv4 packets. \\
 \hline
 Set transport source port &
-16 bits: New TCP or UDP source port &
-Replace the existing TCP/UDP source port and update the TCP/UDP checksum.
-Only applies to TCP and UDP packets.\\
+16 bits: New TCP, UDP or SCTP source port &
+Replace the existing TCP/UDP/SCTP source port with new value and update the TCP/UDP/SCTP checksum.
+
+This action is only applicable to TCP, UDP and SCTP packets.\\
 \hline
 Set transport destination port &
-16 bits: New TCP or UDP destination port &
-Replace the existing TCP/UDP destination port and update the TCP/UDP checksum
-Only applies to TCP and UDP packets.\\
+16 bits: New TCP, UDP or SCTP destination port &
+Replace the existing TCP/UDP/SCTP destination port with new value and update the TCP/UDP/SCTP checksum
+
+Only applies to TCP, UDP and SCTP packets.\\
 \hline
 Copy TTL outwards&
 - &
@@ -534,7 +539,7 @@ On receipt of a packet, an OpenFlow Switch performs the functions shown in Figur
 \item (Optional) If the first header \emph{after} the Ethernet or VLAN header is an MPLS shim header (Ethernet type equal to 0x8847 or 0x8848), the \emph{outermost} MPLS label and traffic class are used. Additional MPLS shim headers are skipped and lookup is performed immediately without considering any further fields.
 \item (Optional) For ARP packets (Ethernet type equal to 0x0806), the lookup fields include the contained IP source and destination fields and the ARP opcode.
 \item For IP packets (Ethernet type equal to 0x0800), the lookup fields also include those in the IP header.
-\item For IP packets that are TCP or UDP (IP protocol is equal to 6 or 17), the lookup includes the transport ports.
+\item For IP packets that are TCP, UDP or SCTP (IP protocol is equal to 6, 17 or 132), the lookup includes the transport ports.
 \item For IP packets that are ICMP (IP prototcol is equal to 1), the lookup includes the Type and Code fields.  
 \item For IP packets with nonzero fragment offset or More Fragments bit set, the transport ports are set to zero for the lookup.
 \end{itemize}

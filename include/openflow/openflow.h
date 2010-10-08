@@ -366,8 +366,8 @@ enum ofp_action_type {
     OFPAT_SET_NW_SRC,       /* IP source address. */
     OFPAT_SET_NW_DST,       /* IP destination address. */
     OFPAT_SET_NW_TOS,       /* IP ToS (DSCP field, 6 bits). */
-    OFPAT_SET_TP_SRC,       /* TCP/UDP source port. */
-    OFPAT_SET_TP_DST,       /* TCP/UDP destination port. */
+    OFPAT_SET_TP_SRC,       /* TCP/UDP/SCTP source port. */
+    OFPAT_SET_TP_DST,       /* TCP/UDP/SCTP destination port. */
     OFPAT_COPY_TTL_OUT,     /* Copy TTL "outwards" -- from next-to-outermost to
                                outermost */
     OFPAT_COPY_TTL_IN,      /* Copy TTL "inwards" -- from outermost to
@@ -440,7 +440,7 @@ OFP_ASSERT(sizeof(struct ofp_action_nw_addr) == 8);
 struct ofp_action_tp_port {
     uint16_t type;                  /* OFPAT_SET_TP_SRC/DST. */
     uint16_t len;                   /* Length is 8. */
-    uint16_t tp_port;               /* TCP/UDP port. */
+    uint16_t tp_port;               /* TCP/UDP/SCTP port. */
     uint8_t pad[2];
 };
 OFP_ASSERT(sizeof(struct ofp_action_tp_port) == 8);
@@ -572,20 +572,16 @@ enum ofp_group_mod_command {
 
 /* Flow wildcards. */
 enum ofp_flow_wildcards {
-    OFPFW_IN_PORT       = 1 << 0,  /* Switch input port. */
-
-    OFPFW_DL_VLAN       = 1 << 1,  /* VLAN id. */
-    OFPFW_DL_VLAN_PCP   = 1 << 2,  /* VLAN priority. */
-    OFPFW_DL_TYPE       = 1 << 3,  /* Ethernet frame type. */
-
-    OFPFW_NW_TOS        = 1 << 4,  /* IP ToS (DSCP field, 6 bits). */
-    OFPFW_NW_PROTO      = 1 << 5,  /* IP protocol. */
-
-    OFPFW_TP_SRC        = 1 << 6,  /* TCP/UDP source port. */
-    OFPFW_TP_DST        = 1 << 7,  /* TCP/UDP destination port. */
-
-    OFPFW_MPLS_LABEL    = 1 << 8,  /* MPLS label. */
-    OFPFW_MPLS_TC       = 1 << 9,  /* MPLS TC. */
+    OFPFW_IN_PORT     = 1 << 0,  /* Switch input port. */
+    OFPFW_DL_VLAN     = 1 << 1,  /* VLAN id. */
+    OFPFW_DL_VLAN_PCP = 1 << 2,  /* VLAN priority. */
+    OFPFW_DL_TYPE     = 1 << 3,  /* Ethernet frame type. */
+    OFPFW_NW_TOS      = 1 << 4,  /* IP ToS (DSCP field, 6 bits). */
+    OFPFW_NW_PROTO    = 1 << 5,  /* IP protocol. */
+    OFPFW_TP_SRC      = 1 << 6,  /* TCP/UDP/SCTP source port. */
+    OFPFW_TP_DST      = 1 << 7,  /* TCP/UDP/SCTP destination port. */
+    OFPFW_MPLS_LABEL  = 1 << 8,  /* MPLS label. */
+    OFPFW_MPLS_TC     = 1 << 9,  /* MPLS TC. */
 
     /* Wildcard all fields. */
     OFPFW_ALL           = ((1 << 10) - 1)
@@ -650,8 +646,8 @@ struct ofp_match {
     uint32_t nw_src_mask;      /* IP source address mask. */
     uint32_t nw_dst;           /* IP destination address. */
     uint32_t nw_dst_mask;      /* IP destination address mask. */
-    uint16_t tp_src;           /* TCP/UDP source port. */
-    uint16_t tp_dst;           /* TCP/UDP destination port. */
+    uint16_t tp_src;           /* TCP/UDP/SCTP source port. */
+    uint16_t tp_dst;           /* TCP/UDP/SCTP destination port. */
     uint32_t mpls_label;       /* MPLS label. */
     uint8_t mpls_tc;           /* MPLS TC. */
     uint8_t pad3[7];           /* Align to 64-bits */
