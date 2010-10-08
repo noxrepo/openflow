@@ -8,7 +8,7 @@ The structures, defines, and enumerations described below are derived from the f
 Each OpenFlow message begins with the OpenFlow header:
 
 \input{struct/ofp_header}
-The version specifies the OpenFlow protocol version being used.  During the current draft phase of the OpenFlow Protocol, the most significant bit will be set to indicate an experimental version and the lower bits will indicate a revision number.  The current version is \input{define/OFP_VERSION}.  The length field indicates the total length of the message, so no additional framing is used to distinguish one frame from the next.  The type can have the following values:
+The \verb|version| specifies the OpenFlow protocol version being used.  During the current draft phase of the OpenFlow Protocol, the most significant bit will be set to indicate an experimental version and the lower bits will indicate a revision number.  The current version is \input{define/OFP_VERSION}.  The \verb|length| field indicates the total length of the message, so no additional framing is used to distinguish one frame from the next.  The \verb|type| can have the following values:
 
 \input{enum/ofp_type}
 
