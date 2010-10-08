@@ -76,7 +76,7 @@ Matching starts at the first table and may continue to additional tables. Flow e
 \\\\
 Flow entries may forward to a port. Usually, this is a physical port, but it could also be a virtual port reserved by a switch or by this specification. Virtual ports may specify generic forwarding actions such as sending to the controller, flooding or forwarding using non-OpenFlow methods, such as ``normal'' switch processing or tunnel interfaces (see \ref{ft:actions}).  The zero port is reserved and cannot be used for forwarding.
 \\\\
-Groups can directly represent sets of ports for flooding, as well as more complex forwarding semantics (e.g. multipath, fast reroute and link aggregation).  As a general layer of indirection, groups also enable multiple flows to forward to a single identifier (e.g. IP forwarding to a common next hop).  This abstraction allows common output actions across flows to be changed efficiently.
+Groups represent sets of ports for flooding, as well as more complex forwarding semantics (e.g. multipath, fast reroute and link aggregation).  As a general layer of indirection, groups also enable multiple flows to forward to a single identifier (e.g. IP forwarding to a common next hop).  This abstraction allows common output actions across flows to be changed efficiently.
 \\\\
 Additional port/group configuration may be handled by an external configuration protocol, which is beyond the scope of this document.
 
@@ -86,7 +86,7 @@ This section describes key OpenFlow specification terms:
 \item \textbf{Byte}: an 8-bit octet.
 \item \textbf{Port}: is a physical or virtual port. Virtual ports include reserved ports defined by this specification as well as higher level abstractions that may be defined in the switch using non-OpenFlow methods (e.g. link aggregation groups, tunnels, loopback interfaces).
 \item \textbf{Match Field}: a field against which a packet is matched, including packet headers, the ingress port, and the metadata value.
-\item \textbf{Metadata}: a maskable register value that can be used to carry information from one table to the next.
+\item \textbf{Metadata}: a maskable register value that is used to carry information from one table to the next.
 \item \textbf{Instruction}: an operation executed when a packet matches a flow entry. An instruction either contains a set of actions or modifies pipeline processing.
 \item \textbf{Action}: an operation that forwards the packet to a port or modifies the packet, such as decrementing the TTL field. Actions may be specified as part of the instruction set associated with a flow entry or in an action bucket associated with a group entry.
 \item \textbf{Action Set}: a set of actions that are carried between tables along with the match fields and are executed when the instruction set instructs the packet to exit the processing pipeline
@@ -145,7 +145,7 @@ Each group entry (see Table \ref{table:group entry}) contains:
 The following group types are defined:
 
 \begin{itemize}
-\item \textbf{flood}: Execute all buckets in the group.  Packets directed out the ingress port are dropped by default.  If the controller writer wants to forward out the ingress port, they should include a forward action to the \verb|OFPP_IN_PORT| in each bucket where this is desired.  This group is used for multicast or broadcast forwarding.
+\item \textbf{flood}: Execute all buckets in the group.  Packets directed out the ingress port are dropped by default.  If the controller writer wants to forward out the ingress port, the bucket(s) should include a forward action to the \verb|OFPP_IN_PORT| in each bucket where this is desired.  This group is used for multicast or broadcast forwarding.
 \item \textbf{multipath}: Execute one bucket in the group.  Packets are sent to a single bucket in the group, based on a switch-computed selection algorithm (e.g. hash on some user-configured tuple or simple round robin).  All configuration and state for the selection algorithm is external to OpenFlow.  When a port specified in a bucket in a multipath group goes down, the switch may restrict bucket selection to the remaining set (those with forwarding actions to live ports). This behavior may reduce the disruption of a downed link or switch.
 \item \textbf{indirect}: Execute the one defined bucket in this group.  Allows multiple flows or groups to point to a common group identifier, supporting faster, more efficient convergence (e.g. next hops for IP forwarding).  This group type is effectively identical to flood groups with one bucket.
 \item \textbf{fast failover}: Execute the first live bucket.  Each action bucket is associated with a specific port and/or group that controls its liveness.  Enables the switch to change forwarding without requiring a round trip to the controller.  If no buckets are live, packets are dropped. This group type must implement a \textit{liveness mechanism}(see \ref{group_table:sec_chan:group_mod}).
@@ -158,8 +158,8 @@ The following group types are defined:
 \begin{tabularx}{\textwidth}{ |X|X|X|X|X|X|X|X|X|X|X|X|X|X|X| }
 \hline
 \begin{sideways}Ingress Port \end{sideways} &
-\begin{sideways}Meta data \end{sideways} &
-\begin{sideways}Ether source \end{sideways} &
+\begin{sideways}Metadata \end{sideways} &
+\begin{sideways}Ether src \end{sideways} &
 \begin{sideways}Ether dst \end{sideways} &
 \begin{sideways}Ether type \end{sideways} &
 \begin{sideways}VLAN id \end{sideways} &
@@ -187,7 +187,7 @@ Table \ref{table:match fields} shows the match fields an incoming packet is comp
 \begin{tabularx}{\textwidth}{ |X|X|X|X| }
 \hline Field & Bits & When applicable & Notes \\
 \hline Ingress Port & 32 & All packets & Numerical representation of incoming port, starting at 1. This may be a physical or virtual port as defined by the switch implementation. \\
-\hline Metadata & 64 & On table 1 and above & \\
+\hline Metadata & 64 & Table 1 and above & \\
 \hline Ethernet source address & 48 & All packets on enabled ports & Can use arbitrary bitmask \\
 \hline Ethernet destination address & 48 & All packets on enabled ports & Can use arbitrary bitmask \\
 \hline Ethernet type & 16 & All packets on enabled ports & An OpenFlow switch is required to match the type in both standard Ethernet and 802.2 with a SNAP header and OUI of 0x000000.  The special value of 0x05FF is used to match all 802.3 packets without SNAP headers. \\
@@ -259,7 +259,7 @@ Table \ref{table:counters} contains the set of counters.  Duration refers to the
 
 \subsection{Instructions}
 \label{ft:instructions}
-Each flow entry is associated with a set of instructions that are executed when a packet matches the entry. These instructions result in changes to the packet, action set and/or pipeline processing (see: \ref{ft:actionset}). Supported instructions include:
+Each flow entry contains a set of instructions that are executed when a packet matches the entry. These instructions result in changes to the packet, action set and/or pipeline processing (see: \ref{ft:actionset}). Supported instructions include:
 \begin{itemize} 
 \item \textbf{Clear-Actions}: Clears all the actions in the action set immediately.
 \item \textbf{Apply-Actions \textit{action(s)}}: Applies the specific action(s) immediately, without any change to the Action Set. This instruction may be used to modify the packet between two tables or to execute multiple actions of the same type.
@@ -297,7 +297,7 @@ OpenFlow-only switches do not support the \textbf{Forward-to-NORMAL} action, whi
 \textbf{Required Action:} \textit{Forward}. 
 OpenFlow switches must support forwarding the packet to physical ports and the following virtual ones:
 \begin{itemize}
-\item \textbf{ALL:} Send the packet out all physical ports, including \verb|LOCAL| port, and not including the ingress port and ports that are configured \verb|OFPPC_NO_FWD|.
+\item \textbf{ALL:} Send the packet out all physical ports, including \verb|LOCAL| port, but not including the ingress port and ports that are configured \verb|OFPPC_NO_FWD|.
 \item \textbf{CONTROLLER:} Encapsulate and send the packet to the controller.
 \item \textbf{LOCAL:} Send the packet to the switch's local networking stack.
 \item \textbf{TABLE:} Perform actions in flow table.  Only for packet-out messages.
@@ -314,7 +314,7 @@ Note: Hybrid OpenFlow/non-OpenFlow switches may provide a classification mechani
 \end{itemize}
 The controller will only ask the switch to send to multiple physical ports simultaneously if the switch indicates it supports this behavior in the initial handshake (see section \ref{cts:handshake}).  
 \\\\
-\textbf{\qosupd{Optional Action:}} \emph{\qosupd{Set-Queue}}. \qosupd{The set-queue action set the queue id for a packet. When the packet is forwarded to a port using the output action, the queue id determine which queue attached to this port is used for forwarding the packet. Forwarding behavior is dictated by the configuration of the queue and is used to provide basic Quality-of-Service (QoS) support (see section \ref{cts:qos}).}
+\textbf{\qosupd{Optional Action:}} \emph{\qosupd{Set-Queue}}. \qosupd{The set-queue action sets the queue id for a packet. When the packet is forwarded to a port using the output action, the queue id determine which queue attached to this port is used for forwarding the packet. Forwarding behavior is dictated by the configuration of the queue and is used to provide basic Quality-of-Service (QoS) support (see section \ref{cts:qos}).}
 \\\\
 \textbf{Required Action:} \emph{Drop}.  A flow entry with no specified action indicates that all matching packets should be dropped.
 \\\\
@@ -550,7 +550,7 @@ Packets are matched against flow entries based on prioritization. Higher priorit
 For each packet that matches a flow entry, the associated counters for that entry are updated.  If no matching entry can be found for a packet, the packet is sent to the controller over the secure channel.
 
 \section{Secure Channel}
-The secure channel is the interface that connects each OpenFlow switch to a controller.  Through this interface, the controller configures and manages the switch, receives events from the switch, and send packets out the switch.
+The secure channel is the interface that connects each OpenFlow switch to a controller.  Through this interface, the controller configures and manages the switch, receives events from the switch, and sends packets out the switch.
 \\\\
 Between the datapath and the secure channel, the interface is implementation-specific, however all secure channel messages must be formatted according to the OpenFlow protocol. 
 \\\\
@@ -595,7 +595,7 @@ Symmetric messages are sent without solicitation, in either direction.
 \textbf{Experimenter:} Experimenter messages provide a standard way for OpenFlow switches to offer additional functionality within the OpenFlow message type space.  This is a staging area for features meant for future OpenFlow revisions.
 
 \subsection{Connection Setup}
-The switch must be able to establish the communication at a user-configurable (but otherwise fixed) IP address, using a user-specified port.  Traffic to and from the secure channel is not checked against the flow table.  Therefore, the switch must identify incoming traffic as local before checking it against the flow table.  Future versions of the protocol specification will describe a dynamic controller discovery protocol in which the IP address and port for communicating with the controller is determined at runtime.
+The switch must be able to establish communication with a controller at a user-configurable (but otherwise fixed) IP address, using a user-specified port.  Traffic to and from the secure channel is not checked against the flow table.  Therefore, the switch must identify incoming traffic as local before checking it against the flow table.  Future versions of the protocol specification will describe a dynamic controller discovery protocol in which the IP address and port for communicating with the controller is determined at runtime.
 \\\\
 When an OpenFlow connection is first established, each side of the connection must immediately send an \verb|OFPT_HELLO| message with the \verb|version| field set to the highest OpenFlow protocol version supported by the sender.  Upon receipt of this message, the recipient may calculate the OpenFlow protocol version to be used as the smaller of the version number that it sent and the one that it received.
 \\\\
@@ -604,14 +604,14 @@ If the negotiated version is supported by the recipient, then the connection pro
 \subsection{Connection Interruption}
 In the case that a switch loses contact with the controller, as a result of a echo request timeout, TLS session timeout, or other disconnection, it should attempt to contact one or more backup controllers.  The ordering of the controller IP addresses is not specified by the protocol.
 \\\\
-If some number of attempts to contact a controller (zero or more) fail, the switch may either enter ``fail secure mode'' or ``fail standalone mode'', depending on the switch implementation and its configuration. In ``fail secure mode'', the switch continues to operate according to OpenFlow procedures, with the exception that packets and messages destined to the controller are dropped and no new flow table entries are set up by the controller. In ``fail standalone mode'', the switch process all packets using the \verb|OFPP_NORMAL| port; in other words, the switch acts as a legacy Ethernet switch. 
+If some number of attempts to contact a controller (zero or more) fail, the switch may either enter ``fail secure mode'' or ``fail standalone mode'', depending on the switch implementation and its configuration. In ``fail secure mode'', the switch continues to operate according to OpenFlow procedures, with the exception that packets and messages destined to the controller are dropped and no new flow table entries are set up by the controller. In ``fail standalone mode'', the switch process all packets using the \verb|OFPP_NORMAL| port; in other words, the switch acts as a legacy Ethernet switch or router. 
 \\\\
 Upon connecting to a controller again, the existing flow entries remain.  The controller then has the option of deleting all flow entries, if desired.
 \\\\
 The first time a switch starts up, it will operate in either ``fail secure mode'' or ``fail standalone mode'' mode.  Configuration of the default set of flow entries to be used at startup is outside the scope of the OpenFlow protocol.
 
 \subsection{Encryption}
-The switch and controller communicate through a TLS connection.  The TLS connection is initiated by the switch on startup to the controller's server, which is located by default on TCP port \input{define/OFP_TCP_PORT}.   The switch and controller mutually authenticate by exchanging certificates signed by a site-specific private key.  Each switch must be user-configurable with one certificate for authenticating the controller (controller certificate) and the other for authenticating to the controller (switch certificate).
+The switch and controller communicate through a TLS connection.  The TLS connection is initiated by the switch on startup to the controller, which is located by default on TCP port \input{define/OFP_TCP_PORT}.   The switch and controller mutually authenticate by exchanging certificates signed by a site-specific private key.  Each switch must be user-configurable with one certificate for authenticating the controller (controller certificate) and the other for authenticating to the controller (switch certificate).
 
 \subsection{Flow Table Modification Messages}
 \label{sec:flow mod messages}
@@ -658,7 +658,7 @@ Each flow entry has an \verb|idle_timeout| and a \verb|hard_timeout| associated 
 Group table modification messages can have the following types:
 \input{enum/ofp_group_mod_command}
 
-The action set for each bucket must be validated using the same rules as those for flow mods (Section \ref{flow_table:sec_chan:flow_add}, with additional group-specific checks.  Groups may consist of zero or more buckets. A group with no buckets will not alter the action set associated witha packet. A group may also include buckets which themselves forward to other groups. For example, a fast reroute group may have two buckets, where each points to a multipath group. If a switch does not support groups of groups, it must send an \verb|ofp_error_msg| with \verb|OFPET_GROUP_MOD_FAILED| type and \verb|OFPGMFC_CHAINING_UNSUPPORTED| code.  If a group mod is sent such that a forwarding loop would be created, the switch should send an \verb|ofp_error_msg| with \verb|OFPET_GROUP_MOD_FAILED| type and \verb|OFPGMFC_LOOP| code.  If the switch does not support such checking, the forwarding behavior is undefined.
+The action set for each bucket must be validated using the same rules as those for flow mods (Section \ref{flow_table:sec_chan:flow_add}), with additional group-specific checks.  Groups may consist of zero or more buckets. A group with no buckets will not alter the action set associated with a packet. A group may also include buckets which themselves forward to other groups. For example, a fast reroute group may have two buckets, where each points to a multipath group. If a switch does not support groups of groups, it must send an \verb|ofp_error_msg| with \verb|OFPET_GROUP_MOD_FAILED| type and \verb|OFPGMFC_CHAINING_UNSUPPORTED| code.  If a group mod is sent such that a forwarding loop would be created, the switch should send an \verb|ofp_error_msg| with \verb|OFPET_GROUP_MOD_FAILED| type and \verb|OFPGMFC_LOOP| code.  If the switch does not support such checking, the forwarding behavior is undefined.
 \\\\
 For ADD requests, if a group entry with the specified group identifier already resides in the group table, then the switch must refuse to add the group entry and must send an \verb|ofp_error_msg| with \verb|OFPET_GROUP_MOD_FAILED| type and \verb|OFPGMFC_GROUP_EXISTS| code.
 \\\\
@@ -672,13 +672,13 @@ If a switch cannot add the incoming group entry due to lack of space, the switch
 \\\\
 If a switch cannot add the incoming group entry due to restrictions (hardware or otherwise) limiting the number of group buckets, it must refuse to add the group entry and must send an \verb|ofp_error_msg| with \verb|OFPET_GROUP_MOD_FAILED| type and \verb|OFPGMFC_OUT_OF_BUCKETS| code.
 \\\\
-If a switch cannot add the incoming group because it does not support the proposed liveleness configuration, the switch must send an \verb|ofp_error_msg| with \verb|OFPET_GROUP_MOD_FAILED| type and \verb|OFPGMFC_WATCH_UNSUPPORTED| code. This include specifying \verb|watch_port| or \verb|watch_group| for a group that does not support liveness, or specifying a port that does not support liveness in \verb|watch_port|, or specifying a group that does not support liveness in \verb|watch_group|.
+If a switch cannot add the incoming group because it does not support the proposed liveleness configuration, the switch must send an \verb|ofp_error_msg| with \verb|OFPET_GROUP_MOD_FAILED| type and \verb|OFPGMFC_WATCH_UNSUPPORTED| code. This includes specifying \verb|watch_port| or \verb|watch_group| for a group that does not support liveness, or specifying a port that does not support liveness in \verb|watch_port|, or specifying a group that does not support liveness in \verb|watch_group|.
 \\\\
 For DELETE requests, if no group entry with the specified group identifier currently exists in the group table, no error is recorded, and no group table modification occurs.  Otherwise, the group is removed, and all flows that forward to the group are also removed. The group type need not be specified for the DELETE request. DELETE also differs from an ADD or MODIFY with no buckets specified in that future attempts to ADD the group identifier will not result in a group exists error.  If one wishes to effectively delete a group yet leave in flow entries using it, that group can be cleared by sending a MODIFY with no buckets specified.
 \\\\
 To delete all groups with a single message, specify \verb|OFPG_ALL| as the group value.
 \\\\
-Fast failover group support requires liveness monitoring, to determine the specific bucket to execute. Other group types are not required to implement liveness monitoring, but may optionally implement it.  If a switch cannot implement liveness checking for any bucket in a group, it must refuse the group must and return an error.  The rules for determining liveness include:
+Fast failover group support requires liveness monitoring, to determine the specific bucket to execute. Other group types are not required to implement liveness monitoring, but may optionally implement it.  If a switch cannot implement liveness checking for any bucket in a group, it must refuse the group mod and return an error.  The rules for determining liveness include:
 \begin{itemize}
 \item A port is considered live if it has the \verb|OFPPS_LIVE| flag set in its port state.  Port liveness may be managed by code outside of the OpenFlow portion of a switch, defined outside of the OpenFlow spec (such as Spanning Tree or a KeepAlive mechanism).  At a minimum, the port should not be considered live if the port config bit \verb|OFPPC_PORT_DOWN| indicates the port is down, or if the port state bit \verb|OFPPS_LINK_DOWN| indicates the link is down.
 \item A bucket is considered live if either the port or the group watched by the bucket are live.
