@@ -289,9 +289,10 @@ If a packet does not match any entry in a flow table, it is forwarded to the con
 \label{ft:actions}
 Each packet is associated with an action set \ref{ft:actionset}. The action set dictates how the switch modifies or forwards a packet.  This action set is executed when a matching flow entry does not specify a \textit{Goto-Table} instruction. If no output actions are present in the action set, the packet is dropped. Actions in the action set are processed in arbitrary order, except for the output action, which is executed last.
 \\\\
-A switch is not required to support all action types --- just those marked ``Required Actions'' below. When connecting to the controller, a switch indicates which of the ``Optional Actions'' it supports.  OpenFlow-compliant switches come in two types: \emph{OpenFlow-only}, and \emph{OpenFlow-enabled}. 
+A switch is not required to support all action types --- just those marked ``Required Actions'' below. When connecting to the controller, a switch indicates which of the ``Optional Actions'' it supports.
 \\\\
-OpenFlow-only switches support only the required actions below, while OpenFlow-enabled switches, routers, and access points may also support the \textbf{NORMAL} action.  Either type of switch can also support the \textbf{FLOOD} action.
+OpenFlow-compliant switches come in two types: \emph{OpenFlow-only}, and \emph{OpenFlow-enabled}.
+OpenFlow-only switches do not support the \textbf{Forward-to-NORMAL} action, while OpenFlow-enabled switches may support the \textbf{Forward-to-NORMAL} action.  Either type of switch can also support the \textbf{Forward-to-FLOOD} action.
 \\\\
 \textbf{Required Action:} \textit{Forward}. 
 OpenFlow switches must support forwarding the packet to physical ports and the following virtual ones:
