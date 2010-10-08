@@ -279,7 +279,7 @@ The \verb|table_id| chooses the table to which the configuration change should b
 The \verb|config| field is a bitmap that is used to configure the default behavior of unmatched packets.  By default, any packet that does not match a table is sent to the controller for processing using a \verb|OFPT_PACKET_IN| message.  This behavior can be modified by using the following flags:
 
 \input{enum/ofp_table_config}
-The \verb|OFPTC_TABLE_MISS_CONTINUE| flag directs unmatched packets to the next table in the pipeline, expect for the last table of the pipeline where unmatched packets are sent to the controller ; this is similar to how multiple tables behaved in the OpenFlow 1.0 specification. The \verb|OFPTC_TABLE_MISS_DROP| flag drops unmatched packets.
+The \verb|OFPTC_TABLE_MISS_CONTINUE| flag directs unmatched packets to the next table in the pipeline, except for the last table of the pipeline where unmatched packets are sent to the controller.  This behavior is similar to the multiple table match process in the OpenFlow 1.0 specification. The \verb|OFPTC_TABLE_MISS_DROP| flag drops unmatched packets.
 
 \subsubsection{Modify State Messages}
 \paragraph{Modify Flow Entry Message}
