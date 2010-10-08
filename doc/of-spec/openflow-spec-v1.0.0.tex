@@ -10,6 +10,7 @@
 \usepackage{rotating}
 \usepackage{xtab}
 \usepackage{calc}
+\usepackage{appendix}
 
 \hbadness=10000 % No "underfull hbox" messages
 
@@ -700,8 +701,11 @@ Fast failover group support requires liveness monitoring, to determine the speci
 
 The controller can infer the liveness state of the group by monitoring the states of the various ports.
 
+\appendixtitleon
+\begin{appendices}
 \input{appendix}
 
 \input{credits}
+\end{appendices}
  
 \end{document} 

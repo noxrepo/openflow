@@ -1,5 +1,5 @@
 %\appendix
-\section{Appendix A: The OpenFlow Protocol}
+\section{The OpenFlow Protocol}
 The heart of the OpenFlow spec is the set of structures used for OpenFlow Protocol messages.  
 \\\\
 The structures, defines, and enumerations described below are derived from the file \verb|include/openflow/openflow.h|, which is part of the standard OpenFlow distribution.  All structures are packed with padding and 8-byte aligned, as checked by the assertion statements.  All OpenFlow messages are sent in big-endian format.  
@@ -590,3 +590,4 @@ The \verb|experimenter| field is a 32-bit value that uniquely identifies the exp
 \\\\
 If a switch does not understand a experimenter extension, it must send an \verb|OFPT_ERROR| message with a \verb|OFPBRC_BAD_EXPERIMENTER| error code and \verb|OFPET_BAD_REQUEST| error type. 
 
+%\end{appendices}
