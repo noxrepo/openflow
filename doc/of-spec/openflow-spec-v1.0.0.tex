@@ -562,7 +562,7 @@ The OpenFlow protocol supports three message types, \emph{controller-to-switch},
 \subsubsection{Controller-to-Switch}
 Controller/switch messages are initiated by the controller and may or may not require a response from the switch.
 \\\\
-\textbf{Features:}  Upon Transport Layer Security (TLS) session establishment, the controller sends a features request message to the switch.  The switch must reply with a features reply that specifies the capabilities supported by the switch.
+\textbf{Features:}  The controller may request the capabilties of a switch by sending a features request; the switch must respond with a features reply that specifies the capabilities of the switch. This is commonly performed upon Transport Layer Security (TLS) session establishment.
 \\\\
 \textbf{Configuration:} The controller is able to set and query configuration parameters in the switch.  The switch only responds to a query from the controller.
 \\\\
