@@ -394,36 +394,34 @@ The ethertype is only used when popping the bottom of stack and indicates the et
 \begin{xtabular}{ |p{\atactionwidth}|p{\atassocwidth}|p{\atdescwidth}| }
 Set VLAN ID &
 12 bits: New VLAN ID &
-If no VLAN is present, a new header is added with the specified VLAN ID and priority of zero.
-
-If a VLAN header already exists, the VLAN ID is replaced with the specified value. \\
+Replace the existing VLAN ID.
+Only applies to packets with an existing VLAN tag. \\
 \hline
 Set VLAN priority &
 3 bits: New VLAN priority &
-If no VLAN is present, a new header is added with the specified priority and a VLAN ID of zero.  
-
-If a VLAN header already exists, the priority field is replaced with the specified value. \\
+Replace the existing VLAN priority.
+Only applies to packets with an existing VLAN tag. \\
 \hline
 Set Ethernet source MAC address &
 48 bits: New source MAC address &
-Replace the existing Ethernet source MAC address with the new value \\
+Replace the existing Ethernet source MAC address. \\
 \hline
 Set Ethernet destination MAC address &
 48 bits: New destination MAC address &
-Replace the existing Ethernet destination MAC address with the new value. \\
+Replace the existing Ethernet destination MAC address. \\
 \hline
 Set MPLS label &
-20 bits: Value with which to replace existing MPLS label field &
+20 bits: New MPLS label &
 Replace the existing MPLS label.
 Only applies to packets with an existing MPLS shim header. \\
 \hline
 Set MPLS traffic class &
-3 bits: Value with which to replace existing MPLS traffic class field &
+3 bits: New MPLS traffic class &
 Replace the existing MPLS traffic class.
 Only applies to packets with an existing MPLS shim header. \\
 \hline
 Set MPLS TTL &
-8 bits: Value with which to replace existing MPLS TTL field &
+8 bits: New MPLS TTL &
 Replace the existing MPLS TTL.
 Only applies to packets with an existing MPLS shim header. \\
 \hline
@@ -434,16 +432,13 @@ Only applies to packets with an existing MPLS shim header. \\
 \hline
 Set IPv4 source address &
 32 bits: New IPv4 source address &
-Replace the existing IP source address with new value and update the IP checksum (and TCP/UDP 
-checksum if applicable). 
-
-This action is only applicable to IPv4 packets. \\
+Replace the existing IP source address and update the IP checksum (and TCP/UDP checksum if applicable).
+Only applies to IPv4 packets. \\
 \hline
 Set IPv4 destination address &
 32 bits: New IPv4 destination address &
-Replace the existing IP destination address with new value and update the IP checksum (and TCP/UDP checksum if applicable).
-
-This action is only applied to IPv4 packets. \\
+Replace the existing IP destination address and update the IP checksum (and TCP/UDP checksum if applicable).
+Only applies to IPv4 packets. \\
 \hline
 Set IPv4 ToS bits &
 6 bits: New IPv4 ToS &
@@ -462,15 +457,13 @@ Only applies to IPv4 packets. \\
 \hline
 Set transport source port &
 16 bits: New TCP or UDP source port &
-Replace the existing TCP/UDP source port with new value and update the TCP/UDP checksum.
-
-This action is only applicable to TCP and UDP packets.\\
+Replace the existing TCP/UDP source port and update the TCP/UDP checksum.
+Only applies to TCP and UDP packets.\\
 \hline
 Set transport destination port &
 16 bits: New TCP or UDP destination port &
-Replace the existing TCP/UDP destination port with new value and update the TCP/UDP checksum
-
-This action is only applied to TCP and UDP packets.\\
+Replace the existing TCP/UDP destination port and update the TCP/UDP checksum
+Only applies to TCP and UDP packets.\\
 \hline
 Copy TTL outwards&
 - &
