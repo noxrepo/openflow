@@ -259,7 +259,7 @@ Table \ref{table:counters} contains the set of counters.  Duration refers to the
 
 \subsection{Instructions}
 \label{ft:instructions}
-Each flow entry is associated with a set of instructions that are executed when a packet matches the entry. These instructions result in changes to the action set and/or pipeline processing (see: \ref{ft:actionset}). Supported instructions include:
+Each flow entry is associated with a set of instructions that are executed when a packet matches the entry. These instructions result in changes to the packet, action set and/or pipeline processing (see: \ref{ft:actionset}). Supported instructions include:
 \begin{itemize} 
 \item \textbf{Clear-Actions}: Clears all the actions in the action set immediately.
 \item \textbf{Apply-Actions \textit{action(s)}}: Applies the specific action(s) immediately, without any change to the Action Set. This instruction may be used to modify the packet between two tables or to execute multiple actions of the same type.
