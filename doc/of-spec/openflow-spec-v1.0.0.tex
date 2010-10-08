@@ -392,6 +392,14 @@ The ethertype is only used when popping the bottom of stack and indicates the et
 \tablelasttail{\hline}
 \xentrystretch{0}
 \begin{xtabular}{ |p{\atactionwidth}|p{\atassocwidth}|p{\atdescwidth}| }
+Set Ethernet source MAC address &
+48 bits: New source MAC address &
+Replace the existing Ethernet source MAC address. \\
+\hline
+Set Ethernet destination MAC address &
+48 bits: New destination MAC address &
+Replace the existing Ethernet destination MAC address. \\
+\hline
 Set VLAN ID &
 12 bits: New VLAN ID &
 Replace the existing VLAN ID.
@@ -401,14 +409,6 @@ Set VLAN priority &
 3 bits: New VLAN priority &
 Replace the existing VLAN priority.
 Only applies to packets with an existing VLAN tag. \\
-\hline
-Set Ethernet source MAC address &
-48 bits: New source MAC address &
-Replace the existing Ethernet source MAC address. \\
-\hline
-Set Ethernet destination MAC address &
-48 bits: New destination MAC address &
-Replace the existing Ethernet destination MAC address. \\
 \hline
 Set MPLS label &
 20 bits: New MPLS label &
