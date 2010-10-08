@@ -72,7 +72,7 @@ Each flow table in the switch contains a set of flow entries; each flow entry co
 \\\\
 Flow entries match packets in priority order. If a matching entry is found, the instructions associated with the specific flow entry are executed. If no match is found in a flow table, the outcome depends on switch configuration: the packet may be forwarded to the controller over the secure channel, dropped, or may continue to the next table in the pipeline.
 \\\\
-Matching starts at the first table and may continue to additional tables. Flow entries may include instructions to describe packet forwarding, packet modifications, and pipeline processing.  Instructions that modify pipeline processing include specifying the next table in the pipeline and changing the metatadata field to be used in the next table lookup. Table pipeline processing is stopped when a next table is not specified.
+Matching starts at the first table and may continue to additional tables. Flow entries may include instructions to describe packet forwarding, packet modifications, and pipeline processing.  Instructions that modify pipeline processing include specifying the next table in the pipeline and changing the metatadata field to be used in the next table lookup. Table pipeline processing stops when a packet matches a flow table entry and the instruction set does not contain a Goto-Table instruction.
 \\\\
 Flow entries may forward to a port. Usually, this is a physical port, but it could also be a virtual port reserved by a switch or by this specification. Virtual ports may specify generic forwarding actions such as sending to the controller, flooding or normal forwarding using non-OpenFlow methods (see \ref{ft:actions}).  The zero port is reserved and cannot be used for forwarding.
 \\\\
