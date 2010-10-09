@@ -70,7 +70,9 @@ When describing a flow entry, the following structures are used:
 \input{struct/ofp_match}
 The \verb|type| field is set to \verb|OFPMT_STANDARD| and \verb|length| field is set to \verb|OFPMT_STANDARD_LENGTH| by default. If the match needs to be extended, these fields may be modified.
 \\\\
-The constant \verb|OFPMT_STANDARD_LENGTH| is defined as \input{define/OFPMT_STANDARD_LENGTH}.
+The constant \verb|OFPMT_STANDARD_LENGTH| is defined to be \input{define/OFPMT_STANDARD_LENGTH}.
+\\\\
+Some fields of \verb|ofp_match| may be ignored for some types of matching. If a match specifies an Ethertype which is not IPv4 or ARP, or wildcards the Ethertype, all fields related to the IP header and transport header are always ignored. Similarly, if the network protocol specified is not TCP, UDP or SCTP, or is a wildcard, the fields \verb|tp_src| and \verb|tp_dst| are always ignored. The fields that are ignored don't need to be wildcarded and should be set to 0.
 \\\\
 The \verb|wildcards| field has a number of flags that may be set:
 

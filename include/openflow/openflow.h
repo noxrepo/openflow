@@ -918,6 +918,7 @@ enum ofp_bad_action_code {
     OFPBAC_TOO_MANY,           /* Can't handle this many actions. */
     OFPBAC_BAD_QUEUE,          /* Problem validating output queue. */
     OFPBAC_BAD_OUT_GROUP,      /* Invalid group id in forward action. */
+    OFPBAC_MATCH_INCONSISTENT, /* Action can't apply for this match. */
 };
 
 /* ofp_error_msg 'code' values for OFPET_FLOW_MOD_FAILED.  'data' contains
@@ -932,7 +933,6 @@ enum ofp_flow_mod_failed_code {
     OFPFMFC_BAD_TIMEOUT,        /* Flow not added because of unsupported
                                    idle/hard timeout. */
     OFPFMFC_BAD_COMMAND,        /* Unsupported or unknown command. */
-    OFPFMFC_BAD_ACTION,         /* Unsupported or unknown action. */
     OFPFMFC_BAD_INSTRUCTION,    /* Unsupported instruction specified by the
                                    flow mod. */
     OFPFMFC_BAD_MATCH,          /* Unsupported match specified by the

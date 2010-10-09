@@ -352,7 +352,7 @@ Push VLAN header &
 Ethertype &
 Push a new VLAN header onto the packet.
 
-The ethertype is used as the ethertype for the tag. Only ethertype 0x8100 and 0x88a8 should be used.
+The Ethertype is used as the Ethertype for the tag. Only Ethertype 0x8100 and 0x88a8 should be used.
 \\
 \hline
 Pop VLAN header &
@@ -363,14 +363,14 @@ Push MPLS header &
 Ethertype &
 Push a new MPLS shim header onto the packet.
 
-The ethertype is used as the ethertype for the header only if the new tag being pushed is the bottom of stack. Only ethertype 0x8847 and 0x8848 should be used.
+The Ethertype is used as the Ethertype for the header only if the new tag being pushed is the bottom of stack. Only Ethertype 0x8847 and 0x8848 should be used.
 \\
 \hline
 Pop MPLS header &
 Ethertype &
 Pop the outer-most MPLS tag or shim header from the packet.
 
-The ethertype is only used when popping the bottom of stack and indicates the ethertype of the payload.
+The Ethertype is only used when popping the bottom of stack and indicates the Ethertype of the payload.
 \\
 \hline
 \end{tabularx}
@@ -638,15 +638,21 @@ If a switch cannot find any space in the requested table in which to add the inc
 \\\\
 If the incoming flow entry requests an invalid table, the switch should send an \verb|ofp_error_msg| with \verb|OFPET_FLOW_MOD_FAILED| type and \verb|OFPFMFC_BAD_TABLE_ID| code.
 \\\\
-If the match fields requested in a flow mod message are unsupported in the table, the switch must return an \verb|ofp_error_msg| with \verb|OFPET_FLOW_MOD_FAILED| type and \verb|OFPFMC_BAD_MATCH|.
+If the match fields requested in a flow mod message are unsupported in the table, the switch must return an \verb|ofp_error_msg| with \verb|OFPET_FLOW_MOD_FAILED| type and \verb|OFPFMC_BAD_MATCH| code.
 \\\\
-If the instructions requested in a flow mod message are unsupported, the switch must return an \verb|ofp_error_msg| with \verb|OFPET_FLOW_MOD_FAILED| type and \verb|OFPFMC_BAD_INSTRUCTION|.
+If the instructions requested in a flow mod message are unsupported, the switch must return an \verb|ofp_error_msg| with \verb|OFPET_FLOW_MOD_FAILED| type and \verb|OFPFMC_BAD_INSTRUCTION| code.
 \\\\
 If the match in a flow mod specifies an arbitrary bitmask for either the datalink or network addresses which the switch cannot support, the switch must return an \verb|ofp_error_msg| with \verb|OFPET_FLOW_MOD_FAILED| type and either \verb|OFPFMFC_BAD_DL_ADDR_MASK| or \verb|OFPFMFC_BAD_NW_ADDR_MASK|. (If the bitmasks specified in \emph{both} the datalink and network addresses are not supported then \verb|OFPFMFC_BAD_DL_ADDR_MASK| should be used.)
 \\\\
+In the match in a flow mod specifies values that can not be matched, for example a VLAN ID greater than 4095 and not one of the reserved value, or a ToS value with one of the two lower bit set, the switch may return an \verb|ofp_error_msg| with \verb|OFPET_FLOW_MOD_FAILED| type and \verb|OFPFMFC_BAD_MATCH| code.
+\\\\
 If any action references a port that will never be valid on a switch, the switch must return an \verb|ofp_error_msg| with \verb|OFPET_BAD_ACTION| type and \verb|OFPBAC_BAD_OUT_PORT| code.  If the referenced port may be valid in the future, e.g. when a linecard is added to a chassis switch, or a port is dynamically added to a software switch, the switch may either silently drop packets sent to the referenced port, or immediately return an \verb|OFPBAC_BAD_OUT_PORT| error and refuse the flow mod.
 \\\\
-If the action list in a flow mod message references a group that is not currently defined on the switch, or is a reserved group, such as \verb|OFPG_ALL|, the switch must return an \verb|ofp_error_msg| with \verb|OFPET_BAD_ACTION| type and \verb|OFPBAC_BAD_OUT_GROUP| code.
+If an action in a flow mod message references a group that is not currently defined on the switch, or is a reserved group, such as \verb|OFPG_ALL|, the switch must return an \verb|ofp_error_msg| with \verb|OFPET_BAD_ACTION| type and \verb|OFPBAC_BAD_OUT_GROUP| code.
+\\\\
+If an action in a flow mod message has a value that is invalid, for example a Set VLAN ID action with value greater than 4095, or a Push action with an invalid Ethertype, the switch should return an \verb|ofp_error_msg| with \verb|OFPET_BAD_ACTION| type and \verb|OFPBAC_BAD_ARGUMENT| code.
+\\\\
+If an action in a flow mod message performs an operation which is inconsistent with the match, for example, a pop VLAN action with a match specifying no VLAN, or a set IPv4 address action with a match wildcarding the Ethertype, the switch may either apply this action conditionally to only packets where it can be performed, or must immediately return an \verb|ofp_error_msg| with \verb|OFPET_BAD_ACTION| type and \verb|OFPBAC_MATCH_INCONSISTENT| code.
 \\\\
 If any other errors occur during the processing of the flow mod message, the switch may return an  \verb|ofp_error_msg| with \verb|OFPET_FLOW_MOD_FAILED| type and \verb|OFPFMC_UNKNOWN| code.
 \\\\
