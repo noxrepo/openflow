@@ -192,7 +192,7 @@ enum ofp_table_config {
 
 /* Configure/Modify behavior of a flow table */
 struct ofp_table_mod {
-    struct ofp_header header; 
+    struct ofp_header header;
     uint8_t table_id;       /* ID of the table, 0xFF indicates all tables */
     uint8_t pad[3];         /* Pad to 32 bits */
     uint32_t config;        /* Bitmap of OFPTC_* flags */
@@ -862,7 +862,7 @@ enum ofp_bad_request_code {
     OFPBRC_BAD_TYPE,            /* ofp_header.type not supported. */
     OFPBRC_BAD_STAT,            /* ofp_stats_request.type not supported. */
     OFPBRC_BAD_EXPERIMENTER,    /* Experimenter id not supported
-				 * (in ofp_experimenter_header
+                                 * (in ofp_experimenter_header
                                  * or ofp_stats_request or ofp_stats_reply). */
     OFPBRC_BAD_SUBTYPE,         /* Experimenter subtype not supported. */
     OFPBRC_EPERM,               /* Permissions error. */
