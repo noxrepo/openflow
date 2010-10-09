@@ -869,7 +869,8 @@ enum ofp_bad_request_code {
     OFPBRC_BAD_LEN,             /* Wrong request length for type. */
     OFPBRC_BUFFER_EMPTY,        /* Specified buffer has already been used. */
     OFPBRC_BUFFER_UNKNOWN,      /* Specified buffer does not exist. */
-    OFPBRC_BAD_TABLE_ID         /* Invalid table-id associated with the flow */
+    OFPBRC_BAD_TABLE_ID         /* Specified table-id invalid or does not
+                                 * exist. */
 };
 
 /* ofp_error_msg 'code' values for OFPET_BAD_ACTION.  'data' contains at least
@@ -892,7 +893,7 @@ enum ofp_bad_action_code {
 enum ofp_flow_mod_failed_code {
     OFPFMFC_UNKNOWN,            /* Unspecified error. */
     OFPFMFC_TABLE_FULL,         /* Flow not added because table was full. */
-    OFPFMFC_BAD_TABLE,          /* Table does not exist */
+    OFPFMFC_BAD_TABLE_ID,       /* Table does not exist */
     OFPFMFC_OVERLAP,            /* Attempted to add overlapping flow with
                                    CHECK_OVERLAP flag set. */
     OFPFMFC_EPERM,              /* Permissions error. */

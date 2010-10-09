@@ -631,15 +631,21 @@ For ADD requests with the \verb|OFPFF_CHECK_OVERLAP| flag set, the switch must f
 \\\\
 For valid (non-overlapping) ADD requests, or those with no overlap checking, the switch must insert the flow entry to the requested table.  If a flow entry with identical match fields and priority already resides in the requested table, then that entry, including its counters, must be removed, and the new flow entry added.
 \\\\
-If a switch cannot find any table in which to add the incoming flow entry, the switch should send an \verb|ofp_error_msg| with \verb|OFPET_FLOW_MOD_FAILED| type and \verb|OFPFMFC_ALL_TABLES_FULL| code.
+If a switch cannot find any space in the requested table in which to add the incoming flow entry, the switch should send an \verb|ofp_error_msg| with \verb|OFPET_FLOW_MOD_FAILED| type and \verb|OFPFMFC_TABLE_FULL| code.
 \\\\
-If the instructions in a flow mod message are unsupported, the switch must return an \verb|ofp_error_msg| with \verb|OFPET_FLOW_MOD_FAILED| type and \verb|OFPFMC_BAD_INSTRUCTION|.
+If the incoming flow entry requests an invalid table, the switch should send an \verb|ofp_error_msg| with \verb|OFPET_FLOW_MOD_FAILED| type and \verb|OFPFMFC_BAD_TABLE_ID| code.
+\\\\
+If the match fields requested in a flow mod message are unsupported in the table, the switch must return an \verb|ofp_error_msg| with \verb|OFPET_FLOW_MOD_FAILED| type and \verb|OFPFMC_BAD_MATCH|.
+\\\\
+If the instructions requested in a flow mod message are unsupported, the switch must return an \verb|ofp_error_msg| with \verb|OFPET_FLOW_MOD_FAILED| type and \verb|OFPFMC_BAD_INSTRUCTION|.
 \\\\
 If the match in a flow mod specifies an arbitrary bitmask for either the datalink or network addresses which the switch cannot support, the switch must return an \verb|ofp_error_msg| with \verb|OFPET_FLOW_MOD_FAILED| type and either \verb|OFPFMFC_BAD_DL_ADDR_MASK| or \verb|OFPFMFC_BAD_NW_ADDR_MASK|. (If the bitmasks specified in \emph{both} the datalink and network addresses are not supported then \verb|OFPFMFC_BAD_DL_ADDR_MASK| should be used.)
 \\\\
 If any action references a port that will never be valid on a switch, the switch must return an \verb|ofp_error_msg| with \verb|OFPET_BAD_ACTION| type and \verb|OFPBAC_BAD_OUT_PORT| code.  If the referenced port may be valid in the future, e.g. when a linecard is added to a chassis switch, or a port is dynamically added to a software switch, the switch may either silently drop packets sent to the referenced port, or immediately return an \verb|OFPBAC_BAD_OUT_PORT| error and refuse the flow mod.
 \\\\
 If the action list in a flow mod message references a group that is not currently defined on the switch, or is a reserved group, such as \verb|OFPG_ALL|, the switch must return an \verb|ofp_error_msg| with \verb|OFPET_BAD_ACTION| type and \verb|OFPBAC_BAD_OUT_GROUP| code.
+\\\\
+If any other errors occur during the processing of the flow mod message, the switch may return an  \verb|ofp_error_msg| with \verb|OFPET_FLOW_MOD_FAILED| type and \verb|OFPFMC_UNKNOWN| code.
 \\\\
 For MODIFY requests, if a flow entry with identical match fields does not current reside in any table, the MODIFY acts like an ADD, and the new flow entry must be inserted with zeroed counters.  Otherwise, the actions field is changed on the existing entry and its counters, and idle time fields are left unchanged.
 \\\\
