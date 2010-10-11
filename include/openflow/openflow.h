@@ -1056,7 +1056,7 @@ OFP_ASSERT(sizeof(struct ofp_desc_stats) == 1056);
 /* Body for ofp_stats_request of type OFPST_FLOW. */
 struct ofp_flow_stats_request {
     uint8_t table_id;         /* ID of table to read (from ofp_table_stats),
-                                 0xff for all tables or 0xfe for emergency. */
+                                 0xff for all tables. */
     uint8_t pad[3];           /* Align to 64 bits. */
     uint32_t out_port;        /* Require matching entries to include this
                                  as an output port.  A value of OFPP_NONE
@@ -1094,7 +1094,7 @@ OFP_ASSERT(sizeof(struct ofp_flow_stats) == 88);
 /* Body for ofp_stats_request of type OFPST_AGGREGATE. */
 struct ofp_aggregate_stats_request {
     uint8_t table_id;         /* ID of table to read (from ofp_table_stats)
-                                 0xff for all tables or 0xfe for emergency. */
+                                 0xff for all tables. */
     uint8_t pad[3];           /* Align to 64 bits. */
     uint32_t out_port;        /* Require matching entries to include this
                                  as an output port.  A value of OFPP_NONE
