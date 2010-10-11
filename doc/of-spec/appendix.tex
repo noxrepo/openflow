@@ -76,7 +76,7 @@ There are also four match field masks: \verb|dl_src_mask|, \verb|dl_dst_mask|, \
 \\\\
 If no wildcards are set and the \verb|_mask| fields are all zero, then the \verb|ofp_match| exactly describes a flow, over the entire OpenFlow n-tuple.  On the other extreme, if all the wildcard flags and \verb|_mask| fields are set, then every flow will match.
 \\\\
-Setting the \verb|OFPFW_DL_VLAN| or \verb|OFPFW_MPLS_LABEL| bits specifies that flow should match packets regardless of whether they contain the corresponding tag. Special values are defined for the VLAN tag and MPLS label to allow the matching of packets without a tag, or packets with a tag independent of the tag's value. The special values defined for \verb|dl_vlan| are:
+Setting the \verb|OFPFW_DL_VLAN| or \verb|OFPFW_MPLS_LABEL| bits in the \verb|wildcards| field specifies that flow should match packets regardless of whether they contain the corresponding tag. Special values are defined for the VLAN tag and MPLS label to allow the matching of packets without a tag, or packets with a tag independent of the tag's value. The special values defined for \verb|dl_vlan| are:
 \input{enum/ofp_vlan_id}
 The special values defined for \verb|mpls_label| are:
 \input{enum/ofp_mpls_label}
