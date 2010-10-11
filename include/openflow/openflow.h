@@ -692,6 +692,13 @@ enum ofp_instruction_type {
     OFPIT_EXPERIMENTER = 0xFFFF  /* Experimenter instruction */
 };
 
+/* Generic ofp_instruction structure */
+struct ofp_instruction {
+    uint16_t type;                /* Instruction type */
+    uint16_t len;                 /* Length of this struct in bytes. */
+};
+OFP_ASSERT(sizeof(struct ofp_instruction) == 4);
+
 struct ofp_instruction_goto_table {
     uint16_t type;                /* OFPIT_GOTO_TABLE */
     uint16_t len;                 /* Length of this struct in bytes. */
