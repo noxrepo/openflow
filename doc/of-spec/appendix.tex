@@ -149,7 +149,7 @@ The \verb|max_len| indicates the maximum amount of data from a packet that shoul
 An \verb|action_group| has the following fields:
 
 \input{struct/ofp_action_group}
-The \verb|group_id| indicates the group used top process this packet.  The set of buckets to apply depends on the group type.
+The \verb|group_id| indicates the group used to process this packet.  The set of buckets to apply depends on the group type.
 \\\\
 The set-queue action sets the queue id that will be used to map a flow to an already-configured queue, regardless of the TOS and VLAN PCP bits.
   The packet should not change after an set-queue action. If the switch
