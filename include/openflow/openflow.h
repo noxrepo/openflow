@@ -699,6 +699,7 @@ struct ofp_instruction {
 };
 OFP_ASSERT(sizeof(struct ofp_instruction) == 4);
 
+/* Instruction structure for OFPIT_GOTO_TABLE */
 struct ofp_instruction_goto_table {
     uint16_t type;                /* OFPIT_GOTO_TABLE */
     uint16_t len;                 /* Length of this struct in bytes. */
@@ -707,6 +708,7 @@ struct ofp_instruction_goto_table {
 };
 OFP_ASSERT(sizeof(struct ofp_instruction_goto_table) == 8);
 
+/* Instruction structure for OFPIT_WRITE_METADATA */
 struct ofp_instruction_write_metadata {
     uint16_t type;                /* OFPIT_WRITE_METADATA */
     uint16_t len;                 /* Length of this struct in bytes. */
@@ -715,6 +717,7 @@ struct ofp_instruction_write_metadata {
 };
 OFP_ASSERT(sizeof(struct ofp_instruction_write_metadata) == 20);
 
+/* Instruction structure for OFPIT_WRITE/APPLY/CLEAR_ACTIONS */
 struct ofp_instruction_actions {
     uint16_t type;              /* One of OFPIT_*_ACTIONS */
     uint16_t len;               /* Length of this struct in bytes. */
@@ -724,6 +727,7 @@ struct ofp_instruction_actions {
 };
 OFP_ASSERT(sizeof(ofp_instruction_actions) == 12);
 
+/* Instruction structure for experimental instructions */
 struct ofp_instruction_experimenter {
     uint16_t type;		/* OFPIT_EXPERIMENTER */
     uint16_t len;               /* Length of this struct in bytes */
