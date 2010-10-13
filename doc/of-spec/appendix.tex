@@ -147,106 +147,99 @@ A number of actions may be associated with flows, groups or packets.  The curren
 Output, group, and set-queue actions are described in Section~\ref{ft:actions}, tag push/pop actions are described in Table~\ref{table:push pop actions}, and Field-Modify actions are described in Table~\ref{table:field modify actions}.  An action definition contains the action type, length, and any associated data:
 
 \input{struct/ofp_action_header}
-An \verb|action_output| has the following fields:
+An \emph{Output} action uses the following structure and fields:
 
 \input{struct/ofp_action_output}
 The \verb|max_len| indicates the maximum amount of data from a packet that should be sent when the port is \verb|OFPP_CONTROLLER|.  If \verb|max_len| is zero, the switch must send a zero-size \verb|packet_in| message.  The \verb|port| specifies the port through which the packet should be sent.
 \\\\
-An \verb|action_group| has the following fields:
+A \emph{Group} action uses the following structure and fields:
 
 \input{struct/ofp_action_group}
 The \verb|group_id| indicates the group used to process this packet.  The set of buckets to apply depends on the group type.
 \\\\
-The set-queue action sets the queue id that will be used to map a flow to an already-configured queue, regardless of the TOS and VLAN PCP bits.
-  The packet should not change after an set-queue action. If the switch
-  needs to set the TOS/PCP bits for internal handling, the original values
-  should be restored before sending the packet out.
+The \emph{Set-Queue} action sets the queue id that will be used to map a flow to an already-configured queue, regardless of the TOS and VLAN PCP bits. The packet should not change as a result of a Set-Queue action. If the switch needs to set the TOS/PCP bits for internal handling, the original values should be restored before sending the packet out.
 \\\\
-A switch may support only queues that are tied to specific PCP/TOS
-bits. In that case, we cannot map an arbitrary flow to a specific
-queue, therefore the action SET-QUEUE is not supported. The user can
-still use these queues and map
-flows to them by setting the relevant fields (TOS, VLAN PCP).
+A switch may support only queues that are tied to specific PCP/TOS bits. In that case, we cannot map an arbitrary flow to a specific queue, therefore the Set-Queue action is not supported. The user can still use these queues and map flows to them by setting the relevant fields (TOS, VLAN PCP).
 \\\\
-An \verb|action_set_queue| has the following fields:
+A \emph{Set Queue} action uses the following structure and fields:
 
 \input{struct/ofp_action_set_queue}
-An \verb|action_vlan_vid| has the following fields:
+A \emph{Set VLAN ID} action uses the following structure and fields:
 
 \input{struct/ofp_action_vlan_vid}
 The \verb|vlan_vid| field is 16 bits long, when an actual VLAN id is only 12 bits.
 \\\\
-An \verb|action_vlan_pcp| has the following fields:
+A \emph{Set VLAN priority} action uses the following structure and fields:
 
 \input{struct/ofp_action_vlan_pcp}
 The \verb|vlan_pcp| field is 8 bits long, but only the lower 3 bits have meaning.  
 \\\\
-An \verb|action_mpls_label| has the following fields:
+A \emph{Set MPLS label} action uses the following structure and fields:
 
 \input{struct/ofp_action_mpls_label}
 The \verb|mpls_label| field is 32 bits long, but only the lower 20 bits have meaning.
 \\\\
-An \verb|action_mpls_tc| has the following fields:
+A \emph{Set MPLS traffic class} action uses the following structure and fields:
 
 \input{struct/ofp_action_mpls_tc}
 The \verb|mpls_tc| field is 8 bits long, but only the lower 3 bits have meaning.
 \\\\
-An \verb|action_mpls_ttl| has the following fields:
+A \emph{Set MPLS TTL} action uses the following structure and fields:
 
 \input{struct/ofp_action_mpls_ttl}
 The \verb|mpls_ttl| field is the MPLS TTL to set.
 \\\\
-An \verb|action_dec_mpls_ttl| takes no arguments and consists only of a generic \verb|ofp_action_header|. The action decrements the MPLS TTL.
+A \emph{Decrement MPLS TTL} action takes no arguments and consists only of a generic \verb|ofp_action_header|. The action decrements the MPLS TTL.
 \\\\
-An \verb|action_dl_addr| has the following fields:
+A \emph{Set Ethernet source address} action and \emph{Set Ethernet destination address} action use the following structure and fields:
 
 \input{struct/ofp_action_dl_addr}
 The \verb|dl_addr| field is the MAC address to set.
 \\\\
-An \verb|action_nw_addr| has the following fields:
+A \emph{Set IPv4 source address} action and \emph{Set IPv4 destination address} action use the following structure and fields:
 
 \input{struct/ofp_action_nw_addr}
 The \verb|nw_addr| field is the IP address to set.
 \\\\
-An \verb|action_nw_tos| has the following fields:
+A \emph{Set IPv4 ToS} action uses the following structure and fields:
 
 \input{struct/ofp_action_nw_tos}
 The \verb|nw_tos| field is the 6 upper bits of the ToS field to set, in the original bit positions (shifted to the left by 2).
 \\\\
-An \verb|action_nw_ecn| has the following fields:
+A \emph{Set IPv4 ECN} action uses the following structure and fields:
 
 \input{struct/ofp_action_nw_ecn}
 The \verb|nw_ecn| field is the 2 lower bits of the ECN field to set, in the original bit positions.
 \\\\
-An \verb|action_nw_ttl| has the following fields:
+A \emph{Set IPv4 TTL} action uses the following structure and fields:
 
 \input{struct/ofp_action_nw_ttl}
 The \verb|nw_ttl| field is the TTL address to set in the IP header.
 \\\\
-An \verb|action_dec_nw_ttl| takes no arguments and consists only of a generic \verb|ofp_action_header|.  This action decrement the TTL in the IP header if one is present.
+An \emph{Decrement IPv4 TTL} action takes no arguments and consists only of a generic \verb|ofp_action_header|.  This action decrement the TTL in the IP header if one is present.
 \\\\
-An \verb|action_tp_port| has the following fields:
+A \emph{Set transport source port} action and \emph{Set transport destination port} action use the following structure and fields:
 
 \input{struct/ofp_action_tp_port}
 The \verb|tp_port| field is the TCP/UDP/SCTP/other port to set.
 \\\\
-An \verb|action_copy_ttl_out| takes no arguments and consists only of a generic \verb|ofp_action_header|. The action copies the TTL from the next-to-outermost header with TTL to the outermost header with TTL.
+A \emph{Copy TTL outwards} action takes no arguments and consists only of a generic \verb|ofp_action_header|. The action copies the TTL from the next-to-outermost header with TTL to the outermost header with TTL.
 \\\\
-An \verb|action_copy_ttl_in| takes no arguments and consists only of a generic \verb|ofp_action_header|. The action copies the TTL from the outermost header with TTL to the next-to-outermost header with TTL.
+A \emph{Copy TTL inwards} action takes no arguments and consists only of a generic \verb|ofp_action_header|. The action copies the TTL from the outermost header with TTL to the next-to-outermost header with TTL.
 \\\\
-An \verb|action_push| has the following fields:
+A \emph{Push VLAN header} action and \emph{Push MPLS header} action use the following structure and fields:
 
 \input{struct/ofp_action_push}
 The \verb|ethertype| indicates the Ethertype of the new tag. It is used when pushing any new VLAN tags and the bottom of stack MPLS header.
 \\\\
-An \verb|action_pop_vlan| takes no arguments and consists only of a generic \verb|ofp_action_header|. The action pops the outermost VLAN tag from the packet.
+A \emph{Pop VLAN header} action takes no arguments and consists only of a generic \verb|ofp_action_header|. The action pops the outermost VLAN tag from the packet.
 \\\\
-An \verb|action_pop_mpls| has the following fields:
+A \emph{Pop MPLS header} action uses the following structure and fields:
 
 \input{struct/ofp_action_pop_mpls}
 The \verb|ethertype| indicates the Ethertype of the payload and is only used when popping the bottom of stack.
 \\\\
-An \verb|action_experimenter| has the following fields:
+An \emph{Experimenter} action uses the following structure and fields:
 
 \input{struct/ofp_action_experimenter_header}
 The \verb|experimenter| field is the Experimenter ID, which takes the same form as in struct \verb|ofp_experimenter|.

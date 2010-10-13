@@ -299,18 +299,18 @@ An action set contains a maximum of one action of each type, and may not simulta
 A switch is not required to support all action types --- just those marked ``Required Actions'' below. When connecting to the controller, a switch indicates which of the ``Optional Actions'' it supports.
 \\\\
 OpenFlow-compliant switches come in two types: \emph{OpenFlow-only}, and \emph{Hybrid OpenFlow/non-OpenFlow}.
-OpenFlow-only switches do not support the \textbf{Forward-to-NORMAL} action, while Hybrid OpenFlow/non-OpenFlow switches may support the \textbf{Forward-to-NORMAL} action.  Either type of switch can also support the \textbf{Forward-to-FLOOD} action.
+OpenFlow-only switches do not support the \textbf{Forward-to-NORMAL} output action, while Hybrid OpenFlow/non-OpenFlow switches may support the \textbf{Forward-to-NORMAL} output action.  Either type of switch can also support the \textbf{Forward-to-FLOOD} output action.
 \\\\
-\textbf{Required Action:} \textit{Forward}. 
-OpenFlow switches must support forwarding the packet to physical ports and the following virtual ones:
+\textbf{Required Action:} \textit{Output}.
+The Output action forwards a packet to a specified port. OpenFlow switches must support forwarding to physical ports and the following virtual ones:
 \begin{itemize}
 \item \textbf{ALL:} Send the packet out all physical ports and the \verb|LOCAL| port, but not to the ingress port or ports that are configured \verb|OFPPC_NO_FWD|.
 \item \textbf{CONTROLLER:} Encapsulate and send the packet to the controller.
 \item \textbf{TABLE:} Submit the packet to the first flow table so that the packet can be processed through the regular OpenFlow pipeline.  Only valid in the action set of a packet-out message.
 \item \textbf{IN\_PORT:} Send the packet out the ingress port. 
 \end{itemize}
-\textbf{Optional Action:} \textit{Forward}.
-The switch may optionally support the following virtual ports:
+\textbf{Optional Action:} \textit{Output}.
+The switch may optionally support forwarding to the following virtual ports:
 \begin{itemize}
 \item \textbf{LOCAL:} Send the packet to the switch's local networking stack. The local port enables remote entities to interact with the switch via the OpenFlow network, rather than via a separate control network. With a suitable set of default rules it can be used to implement an in-band controller connection.
 \item \textbf{NORMAL:} Process the packet using the traditional forwarding path supported by the switch (i.e., traditional L2, VLAN, and L3 processing.) If the switch cannot forward entries for the OpenFlow-specific VLAN back to the normal processing route, it must indicate that it does not support this action.
@@ -337,7 +337,7 @@ Newly pushed tags should \emph{always} be inserted as the outermost tag in this 
 \\\\
 Note: Refer to section~\ref{sec:push field defaults} for information on default field values.
 \\\\
-\textbf{Optional Action:} \emph{Modify-Field}.  While not strictly required, the actions shown in Table \ref{table:field modify actions}  greatly increase the usefulness of an OpenFlow implementation.  To aid integration with existing networks, we suggest that VLAN modification actions be supported. Modify-Field actions should \emph{always} be applied to the outermost-possible header (e.g.~a ``Set VLAN ID'' action always sets the ID of the outermost VLAN tag).
+\textbf{Optional Action:} \emph{Set-Field}.  The various Set-Field actions modify the values of the respective header field in the packet. While not strictly required, the actions shown in Table \ref{table:set-field actions}  greatly increase the usefulness of an OpenFlow implementation.  To aid integration with existing networks, we suggest that VLAN modification actions be supported. Modify-Field actions should \emph{always} be applied to the outermost-possible header (e.g.~a ``Set VLAN ID'' action always sets the ID of the outermost VLAN tag).
 \\\\
 \textbf{Required Action:} \emph{Group}.  Process the packet through the specified group.  The exact interpretation depends on group type. 
 
@@ -378,8 +378,8 @@ The ethertype is only used when popping the bottom of stack and indicates the et
 \label{table:push pop actions}
 \end{table}
 
-\bottomcaption{Field-modify actions.}
-\label{table:field modify actions}
+\bottomcaption{Set-Field actions.}
+\label{table:set-field actions}
 \tablefirsthead{\hline \textbf{Action} & \textbf{Associated Data} &
                        \textbf{Description} \\
 		       \hline }
