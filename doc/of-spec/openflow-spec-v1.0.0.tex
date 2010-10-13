@@ -294,7 +294,7 @@ OpenFlow switches must support forwarding the packet to physical ports and the f
 \begin{itemize}
 \item \textbf{ALL:} Send the packet out all physical ports and the \verb|LOCAL| port, but not to the ingress port or ports that are configured \verb|OFPPC_NO_FWD|.
 \item \textbf{CONTROLLER:} Encapsulate and send the packet to the controller.
-\item \textbf{TABLE:} Perform actions in flow table.  Only for packet-out messages.
+\item \textbf{TABLE:} Submit the packet to the first flow table so that the packet can be processed through the regular OpenFlow pipeline.  Only valid in the action set of a packet-out message.
 \item \textbf{IN\_PORT:} Send the packet out the ingress port. 
 \end{itemize}
 \textbf{Optional Action:} \textit{Forward}.

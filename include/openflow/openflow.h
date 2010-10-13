@@ -86,9 +86,9 @@ enum ofp_port_no {
                                       virtual port must be explicitly used
                                       in order to send back out of the input
                                       port. */
-    OFPP_TABLE      = 0xfffffff9,  /* Perform actions in flow table.
-                                      NB: This can only be the destination
-                                      port for packet-out messages. */
+    OFPP_TABLE      = 0xfffffff9,  /* Submit the packet to the first flow table
+                                      NB: This destination port can only be
+                                      used in packet-out messages. */
     OFPP_NORMAL     = 0xfffffffa,  /* Process with normal L2/L3 switching. */
     OFPP_FLOOD      = 0xfffffffb,  /* All physical ports in VLAN, except input
                                       port and those blocked or link down. */
