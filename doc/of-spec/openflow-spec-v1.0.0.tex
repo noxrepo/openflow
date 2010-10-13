@@ -67,7 +67,7 @@ An OpenFlow Switch consists of one or more \emph{flow tables} and a \emph{group 
 \\\\
 Each flow table in the switch contains a set of flow entries; each flow entry consists of fields to match packets against, activity counters, and a set of instructions to apply to matching packets.
 \\\\
-Flow entries match packets in priority order. If a matching entry is found, the instructions associated with the specific flow entry are executed. If no match is found in a flow table, the outcome depends on switch configuration: the packet may be forwarded to the controller over the secure channel, dropped, or may continue to the next table in the pipeline.
+Flow entries match packets in priority order, the first matching entry in each table is used. If a matching entry is found, the instructions associated with the specific flow entry are executed. If no match is found in a flow table, the outcome depends on switch configuration: the packet may be forwarded to the controller over the secure channel, dropped, or may continue to the next table in the pipeline.
 \\\\
 Matching starts at the first table and may continue to additional tables. Flow entries may include instructions to describe packet forwarding, packet modifications, group table processing, and pipeline processing.  Instructions that modify pipeline processing include specifying the next table in the pipeline and changing the metadata field to be used in the next table lookup. Table pipeline processing stops when a packet matches a flow table entry and the instruction set does not contain a Goto-Table instruction.
 \\\\
@@ -86,7 +86,7 @@ This section describes key OpenFlow specification terms:
 \item \textbf{Metadata}: a maskable register value that is used to carry information from one table to the next.
 \item \textbf{Instruction}: an operation executed when a packet matches a flow entry. An instruction either contains a set of actions or modifies pipeline processing.
 \item \textbf{Action}: an operation that forwards the packet to a port or modifies the packet, such as decrementing the TTL field. Actions may be specified as part of the instruction set associated with a flow entry or in an action bucket associated with a group entry.
-\item \textbf{Action Set}: a set of actions that are carried between tables along with the match fields and are executed when the instruction set instructs the packet to exit the processing pipeline.
+\item \textbf{Action Set}: a set of actions associated with the packet that are accumulated while the packet is processed by each table and that are executed when the instruction set instructs the packet to exit the processing pipeline.
 \item \textbf{Group}: a list of action buckets and some means of choosing one or more of those buckets to apply on a per-packet basis.
 \item \textbf{Action Bucket}: a set of actions and associated parameters, defined for groups.
 \item \textbf{Tag}: a header that can be inserted or removed from a packet via push and pop actions.
@@ -294,13 +294,13 @@ OpenFlow switches must support forwarding the packet to physical ports and the f
 \begin{itemize}
 \item \textbf{ALL:} Send the packet out all physical ports and the \verb|LOCAL| port, but not to the ingress port or ports that are configured \verb|OFPPC_NO_FWD|.
 \item \textbf{CONTROLLER:} Encapsulate and send the packet to the controller.
-\item \textbf{LOCAL:} Send the packet to the switch's local networking stack.
 \item \textbf{TABLE:} Perform actions in flow table.  Only for packet-out messages.
 \item \textbf{IN\_PORT:} Send the packet out the ingress port. 
 \end{itemize}
 \textbf{Optional Action:} \textit{Forward}.
 The switch may optionally support the following virtual ports:
 \begin{itemize}
+\item \textbf{LOCAL:} Send the packet to the switch's local networking stack. The local port enables remote entities to interact with the switch via the OpenFlow network, rather than via a separate control network. With a suitable set of default rules it can be used to implement an in-band controller connection.
 \item \textbf{NORMAL:} Process the packet using the traditional forwarding path supported by the switch (i.e., traditional L2, VLAN, and L3 processing.) If the switch cannot forward entries for the OpenFlow-specific VLAN back to the normal processing route, it must indicate that it does not support this action.
 \\
 Note: Hybrid OpenFlow/non-OpenFlow switches may provide a classification mechanism outside of OpenFlow that routes traffic to \emph{either} the OpenFlow path or the normal processing path. For example, a switch may use the VLAN tag or input port to decide whether to process the packet with OpenFlow or the normal processing path.
