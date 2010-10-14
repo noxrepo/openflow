@@ -65,15 +65,15 @@ This document describes the requirements of an OpenFlow Switch.  We recommend th
 \section{Switch Components}
 An OpenFlow Switch consists of one or more \emph{flow tables} and a \emph{group table}, which perform packet lookups and forwarding, as well as a \emph{secure channel} to an external controller (Figure \ref{fig:flow table and controller}).  The controller manages the switch through the OpenFlow protocol.   Over this protocol, the controller can add, update, and delete flow entries, both reactively (in response to packets) and proactively.
 \\\\
-Each flow table in the switch contains a set of flow entries; each flow entry consists of fields to match packets against, activity counters, and a set of instructions to apply to matching packets.
+Each flow table in the switch contains a set of flow entries; each flow entry consists of fields to match packets against, activity counters, and a set of instructions to apply to matching packets (see \ref{ft:flowtableentry}).
 \\\\
-Flow entries match packets in priority order, the first matching entry in each table is used. If a matching entry is found, the instructions associated with the specific flow entry are executed. If no match is found in a flow table, the outcome depends on switch configuration: the packet may be forwarded to the controller over the secure channel, dropped, or may continue to the next sequentially numbered table.
+Flow entries match packets in priority order, the first matching entry in each table is used (see \ref{sec:matching}). If a matching entry is found, the instructions associated with the specific flow entry are executed. If no match is found in a flow table, the outcome depends on switch configuration: the packet may be forwarded to the controller over the secure channel, dropped, or may continue to the next flow table (see \ref{sec:pipeline}).
 \\\\
-Matching starts at the first flow table (table 0) and may continue to additional tables. Flow entries may include instructions to describe packet forwarding, packet modifications, group table processing, and pipeline processing.  Instructions that modify pipeline processing include specifying the next table in the pipeline and changing the metadata field to be used in the next table lookup. Table pipeline processing stops when a packet matches a flow table entry and the instruction set does not contain a Goto-Table instruction, after the packet has been processed by the last table in the pipeline, or when the packet fails to match any flow table entries and the switch is not configured to automatically forward to the next table.
+Matching starts at the first table (table 0) and may continue to additional tables (see \ref{sec:pipeline}). Flow entries may include instructions to describe packet forwarding, packet modifications, group table processing, and pipeline processing.  Instructions that modify pipeline processing include specifying the next table in the pipeline and changing the metadata field to be used in the next table lookup. Table pipeline processing stops when a packet matches a flow table entry and the instruction set does not contain a Goto-Table instruction, after the packet has been processed by the last table in the pipeline, or when the packet fails to match any flow table entries and the switch is not configured to automatically forward to the next table.
 \\\\
 Flow entries may forward to a port. Usually, this is a physical port, but it could also be a virtual port reserved by a switch or by this specification. Virtual ports may specify generic forwarding actions such as sending to the controller, flooding or forwarding using non-OpenFlow methods, such as ``normal'' switch processing or tunnel interfaces (see \ref{ft:actions}).  The zero port is reserved and cannot be used for forwarding.
 \\\\
-The group table contains group entries; each group entry includes a list of action buckets with specific semantics dependent on group type. Groups represent sets of ports for flooding, as well as more complex forwarding semantics (e.g. multipath, fast reroute, and link aggregation).  As a general layer of indirection, groups also enable multiple flows to forward to a single identifier (e.g. IP forwarding to a common next hop).  This abstraction allows common output actions across flows to be changed efficiently.
+The group table contains group entries; each group entry includes a list of action buckets with specific semantics dependent on group type (see \ref{sec:group types}). Groups represent sets of ports for flooding, as well as more complex forwarding semantics (e.g. multipath, fast reroute, and link aggregation).  As a general layer of indirection, groups also enable multiple flows to forward to a single identifier (e.g. IP forwarding to a common next hop).  This abstraction allows common output actions across flows to be changed efficiently.
 \\\\
 Additional port/group configuration may be handled by an external configuration protocol, which is beyond the scope of this document.
 
@@ -118,6 +118,17 @@ Each flow table entry (see Table \ref{table:flow entry}) contains:
 \item \textbf{counters}: to update for matching packets
 \item \textbf{instructions} to modify the action set or pipeline processing
 \end{itemize} 
+
+\subsubsection{Pipeline Processing}
+\label{sec:pipeline}
+
+An OpenFlow switch may contain multiple flow tables, each flow table containing multiple flow entries. The OpenFlow pipeline processing defines how packets interact with those flow tables (see Figure \ref{fig:packet flow multiple tables}). An OpenFlow switch with only a single flow table is valid, in this case pipeline processing is greatly simplified.
+\\\\
+The flow tables of an OpenFlow switch are sequentially numbered, starting at 0. Pipeline processing always starts at the first flow table: the packet is first matched against entries of flow table 0. Other flow tables may be used depending on the outcome of the match in the first table.
+\\\\
+If the packet matches an flow entry in a flow table, the corresponding set of instruction is executed (see \ref{sec:matching}). The instructions in the flow entry may explicitely direct the packet to another flow table (using the Goto Instruction, see \ref{ft:instructions}), where the same process is repeated again. A flow entry can only direct a packet to a flow table number which is greater than its own flow table number, in other words pipeline processing can only go forward and not backward. Obviously, the flow entries of the last table of the pipeline can not include the Goto instruction. If the matching flow entry does not direct packets to another flow table, pipeline processing stops at this table. When pipeline processing stops, the packet is processed with its associated action set and usually forwarded (see \ref{ft:actionset}).
+\\\\
+If the packet does not match a flow entry in a flow table, this is a table miss. The behaviour on table miss depends on the table configuration; the default is to send packets to the controller over the control channel via a packet-in message (see \ref{sec:asynchronous}), another options is to drop the packet. A table can also specify that on a table miss the packet processing should continue; in this case the packet is processed by the next sequentially numbered table.
 
 \subsection{Group Table}
 A group table consists of group entries.  The ability for a flow to point to a \emph{group} enables OpenFlow to represent additional methods of forwarding (e.g. multipath and flood).
@@ -264,14 +275,14 @@ Each flow entry contains a set of instructions that are executed when a packet m
 \item \textbf{Apply-Actions \textit{action(s)}}: Applies the specific action(s) immediately, without any change to the Action Set. This instruction may be used to modify the packet between two tables or to execute multiple actions of the same type.
 \item \textbf{Write-Actions \textit{action(s)}}: Merges the specified action(s) into the current action set.  If an action of the given type exists in the current set, overwrite it, otherwise add it.
 \item \textbf{Write-Metadata \textit{metadata / mask}}: Writes the masked metadata value into the metadata field.
-\item \textbf{Goto-Table \textit{next-table-id}}: Indicates the next table in the processing pipeline. The table-id must be greater than the current table-id.
+\item \textbf{Goto-Table \textit{next-table-id}}: Indicates the next table in the processing pipeline. The table-id must be greater than the current table-id. The flows of last table of the pipeline can not include this instruction (see \ref{sec:pipeline}).
 \end{itemize} 
 
 A switch may reject a flow entry if it is unable to execute the instructions associated with the flow entry. In this case, the switch must return an unsupported flow error.  Flow tables may not support every match and every instruction.
 
 \subsection{Action Set}
 \label{ft:actionset}
-An action set is associated with each packet. This set is empty by default. A flow entry can modify the action set using instructions associated with a particular match. The action set is carried between flow tables. When an instruction set does not contain a \textit{Goto-Table} instruction, the actions in the action set are executed. If the action set does not contain an output action, the packet will be dropped. The output action in the action set is executed last.
+An action set is associated with each packet. This set is empty by default. A flow entry can modify the action set using instructions associated with a particular match. The action set is carried between flow tables. When an instruction set does not contain a \textit{Goto-Table} instruction, pipeline processing stops and the actions in the action set are executed. If the action set does not contain an output action, the packet will be dropped. The output action in the action set is executed last.
 \\\\
 An action set contains a maximum of one action of each type, and may not simultaneously contain both Forward and Group actions. When multiple actions of the same type are required, e.g. pushing multiple MPLS labels or popping multiple MPLS labels, the \emph{Apply-Actions} instruction may be used.
 
@@ -510,6 +521,7 @@ $\left\{
 Fields in new headers may be overridden by specifying a ``set'' action for the appropriate field(s) after the push operation.
 
 \subsection{Matching}
+\label{sec:matching}
 \begin{figure}[!htb]
 \centering
 \includegraphics[height=1.6in]{packet_flow_flowchart.png}
@@ -524,7 +536,7 @@ Fields in new headers may be overridden by specifying a ``set'' action for the a
 \label{fig:header_parsing}
 \end{figure}
 
-On receipt of a packet, an OpenFlow Switch performs the functions shown in Figure \ref{fig:packet_flow}. Match fields used for the table lookup depend on the packet type as described below (and shown in Figure \ref{fig:header_parsing}).
+On receipt of a packet, an OpenFlow Switch performs the functions shown in Figure \ref{fig:packet_flow}. The switch starts by performing a table lookup in the first flow table, and, based on pipeline processing, may perform table lookup in other flow tables (see \ref{sec:pipeline}). Match fields used for table lookups depend on the packet type as described below (and shown in Figure \ref{fig:header_parsing}).
 
 \begin{itemize}
 \item Rules specifying an ingress port are matched against the port that received the packet.
@@ -571,6 +583,7 @@ Controller/switch messages are initiated by the controller and may or may not re
 \textbf{Barrier}: Barrier request/reply messages are used by the controller to ensure message dependencies have been met or to receive notifications for completed operations.  
 
 \subsubsection{Asynchronous}
+\label{sec:asynchronous}
 Asynchronous messages are sent without the controller soliciting them from a switch.  Switches send asynchronous messages to the controller to denote a packet arrival, switch state change, or error.  The four main asynchronous message types are described below.
 \\\\
 \textbf{Packet-in:} For all packets that do not have a matching flow entry, a packet-in event may be sent to the controller (depending on the table configuration). For all packets forwarded to the \textbf{CONTROLLER} virtual port, a packet-in event is always sent to the controller.  If the switch has sufficient memory to buffer packets that are sent to the controller, the packet-in events contain some fraction of the packet header (by default \input{define/OFP_DEFAULT_MISS_SEND_LEN} bytes) and a buffer ID to be used by the controller when it is ready for the switch to forward the packet.  Switches that do not support internal buffering (or have run out of internal buffering) must send the full packet to the controller as part of the event.
