@@ -635,23 +635,31 @@ enum ofp_mpls_label {
     OFPML_NONE = 0xffffff, /* No MPLS tag was set. */
 };
 
+/* This defines the value of the type field in ofp_match. Only standard match
+ * is defined by this specification with reserved values for other match
+ * extensions. Extensions may be published on the OpenFlow wiki. */
+enum ofp_match_type {
+    OFPMT_STANDARD,           /* The match fields defined in the ofp_match
+                                 structure apply */
+};
+
 /* Fields to match against flows */
 struct ofp_match {
+    uint16_t type;             /* one of OFPMT_* */
+    uint16_t length;           /* Length of ofp_match */
     uint32_t in_port;          /* Input switch port. */
     uint32_t wildcards;        /* Wildcard fields. */
-    uint16_t length;           /* sizeof(struct ofp_match) */
     uint8_t dl_src[OFP_ETH_ALEN]; /* Ethernet source address. */
     uint8_t dl_src_mask[OFP_ETH_ALEN]; /* Ethernet source address mask. */
     uint8_t dl_dst[OFP_ETH_ALEN]; /* Ethernet destination address. */
     uint8_t dl_dst_mask[OFP_ETH_ALEN]; /* Ethernet destination address mask. */
     uint16_t dl_vlan;          /* Input VLAN id. */
     uint8_t dl_vlan_pcp;       /* Input VLAN priority. */
-    uint8_t pad2[1];           /* Align to 32-bits */
+    uint8_t pad1[1];           /* Align to 32-bits */
     uint16_t dl_type;          /* Ethernet frame type. */
     uint8_t nw_tos;            /* IP ToS (actually DSCP field, 6 bits). */
     uint8_t nw_proto;          /* IP protocol or lower 8 bits of
                                 * ARP opcode. */
-    uint8_t pad2[6];           /* Align to 64 bits. */
     uint32_t nw_src;           /* IP source address. */
     uint32_t nw_src_mask;      /* IP source address mask. */
     uint32_t nw_dst;           /* IP destination address. */
@@ -660,11 +668,11 @@ struct ofp_match {
     uint16_t tp_dst;           /* TCP/UDP/SCTP destination port. */
     uint32_t mpls_label;       /* MPLS label. */
     uint8_t mpls_tc;           /* MPLS TC. */
-    uint8_t pad3[7];           /* Align to 64-bits */
+    uint8_t pad2[3];           /* Align to 64-bits */
     uint64_t metadata;         /* Metadata passed between tables. */
     uint64_t metadata_mask;    /* Mask for metadata. */
 };
-OFP_ASSERT(sizeof(struct ofp_match) == 72);
+OFP_ASSERT(sizeof(struct ofp_match) == 88);
 
 /* The match fields for ICMP type and code use the transport source and
  * destination port fields, respectively. */

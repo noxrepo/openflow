@@ -63,9 +63,13 @@ Currently, there is only a minimum-rate type queue, described by the
 \input{struct/ofp_queue_prop_min_rate}
 
 \subsubsection{Flow Match Structures}
-When describing a flow entry, the following structure is used:
+When describing a flow entry, the following structures are used:
+
+\input{enum/ofp_match_type}
 
 \input{struct/ofp_match}
+The \verb|type| field is set to \verb|OFPMT_STANDARD| and \verb|length| field is set to \verb|88| by default. If the match needs to be extended, these fields may be modified.
+\\\\
 The \verb|wildcards| field has a number of flags that may be set:
 
 \input{enum/ofp_flow_wildcards}
