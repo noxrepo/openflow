@@ -761,6 +761,10 @@ struct ofp_flow_mod {
                                      matching entries to include this as an
                                      output port.  A value of OFPP_NONE
                                      indicates no restriction. */
+    uint32_t out_group;           /* For OFPFC_DELETE* commands, require
+                                     matching entries to include this as an
+                                     output group.  A value of OFPG_NONE
+                                     indicates no restriction. */
     uint16_t flags;               /* One of OFPFF_*. */
     uint8_t pad[6];
     struct ofp_match match;       /* Fields to match */
