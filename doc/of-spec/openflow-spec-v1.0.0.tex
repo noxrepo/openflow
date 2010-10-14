@@ -537,20 +537,9 @@ Fields in new headers may be overridden by specifying a ``set'' action for the a
 \label{fig:header_parsing}
 \end{figure}
 
-On receipt of a packet, an OpenFlow Switch performs the functions shown in Figure \ref{fig:packet_flow}. The switch starts by performing a table lookup in the first flow table, and, based on pipeline processing, may perform table lookup in other flow tables (see \ref{sec:pipeline}). Match fields used for table lookups depend on the packet type as described below (and shown in Figure \ref{fig:header_parsing}).
-
-\begin{itemize}
-\item Rules specifying an ingress port are matched against the port that received the packet.
-\item The Ethernet headers as specified in Table \ref{table:match fields} are used for all packets.
-\item If the first header \emph{after} the Ethernet header is a VLAN header (Ethernet type 0x8100 or 0x88a8), the \emph{outermost} VLAN ID and PCP fields are used in the lookup. The Ethernet type following the \emph{last} VLAN header is used in subsequent rules. Additional VLAN headers are skipped.
-\item (Optional) If the first header \emph{after} the Ethernet or VLAN header is an MPLS shim header (Ethernet type equal to 0x8847 or 0x8848), the \emph{outermost} MPLS label and traffic class are used. Additional MPLS shim headers are skipped and lookup is performed immediately without considering any further fields.
-\item (Optional) For ARP packets (Ethernet type equal to 0x0806), the lookup fields include the contained IP source and destination fields and the ARP opcode.
-\item For IP packets (Ethernet type equal to 0x0800), the lookup fields also include those in the IP header.
-\item For IP packets that are TCP, UDP or SCTP (IP protocol is equal to 6, 17 or 132), the lookup includes the transport ports.
-\item For IP packets that are ICMP (IP prototcol is equal to 1), the lookup includes the Type and Code fields.  
-\item For IP packets with nonzero fragment offset or More Fragments bit set, the transport ports are set to zero for the lookup.
-\end{itemize}
-A packet matches a flow table entry if the values in the match fields used for the lookup (as defined above) match those defined in the flow table.  If a flow table field has a value of ANY, it matches all possible values in the header.  
+On receipt of a packet, an OpenFlow Switch performs the functions shown in Figure \ref{fig:packet_flow}. The switch starts by performing a table lookup in the first flow table, and, based on pipeline processing, may perform table lookup in other flow tables (see \ref{sec:pipeline}). Match fields used for table lookups depend on the packet type as in Figure \ref{fig:header_parsing}.
+\\\\
+A packet matches a flow table entry if the values in the match fields used for the lookup (as defined in Figure~\ref{fig:header_parsing}) match those defined in the flow table.  If a flow table field has a value of ANY, it matches all possible values in the header.  
 \\\\
 To handle the various Ethernet framing types, matching the Ethernet type is handled in a slightly different manner.  If the packet is an Ethernet II frame, the Ethernet type is handled in the expected way.  If the packet is an 802.3 frame with a SNAP header and Organizationally Unique Identifier (OUI) of 0x000000, the SNAP protocol id is matched against the flow’s Ethernet type.  A flow entry that specifies an Ethernet type of 0x05FF, matches all Ethernet 802.2 frames without a SNAP header and those with SNAP headers that do not have an OUI of 0x000000.  
 \\\\
