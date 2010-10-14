@@ -860,7 +860,9 @@ enum ofp_error_type {
     OFPET_FLOW_MOD_FAILED,      /* Problem modifying flow entry. */
     OFPET_GROUP_MOD_FAILED,     /* Problem modifying group entry. */
     OFPET_PORT_MOD_FAILED,      /* Port mod request failed. */
-    OFPET_QUEUE_OP_FAILED       /* Queue operation failed. */
+    OFPET_TABLE_MOD_FAILED,     /* Table mod request failed. */
+    OFPET_QUEUE_OP_FAILED,       /* Queue operation failed. */
+    OFPET_SWITCH_CONFIG_FAILED  /* Switch config request failed. */
 };
 
 /* ofp_error_msg 'code' values for OFPET_HELLO_FAILED.  'data' contains an
@@ -960,12 +962,26 @@ enum ofp_port_mod_failed_code {
     OFPPMFC_BAD_HW_ADDR          /* Specified hardware address is wrong. */
 };
 
+/* ofp_error_msg 'code' values for OFPET_TABLE_MOD_FAILED.  'data' contains
+ * at least the first 64 bytes of the failed request. */
+enum ofp_table_mod_failed_code {
+    OFPTMFC_BAD_TABLE,           /* Specified table does not exist. */
+    OFPTMFC_BAD_CONFIG           /* Specified config is invalid. */
+};
+
 /* ofp_error msg 'code' values for OFPET_QUEUE_OP_FAILED. 'data' contains
  * at least the first 64 bytes of the failed request */
 enum ofp_queue_op_failed_code {
     OFPQOFC_BAD_PORT,           /* Invalid port (or port does not exist). */
     OFPQOFC_BAD_QUEUE,          /* Queue does not exist. */
     OFPQOFC_EPERM               /* Permissions error. */
+};
+
+/* ofp_error_msg 'code' values for OFPET_SWITCH_CONFIG_FAILED. 'data' contains
+ * at least the first 64 bytes of the failed request. */
+enum ofp_switch_config_failed_code {
+    OFPSCFC_BAD_FLAGS,           /* Specified flags is invalid. */
+    OFPSCFC_BAD_LEN              /* Specified len is invalid. */
 };
 
 /* OFPT_ERROR: Error message (datapath -> controller). */
