@@ -861,7 +861,7 @@ enum ofp_error_type {
     OFPET_GROUP_MOD_FAILED,     /* Problem modifying group entry. */
     OFPET_PORT_MOD_FAILED,      /* Port mod request failed. */
     OFPET_TABLE_MOD_FAILED,     /* Table mod request failed. */
-    OFPET_QUEUE_OP_FAILED,       /* Queue operation failed. */
+    OFPET_QUEUE_OP_FAILED,      /* Queue operation failed. */
     OFPET_SWITCH_CONFIG_FAILED  /* Switch config request failed. */
 };
 
