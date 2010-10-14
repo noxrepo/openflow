@@ -943,7 +943,10 @@ enum ofp_group_mod_failed_code {
                                        * forward to groups. */
     OFPGMFC_WATCH_UNSUPPORTED,        /* This group cannot watch the
                                          watch_port or watch_group specified. */
-    OFPGMFC_LOOP                      /* Group entry would cause a loop. */
+    OFPGMFC_LOOP,                     /* Group entry would cause a loop. */
+    OFPGMFC_UNKNOWN_GROUP,            /* Group not modified because a group
+                                         MODIFY attempted to modify a
+                                         non-existent group. */
 };
 
 /* ofp_error_msg 'code' values for OFPET_PORT_MOD_FAILED.  'data' contains

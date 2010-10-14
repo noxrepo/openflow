@@ -664,7 +664,7 @@ The action set for each bucket must be validated using the same rules as those f
 \\\\
 For ADD requests, if a group entry with the specified group identifier already resides in the group table, then the switch must refuse to add the group entry and must send an \verb|ofp_error_msg| with \verb|OFPET_GROUP_MOD_FAILED| type and \verb|OFPGMFC_GROUP_EXISTS| code.
 \\\\
-For MODIFY requests, if a group entry with the specified group identifier already resides in the group table, then that entry, including its type and action buckets, must be removed, and the new group entry added.
+For MODIFY requests, if a group entry with the specified group identifier already resides in the group table, then that entry, including its type and action buckets, must be removed, and the new group entry added. If a group entry with the specified group identifier does not already exist then the switch must refuse the group mod and send an \verb|ofp_error_msg| with \verb|OFPET_GROUP_MOD_FAILED| type and \verb|OFPGMFC_UNKNOWN_GROUP| code.
 \\\\
 If a specified group type is invalid (ie: includes fields such as \verb|weight| that are undefined for the specified group type) then the switch must refuse to add the group entry and must send an \verb|ofp_error_msg| with \verb|OFPET_GROUP_MOD_FAILED| type and \verb|OFPGMFC_INVALID_GROUP| code.
 \\\\
