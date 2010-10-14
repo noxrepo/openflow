@@ -762,11 +762,11 @@ struct ofp_flow_mod {
                                      output port.  A value of OFPP_NONE
                                      indicates no restriction. */
     uint16_t flags;               /* One of OFPFF_*. */
-    uint8_t pad[2];
+    uint8_t pad[6];
     struct ofp_match match;       /* Fields to match */
     struct ofp_instruction instructions[0]; /* Instruction set */
 };
-OFP_ASSERT(sizeof(struct ofp_flow_mod) == 80);
+OFP_ASSERT(sizeof(struct ofp_flow_mod) == 120);
 
 /* Group numbering. Groups can use any number up to OFPG_MAX. */
 enum ofp_group {
