@@ -635,9 +635,13 @@ enum ofp_mpls_label {
     OFPML_NONE = 0xffffff, /* No MPLS tag was set. */
 };
 
-/* This defines the value of the type field in ofp_match. Only standard match
- * is defined by this specification with reserved values for other match
- * extensions. Extensions may be published on the OpenFlow wiki. */
+/* The match type indicates the match structure (set of fields that compose the
+ * match) in use. The match type is placed in the type field at the beginning
+ * of all match structures. The "standard" type corresponds to ofp_match and
+ * must be supported by all OpenFlow switches. Extensions that define other
+ * match types may be published on the OpenFlow wiki. Support for extensions is
+ * optional.
+ */
 enum ofp_match_type {
     OFPMT_STANDARD,           /* The match fields defined in the ofp_match
                                  structure apply */
@@ -648,7 +652,7 @@ enum ofp_match_type {
 
 /* Fields to match against flows */
 struct ofp_match {
-    uint16_t type;             /* one of OFPMT_* */
+    uint16_t type;             /* One of OFPMT_* */
     uint16_t length;           /* Length of ofp_match */
     uint32_t in_port;          /* Input switch port. */
     uint32_t wildcards;        /* Wildcard fields. */
