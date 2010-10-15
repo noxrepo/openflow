@@ -336,7 +336,7 @@ An action set is associated with each packet. This set is empty by default. A fl
 \\\\
 An action set contains a maximum of one action of each type. When multiple actions of the same type are required, e.g. pushing multiple MPLS labels or popping multiple MPLS labels, the \emph{Apply-Actions} instruction may be used.
 \\\\
-When the actions of an action set are executed, they are applied to the packet in the order specified below, irrespective of the order they were added to the set. The output action in the action set is executed last, unless there is a group action. The group action apply this process recursively using the action set specified by the group, which may itself contain a group action. When an action set specifies a group action, in general the output action of the same set is ignored, the exception is when the action set of the relevant group bucket does not specify an output action itself.
+When the actions of an action set are executed, they are applied to the packet in the order specified below, irrespective of the order they were added to the set. The output action in the action set is executed last, unless there is a group action. The group action applies this process recursively using the action set specified by the group, which may itself contain a group action. When an action set specifies a group action, in general the output action of the same set is ignored, the exception is when the action set of the relevant group bucket does not specify an output action itself.
 
 \begin{enumerate}
 \item \textbf{pop}: apply all tag pop actions to the packet
@@ -348,7 +348,7 @@ When the actions of an action set are executed, they are applied to the packet i
 \item \textbf{group}: if the set contains a group action, recursively apply the action set defined by the relevant group bucket (group dependant)
 \end{enumerate}
 
-If the switch supports it, it is possible to execute action in a different order by using a set of \textit{Apply-Actions} instructions.
+If the switch supports it, it is possible to execute actions in a different order by using a set of \textit{Apply-Actions} instructions.
 
 \subsection{Actions}
 \label{ft:actions}
