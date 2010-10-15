@@ -344,7 +344,7 @@ When the actions of an action set are executed, they are applied to the packet i
 \item \textbf{set}: apply all modify-field actions to the packet
 \item \textbf{qos}: apply all QoS actions, such as set\_queue to the packet
 \item \textbf{set-output}: if there is an output action, set the packet output port
-\item \textbf{do-output}: if the set does not contain a group action, and if packet output port is set, forward the packet on the port specified (physical or virtual port)
+\item \textbf{do-output}: if the set does not contain a group action, and if the packet output port is set, forward the packet on the port specified (physical or virtual port)
 \item \textbf{group}: if the set contains a group action, recursively apply the action set defined by the relevant group bucket (group dependant)
 \end{enumerate}
 
