@@ -21,17 +21,19 @@ Ports are described with the following structure:
 \input{struct/ofp_port}
 The \verb|port_no| field is a value the datapath associates with a port. The \verb|hw_addr| field typically is the MAC address for the port; \verb|OFP_MAX_ETH_ALEN| is 6.  The name field is a null-terminated string containing a human-readable name for the interface.  The value of \verb|OFP_MAX_PORT_NAME_LEN| is 16.  
 \\\\
-The \verb|config| field describes administrative settings with the following structure:
+The \verb|config| field describes port administrative settings, and has the following structure:
 
 \input{enum/ofp_port_config}
-The port config bits indicate whether a port has been administratively brought down and how to handle incoming and outgoing packets.
+The \verb|OFPPC_PORT_DOWN| bit indicates that the port has been administratively brought down and should not be used by OpenFlow. The \verb|OFPPFL_NO_RECV| bit indicates that packets received on that port should be ignored. The \verb|OFPPFL_NO_FWD| bit indicates that OpenFlow should not send packets to that port. The \verb|OFPPFL_NO_PACKET_IN| bit indicates that packets on that port that generate a table miss should never trigger a packet-in message to the controller.
 \\\\
-When the port flags are changed, the switch sends an \verb|OFPT_PORT_STATUS| message to notify the controller of the change. The \verb|OFPPFL_NO_RECV|, \verb|OFPPFL_NO_FWD|, and \verb|OFPPFL_NO_PACKET_IN| bits in the OpenFlow port flags may be useful for the controller to implement protocols such as STP or BFD.
+In general, the port config bits are set by the controller and not changed by the switch. Those bits may be useful for the controller to implement protocols such as STP or BFD. If the port config bits are changed by the switch through another administrative interface, the switch sends an \verb|OFPT_PORT_STATUS| message to notify the controller of the change.
 \\\\
-The \verb|state| field describes the physical link state with the following structure:
+The \verb|state| field describes the port internal state, and has the following structure:
 
 \input{enum/ofp_port_state}
-All port state bits are read-only, representing the state of the physical link or switch protocols outside of OpenFlow. The \verb|OFPPS_LINK_DOWN| bit indicates the the physical link is not present. The \verb|OFPPS_BLOCKED| bit indicates that a switch protocol outside of OpenFlow, such as 802.1D Spanning Tree, is preventing the use of that port with \verb|OFPP_FLOOD|.
+The port state bits represent the state of the physical link or switch protocols outside of OpenFlow. The \verb|OFPPS_LINK_DOWN| bit indicates the the physical link is not present. The \verb|OFPPS_BLOCKED| bit indicates that a switch protocol outside of OpenFlow, such as 802.1D Spanning Tree, is preventing the use of that port with \verb|OFPP_FLOOD|.
+\\\\
+All port state bits are read-only and cannot be changed by the controller. When the port flags are changed, the switch sends an \verb|OFPT_PORT_STATUS| message to notify the controller of the change.
 \\\\
 The port numbers use the following conventions:
 
