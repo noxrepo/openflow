@@ -24,7 +24,7 @@ The \verb|port_no| field is a value the datapath associates with a port. The \ve
 The \verb|config| field describes port administrative settings, and has the following structure:
 
 \input{enum/ofp_port_config}
-The \verb|OFPPC_PORT_DOWN| bit indicates that the port has been administratively brought down and should not be used by OpenFlow. The \verb|OFPPFL_NO_RECV| bit indicates that packets received on that port should be ignored. The \verb|OFPPFL_NO_FWD| bit indicates that OpenFlow should not send packets to that port. The \verb|OFPPFL_NO_PACKET_IN| bit indicates that packets on that port that generate a table miss should never trigger a packet-in message to the controller.
+The \verb|OFPPC_PORT_DOWN| bit indicates that the port has been administratively brought down and should not be used by OpenFlow. The \verb|OFPPC_NO_RECV| bit indicates that packets received on that port should be ignored. The \verb|OFPPC_NO_FWD| bit indicates that OpenFlow should not send packets to that port. The \verb|OFPPFL_NO_PACKET_IN| bit indicates that packets on that port that generate a table miss should never trigger a packet-in message to the controller.
 \\\\
 In general, the port config bits are set by the controller and not changed by the switch. Those bits may be useful for the controller to implement protocols such as STP or BFD. If the port config bits are changed by the switch through another administrative interface, the switch sends an \verb|OFPT_PORT_STATUS| message to notify the controller of the change.
 \\\\
