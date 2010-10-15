@@ -76,6 +76,8 @@ Flow entries may forward to a port. This is usually a physical port, but it may 
 Flow entries may also ``forward'' to a group for additional processing (see \ref{sec:group table}). Groups represent sets of actions for flooding, as well as more complex forwarding semantics (e.g. multipath, fast reroute, and link aggregation).  As a general layer of indirection, groups also enable multiple flows to forward to a single identifier (e.g. IP forwarding to a common next hop).  This abstraction allows common output actions across flows to be changed efficiently.
 \\\\
 The group table contains group entries; each group entry contains a list of action buckets with specific semantics dependent on group type (see \ref{sec:group types}). The actions in one or more action buckets are applied to packets sent to the group.
+\\\\
+Switch designers are free to implement the internals in any way convenient, provided that correct match and instruction semantics are preserved. For example, while a flow may use a flood group to forward to multiple ports, a switch designer may choose to implement this as a single bitmask within the hardware forwarding table.  Another example is matching; the pipeline exposed by an OpenFlow switch may be physically implemented with a different number of hardware tables.
 
 \section{Glossary}
 This section describes key OpenFlow specification terms:
@@ -133,9 +135,9 @@ An OpenFlow switch may contain multiple flow tables, each flow table containing 
 \\\\
 The flow tables of an OpenFlow switch are sequentially numbered, starting at 0. Pipeline processing always starts at the first flow table: the packet is first matched against entries of flow table 0. Other flow tables may be used depending on the outcome of the match in the first table.
 \\\\
-If the packet matches an flow entry in a flow table, the corresponding set of instruction is executed (see \ref{sec:matching}). The instructions in the flow entry may explicitely direct the packet to another flow table (using the Goto Instruction, see \ref{ft:instructions}), where the same process is repeated again. A flow entry can only direct a packet to a flow table number which is greater than its own flow table number, in other words pipeline processing can only go forward and not backward. Obviously, the flow entries of the last table of the pipeline can not include the Goto instruction. If the matching flow entry does not direct packets to another flow table, pipeline processing stops at this table. When pipeline processing stops, the packet is processed with its associated action set and usually forwarded (see \ref{ft:actionset}).
+If the packet matches an flow entry in a flow table, the corresponding set of instruction is executed (see \ref{sec:matching}). The instructions in the flow entry may explicitly direct the packet to another flow table (using the Goto Instruction, see \ref{ft:instructions}), where the same process is repeated again. A flow entry can only direct a packet to a flow table number which is greater than its own flow table number, in other words pipeline processing can only go forward and not backward. Obviously, the flow entries of the last table of the pipeline can not include the Goto instruction. If the matching flow entry does not direct packets to another flow table, pipeline processing stops at this table. When pipeline processing stops, the packet is processed with its associated action set and usually forwarded (see \ref{ft:actionset}).
 \\\\
-If the packet does not match a flow entry in a flow table, this is a table miss. The behaviour on table miss depends on the table configuration; the default is to send packets to the controller over the control channel via a packet-in message (see \ref{sec:asynchronous}), another options is to drop the packet. A table can also specify that on a table miss the packet processing should continue; in this case the packet is processed by the next sequentially numbered table.
+If the packet does not match a flow entry in a flow table, this is a table miss. The behavior on table miss depends on the table configuration; the default is to send packets to the controller over the control channel via a packet-in message (see \ref{sec:asynchronous}), another options is to drop the packet. A table can also specify that on a table miss the packet processing should continue; in this case the packet is processed by the next sequentially numbered table.
 
 \subsection{Group Table}
 \label{sec:group table}
@@ -223,7 +225,7 @@ Table \ref{table:match fields} shows the match fields an incoming packet is comp
 \end{tabularx}
 \caption{Field lengths and the way they must be applied to flow entries.}
 \label{table:header field details}
-\end{table}Switch designers are free to implement the internals in any way convenient provided that correct functionality is preserved. For example, while a flow may use a flood group to forward to multiple ports, a switch designer may choose to implement this as a single bitmask within the hardware forwarding table.
+\end{table}
 
 \subsection{Matching}
 \label{sec:matching}
