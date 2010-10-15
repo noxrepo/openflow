@@ -397,7 +397,7 @@ The \verb|match| field contains a description of the flows that should be matche
 \\\\
 The \verb|table_id| field indicates the index of a single table to read, or \verb|0xff| for all tables.
 \\\\
-The \verb|out_port| field optionally filters by output port.  If \verb|out_port| contains a value other than \verb|OFPP_NONE|, it introduces a constraint when matching.  This constraint is that the rule must contain an output action directed at that port.  Other constraints such as \verb|ofp_match| structs are still used; this is purely an \emph{additional} constraint.  Note that to disable output port filtering, \verb|out_port| must be set to \verb|OFPP_NONE|. 
+The \verb|out_port| and \verb|out_group| fields optionally filter by output port and group.  If either \verb|out_port| or \verb|out_group| contain a value other than \verb|OFPP_NONE| and \verb|OFPG_NONE| respectively, it introduces a constraint when matching.  This constraint is that the rule must contain an output action directed at that port or group.  Other constraints such as \verb|ofp_match| structs are still used; this is purely an \emph{additional} constraint.  Note that to disable output filtering, both \verb|out_port| and \verb|out_group| must be set to \verb|OFPP_NONE| and \verb|OFPG_NONE| respectively.
 \\\\
 The usage of the \verb|cookie| and \verb|cookie_mask| fields is defined in Section \ref{flow_table:sec_chan:flow_add}.
 \\\

@@ -1099,6 +1099,10 @@ struct ofp_flow_stats_request {
     uint32_t out_port;        /* Require matching entries to include this
                                  as an output port.  A value of OFPP_NONE
                                  indicates no restriction. */
+    uint32_t out_group;       /* Require matching entries to include this
+                                 as an output group.  A value of OFPG_NONE
+                                 indicates no restriction. */
+    uint8_t pad2[4];          /* Align to 64 bits. */
     uint64_t cookie;          /* Require matching entries to contain this
                                  cookie value */
     uint64_t cookie_mask;     /* Mask used to restrict the cookie bits that
@@ -1106,7 +1110,7 @@ struct ofp_flow_stats_request {
                                  no restriction. */
     struct ofp_match match;   /* Fields to match. */
 };
-OFP_ASSERT(sizeof(struct ofp_flow_stats_request) == 64);
+OFP_ASSERT(sizeof(struct ofp_flow_stats_request) == 120);
 
 /* Body of reply to OFPST_FLOW request. */
 struct ofp_flow_stats {
@@ -1137,6 +1141,10 @@ struct ofp_aggregate_stats_request {
     uint32_t out_port;        /* Require matching entries to include this
                                  as an output port.  A value of OFPP_NONE
                                  indicates no restriction. */
+    uint32_t out_group;       /* Require matching entries to include this
+                                 as an output group.  A value of OFPG_NONE
+                                 indicates no restriction. */
+    uint8_t pad2[4];          /* Align to 64 bits. */
     uint64_t cookie;          /* Require matching entries to contain this
                                  cookie value */
     uint64_t cookie_mask;     /* Mask used to restrict the cookie bits that
@@ -1144,7 +1152,7 @@ struct ofp_aggregate_stats_request {
                                  no restriction. */
     struct ofp_match match;   /* Fields to match. */
 };
-OFP_ASSERT(sizeof(struct ofp_aggregate_stats_request) == 64);
+OFP_ASSERT(sizeof(struct ofp_aggregate_stats_request) == 120);
 
 /* Body of reply to OFPST_AGGREGATE request. */
 struct ofp_aggregate_stats_reply {
