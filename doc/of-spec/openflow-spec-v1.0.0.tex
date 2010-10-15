@@ -321,7 +321,7 @@ Note: Hybrid OpenFlow/non-OpenFlow switches may provide a classification mechani
 \end{itemize}
 \textbf{Optional Action:} \emph{Set-Queue}. The set-queue action sets the queue id for a packet. When the packet is forwarded to a port using the output action, the queue id determine which queue attached to this port is used for forwarding the packet. Forwarding behavior is dictated by the configuration of the queue and is used to provide basic Quality-of-Service (QoS) support (see section \ref{cts:qos}).
 \\\\
-\textbf{Required Action:} \emph{Drop}.  A flow entry with no specified action indicates that all matching packets should be dropped.
+\textbf{Required Action:} \emph{Drop}.  There is no explicit action to represent drops.  Instead, packets whose action sets have no output actions should be dropped.  This result could come from empty instruction sets or empty action buckets in the processing pipeline, or after executing a Clear-Actions instruction.
 \\\\
 \textbf{Optional Action:} \emph{Push-Tag/Pop-Tag}.  Switches may support the ability to push/pop tags as shown in Table \ref{table:push pop actions}.  To aid integration with existing networks, we suggest that the ability to push/pop VLAN tags be supported.
 
