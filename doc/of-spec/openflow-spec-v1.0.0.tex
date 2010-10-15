@@ -561,7 +561,7 @@ The OpenFlow protocol supports three message types, \emph{controller-to-switch},
 \subsubsection{Controller-to-Switch}
 Controller/switch messages are initiated by the controller and may or may not require a response from the switch.
 \\\\
-\textbf{Features:}  The controller may request the capabilties of a switch by sending a features request; the switch must respond with a features reply that specifies the capabilities of the switch. This is commonly performed upon Transport Layer Security (TLS) session establishment.
+\textbf{Features:}  The controller may request the capabilities of a switch by sending a features request; the switch must respond with a features reply that specifies the capabilities of the switch. This is commonly performed upon Transport Layer Security (TLS) session establishment.
 \\\\
 \textbf{Configuration:} The controller is able to set and query configuration parameters in the switch.  The switch only responds to a query from the controller.
 \\\\
@@ -684,7 +684,7 @@ If a switch cannot add the incoming group entry due to lack of space, the switch
 \\\\
 If a switch cannot add the incoming group entry due to restrictions (hardware or otherwise) limiting the number of group buckets, it must refuse to add the group entry and must send an \verb|ofp_error_msg| with \verb|OFPET_GROUP_MOD_FAILED| type and \verb|OFPGMFC_OUT_OF_BUCKETS| code.
 \\\\
-If a switch cannot add the incoming group because it does not support the proposed liveleness configuration, the switch must send an \verb|ofp_error_msg| with \verb|OFPET_GROUP_MOD_FAILED| type and \verb|OFPGMFC_WATCH_UNSUPPORTED| code. This includes specifying \verb|watch_port| or \verb|watch_group| for a group that does not support liveness, or specifying a port that does not support liveness in \verb|watch_port|, or specifying a group that does not support liveness in \verb|watch_group|.
+If a switch cannot add the incoming group because it does not support the proposed liveliness configuration, the switch must send an \verb|ofp_error_msg| with \verb|OFPET_GROUP_MOD_FAILED| type and \verb|OFPGMFC_WATCH_UNSUPPORTED| code. This includes specifying \verb|watch_port| or \verb|watch_group| for a group that does not support liveness, or specifying a port that does not support liveness in \verb|watch_port|, or specifying a group that does not support liveness in \verb|watch_group|.
 \\\\
 For DELETE requests, if no group entry with the specified group identifier currently exists in the group table, no error is recorded, and no group table modification occurs.  Otherwise, the group is removed, and all flows that forward to the group are also removed. The group type need not be specified for the DELETE request. DELETE also differs from an ADD or MODIFY with no buckets specified in that future attempts to ADD the group identifier will not result in a group exists error.  If one wishes to effectively delete a group yet leave in flow entries using it, that group can be cleared by sending a MODIFY with no buckets specified.
 \\\\
