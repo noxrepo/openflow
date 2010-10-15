@@ -218,6 +218,31 @@ Table \ref{table:match fields} shows the match fields an incoming packet is comp
 \label{table:header field details}
 \end{table}Switch designers are free to implement the internals in any way convenient provided that correct functionality is preserved. For example, while a flow may use a flood group to forward to multiple ports, a switch designer may choose to implement this as a single bitmask within the hardware forwarding table.
 
+\subsection{Matching}
+\label{sec:matching}
+\begin{figure}[!htb]
+\centering
+\includegraphics[height=1.6in]{packet_flow_flowchart.png}
+\caption{Packet flow in an OpenFlow switch.}
+\label{fig:packet_flow}
+\end{figure}
+
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=\textwidth]{header_parsing_flowchart}
+\caption{Flowchart showing how match fields are parsed for matching.}
+\label{fig:header_parsing}
+\end{figure}
+
+On receipt of a packet, an OpenFlow Switch performs the functions shown in Figure \ref{fig:packet_flow}. The switch starts by performing a table lookup in the first flow table, and, based on pipeline processing, may perform table lookup in other flow tables (see \ref{sec:pipeline}). Match fields used for table lookups depend on the packet type as in Figure \ref{fig:header_parsing}.
+\\\\
+A packet matches a flow table entry if the values in the match fields used for the lookup (as defined in Figure~\ref{fig:header_parsing}) match those defined in the flow table.  If a flow table field has a value of ANY, it matches all possible values in the header.  
+\\\\
+To handle the various Ethernet framing types, matching the Ethernet type is handled in a slightly different manner.  If the packet is an Ethernet II frame, the Ethernet type is handled in the expected way.  If the packet is an 802.3 frame with a SNAP header and Organizationally Unique Identifier (OUI) of 0x000000, the SNAP protocol id is matched against the flow’s Ethernet type.  A flow entry that specifies an Ethernet type of 0x05FF, matches all Ethernet 802.2 frames without a SNAP header and those with SNAP headers that do not have an OUI of 0x000000.  
+\\\\
+The switch should apply the instruction set and update the associated counters of \emph{only} the highest-priority flow entry matching the packet.  If there are multiple matching flow entries with the same highest priority, the matching flow entry is explicitly undefined.  This case can only arise when a controller writer never sets the \verb|CHECK_OVERLAP| bit on flow mod messages and adds overlapping entries.
+
+
 \subsection{Counters}
 
 Counters may be maintained for each table, flow, port, queue, group, and bucket.  OpenFlow-compliant counters may be implemented in software and maintained by polling hardware counters with more limited ranges.
@@ -520,30 +545,6 @@ $\left\{
 \end{table}
 
 Fields in new headers may be overridden by specifying a ``set'' action for the appropriate field(s) after the push operation.
-
-\subsection{Matching}
-\label{sec:matching}
-\begin{figure}[!htb]
-\centering
-\includegraphics[height=1.6in]{packet_flow_flowchart.png}
-\caption{Packet flow in an OpenFlow switch.}
-\label{fig:packet_flow}
-\end{figure}
-
-\begin{figure}[!htb]
-\centering
-\includegraphics[width=\textwidth]{header_parsing_flowchart}
-\caption{Flowchart showing how match fields are parsed for matching.}
-\label{fig:header_parsing}
-\end{figure}
-
-On receipt of a packet, an OpenFlow Switch performs the functions shown in Figure \ref{fig:packet_flow}. The switch starts by performing a table lookup in the first flow table, and, based on pipeline processing, may perform table lookup in other flow tables (see \ref{sec:pipeline}). Match fields used for table lookups depend on the packet type as in Figure \ref{fig:header_parsing}.
-\\\\
-A packet matches a flow table entry if the values in the match fields used for the lookup (as defined in Figure~\ref{fig:header_parsing}) match those defined in the flow table.  If a flow table field has a value of ANY, it matches all possible values in the header.  
-\\\\
-To handle the various Ethernet framing types, matching the Ethernet type is handled in a slightly different manner.  If the packet is an Ethernet II frame, the Ethernet type is handled in the expected way.  If the packet is an 802.3 frame with a SNAP header and Organizationally Unique Identifier (OUI) of 0x000000, the SNAP protocol id is matched against the flow’s Ethernet type.  A flow entry that specifies an Ethernet type of 0x05FF, matches all Ethernet 802.2 frames without a SNAP header and those with SNAP headers that do not have an OUI of 0x000000.  
-\\\\
-The switch should apply the instruction set and update the associated counters of \emph{only} the highest-priority flow entry matching the packet.  If there are multiple matching flow entries with the same highest priority, the matching flow entry is explicitly undefined.  This case can only arise when a controller writer never sets the \verb|CHECK_OVERLAP| bit on flow mod messages and adds overlapping entries.
 
 \section{Secure Channel}
 The secure channel is the interface that connects each OpenFlow switch to a controller.  Through this interface, the controller configures and manages the switch, receives events from the switch, and sends packets out the switch.
