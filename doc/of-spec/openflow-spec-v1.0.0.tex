@@ -131,7 +131,11 @@ Each flow table entry (see Table \ref{table:flow entry}) contains:
 \label{fig:packet flow multiple tables}
 \end{figure}
 
-An OpenFlow switch may contain multiple flow tables, each flow table containing multiple flow entries. The OpenFlow pipeline processing defines how packets interact with those flow tables (see Figure \ref{fig:packet flow multiple tables}). An OpenFlow switch with only a single flow table is valid, in this case pipeline processing is greatly simplified.
+OpenFlow-compliant switches come in two types: \emph{OpenFlow-only}, and \emph{OpenFlow-hybrid}. \textbf{OpenFlow-only} switches support only OpenFlow operation, in those switches all packets are processed by the OpenFlow pipeline, and can not be processed otherwise.
+\\\\
+\textbf{OpenFlow-hybrid} switches support both OpenFlow operation and \emph{normal} Ethernet switching operation, i.e. traditional L2 Ethernet switching, VLAN isolation, L3 routing, ACL and QoS processing. Those switches should provide a classification mechanism outside of OpenFlow that routes traffic to \emph{either} the OpenFlow pipeline or the normal pipeline. For example, a switch may use the VLAN tag or input port of the packet to decide whether to process the packet using one pipeline or the other. This classification mechanism is outside the scope of this specification. An OpenFlow-hybrid switches may also allow a packet to go from the OpenFlow pipeline to the normal pipeline through the \emph{NORMAL} virtual port (see \ref{ft:actions}).
+\\\\
+The \textbf{OpenFlow pipeline} of every OpenFlow switch contains multiple flow tables, each flow table containing multiple flow entries. The OpenFlow pipeline processing defines how packets interact with those flow tables (see Figure \ref{fig:packet flow multiple tables}). An OpenFlow switch with only a single flow table is valid, in this case pipeline processing is greatly simplified.
 \\\\
 The flow tables of an OpenFlow switch are sequentially numbered, starting at 0. Pipeline processing always starts at the first flow table: the packet is first matched against entries of flow table 0. Other flow tables may be used depending on the outcome of the match in the first table.
 \\\\
@@ -327,9 +331,6 @@ An action set contains a maximum of one action of each type, and may not simulta
 \label{ft:actions}
 A switch is not required to support all action types --- just those marked ``Required Actions'' below. When connecting to the controller, a switch indicates which of the ``Optional Actions'' it supports.
 \\\\
-OpenFlow-compliant switches come in two types: \emph{OpenFlow-only}, and \emph{Hybrid OpenFlow/non-OpenFlow}.
-OpenFlow-only switches do not support output actions to the \textbf{NORMAL} port, while Hybrid OpenFlow/non-OpenFlow switches may support output actions to the \textbf{NORMAL} port.  Either type of switch can also support output actions to the \textbf{FLOOD} port.
-\\\\
 \textbf{Required Action:} \textit{Output}.
 The Output action forwards a packet to a specified port. OpenFlow switches must support forwarding to physical ports and the following virtual ones:
 \begin{itemize}
@@ -342,12 +343,13 @@ The Output action forwards a packet to a specified port. OpenFlow switches must 
 The switch may optionally support forwarding to the following virtual ports:
 \begin{itemize}
 \item \textbf{LOCAL:} Send the packet to the switch's local networking stack. The local port enables remote entities to interact with the switch via the OpenFlow network, rather than via a separate control network. With a suitable set of default rules it can be used to implement an in-band controller connection.
-\item \textbf{NORMAL:} Process the packet using the traditional forwarding path supported by the switch (i.e., traditional L2, VLAN, and L3 processing.) If the switch cannot forward entries for the OpenFlow-specific VLAN back to the normal processing route, it must indicate that it does not support this action.
-\\
-Note: Hybrid OpenFlow/non-OpenFlow switches may provide a classification mechanism outside of OpenFlow that routes traffic to \emph{either} the OpenFlow path or the normal processing path. For example, a switch may use the VLAN tag or input port to decide whether to process the packet with OpenFlow or the normal processing path.
+\item \textbf{NORMAL:} Process the packet using the traditional non-OpenFlow pipeline of the switch (see \ref{sec:pipeline}). If the switch cannot forward packets from the OpenFlow pipeline to the normal pipeline, it must indicate that it does not support this action.
 \item \textbf{FLOOD:} Send the packet out all physical ports and the \verb|LOCAL| port, but not to the ingress port, ports that are configured \verb|OFPPC_NO_FWD|, or ports that are in \verb|OFPPS_BLOCKED| state. The switch may optionally restrict forwarding to the VLAN matching the packet VLAN header field.
 
 \end{itemize}
+
+\emph{OpenFlow-only} switches do not support output actions to the \textbf{NORMAL} port, while \emph{OpenFlow-hybrid} may support it. Either type of switch may support output actions to the \textbf{FLOOD} port.
+\\\\
 \textbf{Optional Action:} \emph{Set-Queue}. The set-queue action sets the queue id for a packet. When the packet is forwarded to a port using the output action, the queue id determine which queue attached to this port is used for forwarding the packet. Forwarding behavior is dictated by the configuration of the queue and is used to provide basic Quality-of-Service (QoS) support (see section \ref{cts:qos}).
 \\\\
 \textbf{Required Action:} \emph{Drop}.  There is no explicit action to represent drops.  Instead, packets whose action sets have no output actions should be dropped.  This result could come from empty instruction sets or empty action buckets in the processing pipeline, or after executing a Clear-Actions instruction.
@@ -650,7 +652,7 @@ If any other errors occur during the processing of the flow mod message, the swi
 \\\\
 For MODIFY requests, if a flow entry with identical match fields does not current reside in any table, the MODIFY acts like an ADD, and the new flow entry must be inserted with zeroed counters.  Otherwise, the actions field is changed on the existing entry and its counters, and idle time fields are left unchanged.
 \\\\
-For DELETE requests, if no flow entry matches, no error is recorded, and no flow table modification occurs.  If flow entries match, and must be deleted, then each normal entry with the \verb|OFPFF_SEND_FLOW_REM| flag set should generate a flow removed message.
+For DELETE requests, if no flow entry matches, no error is recorded, and no flow table modification occurs.  If flow entries match, and must be deleted, then each entry with the \verb|OFPFF_SEND_FLOW_REM| flag set should generate a flow removed message.
 \\\\
 MODIFY and DELETE flow mod commands have corresponding \_STRICT versions.   Without \_STRICT appended, the wildcards are active and all flows that match the description are modified or removed.  If \_STRICT is appended, all fields, including the wildcards and priority, are strictly matched against the entry, and only an identical flow is modified or removed.  For example, if a message to remove entries is sent that has all the wildcard flags set, the DELETE command would delete all flows from all tables, while the DELETE\_STRICT command would only delete a rule that applies to all packets at the specified priority.
 \\\\
