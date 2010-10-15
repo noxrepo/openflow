@@ -364,7 +364,7 @@ Newly pushed tags should \emph{always} be inserted as the outermost tag in this 
 \\\\
 Note: Refer to section~\ref{sec:push field defaults} for information on default field values.
 \\\\
-\textbf{Optional Action:} \emph{Set-Field}.  The various Set-Field actions modify the values of the respective header field in the packet. While not strictly required, the actions shown in Table \ref{table:set-field actions}  greatly increase the usefulness of an OpenFlow implementation.  To aid integration with existing networks, we suggest that VLAN modification actions be supported. Modify-Field actions should \emph{always} be applied to the outermost-possible header (e.g.~a ``Set VLAN ID'' action always sets the ID of the outermost VLAN tag).
+\textbf{Optional Action:} \emph{Set-Field}.  The various Set-Field actions modify the values of the respective header field in the packet. While not strictly required, the actions shown in Table \ref{table:set-field actions}  greatly increase the usefulness of an OpenFlow implementation.  To aid integration with existing networks, we suggest that VLAN modification actions be supported. Set-Field actions should \emph{always} be applied to the outermost-possible header (e.g.~a ``Set VLAN ID'' action always sets the ID of the outermost VLAN tag).
 \\\\
 \textbf{Required Action:} \emph{Group}.  Process the packet through the specified group.  The exact interpretation depends on group type. 
 
