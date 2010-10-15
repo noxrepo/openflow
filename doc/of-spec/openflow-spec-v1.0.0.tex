@@ -299,7 +299,7 @@ An action set contains a maximum of one action of each type, and may not simulta
 A switch is not required to support all action types --- just those marked ``Required Actions'' below. When connecting to the controller, a switch indicates which of the ``Optional Actions'' it supports.
 \\\\
 OpenFlow-compliant switches come in two types: \emph{OpenFlow-only}, and \emph{Hybrid OpenFlow/non-OpenFlow}.
-OpenFlow-only switches do not support the \textbf{Forward-to-NORMAL} output action, while Hybrid OpenFlow/non-OpenFlow switches may support the \textbf{Forward-to-NORMAL} output action.  Either type of switch can also support the \textbf{Forward-to-FLOOD} output action.
+OpenFlow-only switches do not support output actions to the \textbf{NORMAL} port, while Hybrid OpenFlow/non-OpenFlow switches may support output actions to the \textbf{NORMAL} port.  Either type of switch can also support output actions to the \textbf{FLOOD} port.
 \\\\
 \textbf{Required Action:} \textit{Output}.
 The Output action forwards a packet to a specified port. OpenFlow switches must support forwarding to physical ports and the following virtual ones:
