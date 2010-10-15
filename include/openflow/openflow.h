@@ -95,7 +95,10 @@ enum ofp_port_no {
     OFPP_ALL        = 0xfffffffc,  /* All physical ports except input port. */
     OFPP_CONTROLLER = 0xfffffffd,  /* Send to controller. */
     OFPP_LOCAL      = 0xfffffffe,  /* Local openflow "port". */
-    OFPP_NONE       = 0xffffffff   /* Not associated with a physical port. */
+    OFPP_ANY        = 0xffffffff   /* Wildcard port used only for flow mod
+                                      (delete) and flow stats requests. Selects
+                                      all flows regardless of output port
+                                      (including flows with no output port). */
 };
 
 enum ofp_type {
@@ -553,7 +556,7 @@ OFP_ASSERT(sizeof(struct ofp_action_header) == 8);
 struct ofp_packet_out {
     struct ofp_header header;
     uint32_t buffer_id;           /* ID assigned by datapath (-1 if none). */
-    uint32_t in_port;             /* Packet's input port (OFPP_NONE if none). */
+    uint32_t in_port;             /* Packet's input port (OFPP_ANY if none). */
     uint16_t actions_len;         /* Size of action array in bytes. */
     uint8_t pad[2];
     struct ofp_action_header actions[0]; /* Actions. */
@@ -774,11 +777,11 @@ struct ofp_flow_mod {
                                      Not meaningful for OFPFC_DELETE*. */
     uint32_t out_port;            /* For OFPFC_DELETE* commands, require
                                      matching entries to include this as an
-                                     output port.  A value of OFPP_NONE
+                                     output port.  A value of OFPP_ANY
                                      indicates no restriction. */
     uint32_t out_group;           /* For OFPFC_DELETE* commands, require
                                      matching entries to include this as an
-                                     output group.  A value of OFPG_NONE
+                                     output group.  A value of OFPG_ANY
                                      indicates no restriction. */
     uint16_t flags;               /* One of OFPFF_*. */
     uint8_t pad[6];
@@ -795,7 +798,10 @@ enum ofp_group {
     /* Fake groups. */
     OFPG_ALL        = 0xfffffffc,  /* Represents all groups for group delete
                                       commands. */
-    OFPG_NONE       = 0xffffffff   /* No group specified. */
+    OFPG_ANY        = 0xffffffff   /* Wildcard group used only for flow stats
+                                      requests. Selects all flows regardless of
+                                      group (including flows with no group).
+                                      */
 };
 
 /* Group setup and teardown (controller -> datapath). */
@@ -1097,10 +1103,10 @@ struct ofp_flow_stats_request {
                                  0xff for all tables. */
     uint8_t pad[3];           /* Align to 64 bits. */
     uint32_t out_port;        /* Require matching entries to include this
-                                 as an output port.  A value of OFPP_NONE
+                                 as an output port.  A value of OFPP_ANY
                                  indicates no restriction. */
     uint32_t out_group;       /* Require matching entries to include this
-                                 as an output group.  A value of OFPG_NONE
+                                 as an output group.  A value of OFPG_ANY
                                  indicates no restriction. */
     uint8_t pad2[4];          /* Align to 64 bits. */
     uint64_t cookie;          /* Require matching entries to contain this
@@ -1139,10 +1145,10 @@ struct ofp_aggregate_stats_request {
                                  0xff for all tables. */
     uint8_t pad[3];           /* Align to 64 bits. */
     uint32_t out_port;        /* Require matching entries to include this
-                                 as an output port.  A value of OFPP_NONE
+                                 as an output port.  A value of OFPP_ANY
                                  indicates no restriction. */
     uint32_t out_group;       /* Require matching entries to include this
-                                 as an output group.  A value of OFPG_NONE
+                                 as an output group.  A value of OFPG_ANY
                                  indicates no restriction. */
     uint8_t pad2[4];          /* Align to 64 bits. */
     uint64_t cookie;          /* Require matching entries to contain this
@@ -1189,7 +1195,7 @@ struct ofp_port_stats_request {
     uint32_t port_no;        /* OFPST_PORT message must request statistics
                               * either for a single port (specified in
                               * port_no) or for all ports (if port_no ==
-                              * OFPP_NONE). */
+                              * OFPP_ANY). */
     uint8_t pad[4];
 };
 OFP_ASSERT(sizeof(struct ofp_port_stats_request) == 8);
