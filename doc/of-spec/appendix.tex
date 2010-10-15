@@ -68,7 +68,9 @@ When describing a flow entry, the following structures are used:
 \input{enum/ofp_match_type}
 
 \input{struct/ofp_match}
-The \verb|type| field is set to \verb|OFPMT_STANDARD| and \verb|length| field is set to \verb|88| by default. If the match needs to be extended, these fields may be modified.
+The \verb|type| field is set to \verb|OFPMT_STANDARD| and \verb|length| field is set to \verb|OFPMT_STANDARD_LENGTH| by default. If the match needs to be extended, these fields may be modified.
+\\\\
+The constant \verb|OFPMT_STANDARD_LENGTH| is defined as \input{define/OFPMT_STANDARD_LENGTH}.
 \\\\
 The \verb|wildcards| field has a number of flags that may be set:
 

@@ -643,6 +643,9 @@ enum ofp_match_type {
                                  structure apply */
 };
 
+/* Size/length of STANDARD match */
+#define OFPMT_STANDARD_LENGTH   88
+
 /* Fields to match against flows */
 struct ofp_match {
     uint16_t type;             /* one of OFPMT_* */
@@ -672,7 +675,7 @@ struct ofp_match {
     uint64_t metadata;         /* Metadata passed between tables. */
     uint64_t metadata_mask;    /* Mask for metadata. */
 };
-OFP_ASSERT(sizeof(struct ofp_match) == 88);
+OFP_ASSERT(sizeof(struct ofp_match) == OFPMT_STANDARD_LENGTH);
 
 /* The match fields for ICMP type and code use the transport source and
  * destination port fields, respectively. */
