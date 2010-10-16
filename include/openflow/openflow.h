@@ -1179,11 +1179,13 @@ struct ofp_table_stats {
     char name[OFP_MAX_TABLE_NAME_LEN];
     uint32_t wildcards;      /* Bitmap of OFPFW_* wildcards that are
                                 supported by the table. */
-    uint32_t actions;        /* Bitmap of OFPAT_* that are supported
-                                by the table. */
     uint32_t match;          /* Bitmap of OFPFW_* that indicate the fields
                                 the table can match on. */
     uint32_t instructions;   /* Bitmap of OFPIT_* values supported. */
+    uint32_t write_actions;  /* Bitmap of OFPAT_* that are supported
+                                by the table with OFPIT_WRITE_ACTIONS. */
+    uint32_t apply_actions;  /* Bitmap of OFPAT_* that are supported
+                                by the table with OFPIT_APPLY_ACTIONS. */
     uint32_t config;         /* Bitmap of OFPTC_* values */
     uint32_t max_entries;    /* Max number of entries supported. */
     uint32_t active_count;   /* Number of active entries. */
