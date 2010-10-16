@@ -1014,7 +1014,7 @@ struct ofp_error_msg {
     uint16_t type;
     uint16_t code;
     uint8_t data[0];          /* Variable-length data.  Interpreted based
-                                 on the type and code. */
+                                 on the type and code.  No padding. */
 };
 OFP_ASSERT(sizeof(struct ofp_error_msg) == 12);
 
