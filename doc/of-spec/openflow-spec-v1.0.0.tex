@@ -175,7 +175,7 @@ The following group types are defined:
 \begin{table}[hbp]
 \centering
 \footnotesize
-\begin{tabularx}{\textwidth}{ |X|X|X|X|X|X|X|X|X|X|X|X|X|X|X| }
+\begin{tabularx}{\textwidth}{ |X|X|X|X|X|X|X|X|X|X|X|X|X|XX|XX| }
 \hline
 \begin{sideways}Ingress Port \end{sideways} &
 \begin{sideways}Metadata \end{sideways} &
@@ -188,10 +188,12 @@ The following group types are defined:
 \begin{sideways}MPLS traffic class \end{sideways} &
 \begin{sideways}IP src \end{sideways} &
 \begin{sideways}IP dst \end{sideways} &
-\begin{sideways}IP proto \end{sideways} &
+\begin{sideways}IP proto / ARP opcode \end{sideways} &
 \begin{sideways}IP ToS bits \end{sideways} &
 \begin{sideways}TCP/ UDP / SCTP src port \end{sideways} &
-\begin{sideways}TCP/ UDP / SCTP dst port \end{sideways}
+\begin{sideways}ICMP Type \end{sideways} &
+\begin{sideways}TCP/ UDP / SCTP dst port \end{sideways} &
+\begin{sideways}ICMP Code \end{sideways}
 \\ 
 \hline
 \end{tabularx}
@@ -217,7 +219,7 @@ Table \ref{table:match fields} shows the match fields an incoming packet is comp
 \hline MPLS traffic class & 3 & All packets with MPLS tags & Match on \emph{outermost} MPLS tag. \\
 \hline IP source address & 32 & All IP and ARP packets & Can use subnet mask or arbitrary bitmask \\
 \hline IP destination address & 32 & All IP and ARP packets & Can use subnet mask or arbitrary bitmask \\
-\hline IP protocol & 8 & All IP and IP over Ethernet, ARP packets & Only the lower 8 bits of the ARP opcode are used \\
+\hline IP protocol / ARP opcode & 8 & All IP and IP over Ethernet, ARP packets & Only the lower 8 bits of the ARP opcode are used \\
 \hline IP ToS bits & 6 & All IP packets & Specify as 8-bit value and place ToS in upper 6 bits. \\
 \hline Transport source port / ICMP Type & 16 & All TCP, UDP, SCTP, and ICMP packets & Only lower 8 bits used for ICMP Type \\
 \hline Transport destination port / ICMP Code & 16 & All TCP, UDP, SCTP, and ICMP packets & Only lower 8 bits used for ICMP Code \\
@@ -264,7 +266,7 @@ Table \ref{table:counters} contains the set of counters.  Duration refers to the
 \begin{tabular}{ |l|c| }
 \hline Counter & Bits	 \\
 \hline \multicolumn{2}{|c|}{Per Table} \\
-\hline Active Entries & 32 \\
+\hline Reference count (active entries) & 32 \\
 \hline Packet Lookups & 64 \\
 \hline Packet Matches & 64 \\
 \hline \multicolumn{2}{|c|}{Per Flow} \\
@@ -290,7 +292,7 @@ Table \ref{table:counters} contains the set of counters.  Duration refers to the
 \hline Transmit Bytes & 64 \\
 \hline Transmit Overrun Errors & 64\\
 \hline \multicolumn{2}{|c|}{Per Group} \\
-\hline Reference Count & 32 \\
+\hline Reference Count (flow entries) & 32 \\
 \hline Packet Count & 64 \\
 \hline Byte Count & 64 \\
 \hline \multicolumn{2}{|c|}{Per Bucket} \\
@@ -309,7 +311,7 @@ Each flow entry contains a set of instructions that are executed when a packet m
 \item \textbf{Clear-Actions}: Clears all the actions in the action set immediately.
 \item \textbf{Apply-Actions \textit{action(s)}}: Applies the specific action(s) immediately, without any change to the Action Set. This instruction may be used to modify the packet between two tables or to execute multiple actions of the same type.
 \item \textbf{Write-Actions \textit{action(s)}}: Merges the specified action(s) into the current action set.  If an action of the given type exists in the current set, overwrite it, otherwise add it.
-\item \textbf{Write-Metadata \textit{metadata / mask}}: Writes the masked metadata value into the metadata field.
+\item \textbf{Write-Metadata \textit{metadata / mask}}: Writes the masked metadata value into the metadata field. The mask specifies which bits of the metadata register should be modified (i.e. new\_metadata = old\_metadata \& \~{}mask $|$ value \& mask).
 \item \textbf{Goto-Table \textit{next-table-id}}: Indicates the next table in the processing pipeline. The table-id must be greater than the current table-id. The flows of last table of the pipeline can not include this instruction (see \ref{sec:pipeline}).
 \end{itemize} 
 
@@ -642,7 +644,7 @@ If an action in a flow mod message references a group that is not currently defi
 \\\\
 If an action in a flow mod message has a value that is invalid, for example a Set VLAN ID action with value greater than 4095, or a Push action with an invalid Ethertype, the switch should return an \verb|ofp_error_msg| with \verb|OFPET_BAD_ACTION| type and \verb|OFPBAC_BAD_ARGUMENT| code.
 \\\\
-If an action in a flow mod message performs an operation which is inconsistent with the match, for example, a pop VLAN action with a match specifying no VLAN, or a set IPv4 address action with a match wildcarding the Ethertype, the switch may either apply this action conditionally to only packets where it can be performed, or must immediately return an \verb|ofp_error_msg| with \verb|OFPET_BAD_ACTION| type and \verb|OFPBAC_MATCH_INCONSISTENT| code.
+If an action in a flow mod message performs an operation which is inconsistent with the match, for example, a pop VLAN action with a match specifying no VLAN, or a set IPv4 address action with a match wildcarding the Ethertype, the switch must apply this action conditionally to only packets where it can be performed (in the above example, IPv4 packet would have their IPv4 address rewritten and non-IPv4 packets would be left unchanged). If the switch can not implement this behaviour, it must reject the flow and must immediately return an \verb|ofp_error_msg| with \verb|OFPET_BAD_ACTION| type and \verb|OFPBAC_MATCH_INCONSISTENT| code.
 \\\\
 If any other errors occur during the processing of the flow mod message, the switch may return an  \verb|ofp_error_msg| with \verb|OFPET_FLOW_MOD_FAILED| type and \verb|OFPFMC_UNKNOWN| code.
 \\\\
