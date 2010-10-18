@@ -943,6 +943,8 @@ enum ofp_flow_mod_failed_code {
                                    flow mod. */
     OFPFMFC_BAD_MATCH,          /* Unsupported match specified by the
                                    flow mod. */
+    OFPFMFC_BAD_MATCH_TYPE,     /* Unsupported match type specified by the
+                                   flow mod */
     OFPFMFC_BAD_TAG,            /* Instruction set uses an unsupported
                                    tag/encap. */
     OFPFMFC_BAD_DL_ADDR_MASK,   /* Unsupported datalink addr mask - switch does
