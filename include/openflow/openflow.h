@@ -533,9 +533,9 @@ OFP_ASSERT(sizeof(struct ofp_action_nw_ttl) == 8);
 struct ofp_action_experimenter_header {
     uint16_t type;                  /* OFPAT_EXPERIMENTER. */
     uint16_t len;                   /* Length is a multiple of 8. */
-    uint32_t experimenter;          /* Experimenter ID, which takes the same
-                                       form as in
-				       "struct ofp_experimenter_header". */
+    uint32_t experimenter;          /* Experimenter ID which takes the same
+                                       form as in struct
+                                       ofp_experimenter_header. */
 };
 OFP_ASSERT(sizeof(struct ofp_action_experimenter_header) == 8);
 
