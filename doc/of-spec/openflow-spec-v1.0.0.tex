@@ -11,6 +11,7 @@
 \usepackage{xtab}
 \usepackage{calc}
 \usepackage{appendix}
+\usepackage{subfigure}
 
 \hbadness=10000 % No "underfull hbox" messages
 
@@ -57,7 +58,7 @@ This document describes the requirements of an OpenFlow Switch.  We recommend th
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[height=2.5in]{figure_flow_tables_secchan.png}
+\includegraphics[height=2.8in]{switch_overview}
 \caption{An OpenFlow switch communicates with a controller over a secure connection using the OpenFlow protocol.}
 \label{fig:flow table and controller}
 \end{figure}
@@ -126,8 +127,13 @@ Each flow table entry (see Table \ref{table:flow entry}) contains:
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[height=1.85in]{figure_packet_flow.png}
-\caption{Packets are matched against multiple tables in the pipeline}
+\subfigure[Packets are matched against multiple tables in the pipeline]{
+\includegraphics[width=\textwidth]{pipeline_flow_overview}
+}
+\subfigure[Per-table packet processing]{
+\includegraphics[width=\textwidth]{pipeline_flow_detail}
+}
+\caption{Packet flow through the processing pipeline}
 \label{fig:packet flow multiple tables}
 \end{figure}
 
@@ -237,8 +243,8 @@ Table \ref{table:match fields} shows the match fields an incoming packet is comp
 \label{sec:matching}
 \begin{figure}[!htb]
 \centering
-\includegraphics[height=1.6in]{packet_flow_flowchart.png}
-\caption{Packet flow in an OpenFlow switch.}
+\includegraphics[height=2.0in]{packet_flow_flowchart}
+\caption{Flowchart detailing packet flow through an OpenFlow switch.}
 \label{fig:packet_flow}
 \end{figure}
 
