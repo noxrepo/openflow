@@ -265,6 +265,7 @@ The \verb|actions| field is a bitmap of actions supported by the switch.  The li
 The \verb|ports| field is an array of \verb|ofp_port| structures that describe all the ports in the system that support OpenFlow.  The number of port elements is inferred from the length field in the OpenFlow header. 
 
 \subsubsection{Switch Configuration}
+\label{sec:switch_config}
 The controller is able to set and query configuration parameters in the switch with the \verb|OFPT_SET_CONFIG| and \verb|OFPT_GET_CONFIG_REQUEST| messages, respectively.  The switch responds to a configuration request with an \verb|OFPT_GET_CONFIG_REPLY| message; it does not reply to a request to set the configuration.  
 \\\\
 There is no body for \verb|OFPT_GET_CONFIG_REQUEST| beyond the OpenFlow header.  The \verb|OFPT_SET_CONFIG| and \verb|OFPT_GET_CONFIG_REPLY| use the following:
