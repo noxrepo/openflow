@@ -352,11 +352,11 @@ The switch may optionally support forwarding to the following virtual ports:
 \begin{itemize}
 \item \textbf{LOCAL:} Send the packet to the switch's local networking stack. The local port enables remote entities to interact with the switch via the OpenFlow network, rather than via a separate control network. With a suitable set of default rules it can be used to implement an in-band controller connection.
 \item \textbf{NORMAL:} Process the packet using the traditional non-OpenFlow pipeline of the switch (see \ref{sec:pipeline}). If the switch cannot forward packets from the OpenFlow pipeline to the normal pipeline, it must indicate that it does not support this action.
-\item \textbf{FLOOD:} Flood the packet using the normal pipeline of the switch (see \ref{sec:pipeline}). In general, send the packet out all physical ports and the \verb|LOCAL| port, but not to the ingress port, ports that are configured \verb|OFPPC_NO_FWD|, or ports that are in \verb|OFPPS_BLOCKED| state. The switch may optionally restrict forwarding to the VLAN matching the packet VLAN header field.
+\item \textbf{FLOOD:} Flood the packet using the normal pipeline of the switch (see \ref{sec:pipeline}). In general, send the packet out all physical ports and the \verb|LOCAL| port, but not to the ingress port, or ports that are in \verb|OFPPS_BLOCKED| state. The switch may also use the packet VLAN ID to select which ports to flood to.
 
 \end{itemize}
 
-\emph{OpenFlow-only} switches do not support output actions to the \textbf{NORMAL} port, while \emph{OpenFlow-hybrid} may support it. Either type of switch may support output actions to the \textbf{FLOOD} port. Forwarding packets to the \textbf{FLOOD} port depends on the switch implementation and configuration, forwarding using a \textbf{group} of type flood enables the controller to decide how flooding is done (see \ref{sec:group types}).
+\emph{OpenFlow-only} switches do not support output actions to the \textbf{NORMAL} port and \textbf{FLOOD} port, while \emph{OpenFlow-hybrid} may support them. Forwarding packets to the \textbf{FLOOD} port depends on the switch implementation and configuration, forwarding using a \textbf{group} of type flood enables the controller to decide how flooding is done (see \ref{sec:group types}).
 \\\\
 \textbf{Optional Action:} \emph{Set-Queue}. The set-queue action sets the queue id for a packet. When the packet is forwarded to a port using the output action, the queue id determine which queue attached to this port is used for forwarding the packet. Forwarding behavior is dictated by the configuration of the queue and is used to provide basic Quality-of-Service (QoS) support (see section \ref{cts:qos}).
 \\\\
