@@ -49,4 +49,6 @@ $(TARGET).ps: $(TARGET).pdf
 
 clean:
 	rm -f *.aux *.log *.out *.bbl *.blg *~ *.bak $(TARGET).ps $(TARGET).pdf 
+	rm -f *-diff.*
+	rm -f $(TARGET).lot $(TARGET).lof $(TARGET).toc
 	rm -rf define enum struct
