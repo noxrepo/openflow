@@ -140,7 +140,7 @@ The \verb|OFPIT_WRITE_METADATA| instruction uses the following structure and fie
 \input{struct/ofp_instruction_write_metadata}
 Metadata for the next table lookup can be written using the \verb|metadata| and the \verb|metadata_mask| in order to set specific bits on the match field.   If this instruction is not specified, the metadata is passed, unchanged.
 
-The \verb|OFPIT_WRITE_ACTIONS|, \verb|OFPIT_APPLY_ACTIONS|, and \verb|OFPIT_CLEAR|ACTIONS| instructions use the following structure and fields:
+The \verb|OFPIT_WRITE_ACTIONS|, \verb|OFPIT_APPLY_ACTIONS|, and \verb|OFPIT_CLEAR_ACTIONS| instructions use the following structure and fields:
 \input{struct/ofp_instruction_actions}
 For the Clear-Actions instruction, the structure does not contain any actions.
 
