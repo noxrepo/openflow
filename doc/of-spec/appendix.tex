@@ -337,6 +337,8 @@ The \verb|flags| field may include the follow flags:
 When the \verb|OFPFF_SEND_FLOW_REM| flag is set, the switch must send a flow removed message when the flow expires.
 \\\\
 When the \verb|OFPFF_CHECK_OVERLAP| flag is set, the switch must check that there are no conflicting entries with the same priority. If there is one, the flow mod fails and an error code is returned.
+\\\\
+The \verb|instructions| field contains the instruction set for the flow entry when adding or modifying entries. The switch should return an error with \verb|OFPET_BAD_ACTION| and \verb|OFPBAC_UNSUPPORTED_ORDER| type and code if the instruction set contains an Apply-Actions instruction and the action list contains an action order that the switch cannot support.
 
 \paragraph{Modify Group Entry Message}
 Modifications to the group table from the controller are done with the \verb|OFPT_GROUP_MOD| message:

@@ -925,6 +925,8 @@ enum ofp_bad_action_code {
     OFPBAC_BAD_QUEUE,          /* Problem validating output queue. */
     OFPBAC_BAD_OUT_GROUP,      /* Invalid group id in forward action. */
     OFPBAC_MATCH_INCONSISTENT, /* Action can't apply for this match. */
+    OFPBAC_UNSUPPORTED_ORDER,  /* Action order is unsupported for the action
+				  list in an Apply-Actions instruction */
 };
 
 /* ofp_error_msg 'code' values for OFPET_FLOW_MOD_FAILED.  'data' contains
