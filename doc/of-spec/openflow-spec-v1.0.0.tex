@@ -78,7 +78,7 @@ Flow entries may also point to a group, which specifies additional processing (s
 \\\\
 The group table contains group entries; each group entry contains a list of \emph{action buckets} with specific semantics dependent on group type (see \ref{sec:group types}). The actions in one or more action buckets are applied to packets sent to the group.
 \\\\
-Switch designers are free to implement the internals in any way convenient, provided that correct match and instruction semantics are preserved. For example, while a flow may use a flood group to forward to multiple ports, a switch designer may choose to implement this as a single bitmask within the hardware forwarding table.  Another example is matching; the pipeline exposed by an OpenFlow switch may be physically implemented with a different number of hardware tables.
+Switch designers are free to implement the internals in any way convenient, provided that correct match and instruction semantics are preserved. For example, while a flow may use an all group to forward to multiple ports, a switch designer may choose to implement this as a single bitmask within the hardware forwarding table.  Another example is matching; the pipeline exposed by an OpenFlow switch may be physically implemented with a different number of hardware tables.
 
 \section{Glossary}
 This section describes key OpenFlow specification terms:
@@ -151,7 +151,7 @@ If the packet does not match a flow entry in a flow table, this is a table miss.
 
 \subsection{Group Table}
 \label{sec:group table}
-A group table consists of group entries.  The ability for a flow to point to a \emph{group} enables OpenFlow to represent additional methods of forwarding (e.g. multipath and flood).
+A group table consists of group entries.  The ability for a flow to point to a \emph{group} enables OpenFlow to represent additional methods of forwarding (e.g. select and all).
 \\\\
 \begin{table}[hbp]
 \centering
@@ -176,9 +176,9 @@ Each group entry (see Table \ref{table:group entry}) contains:
 The following group types are defined:
 
 \begin{itemize}
-\item \textbf{flood}: Execute all buckets in the group.  Packets directed out the ingress port are dropped by default.  If the controller writer wants to forward out the ingress port, the bucket(s) should include a forward action to the \verb|OFPP_IN_PORT| in each bucket where this is desired.  This group is used for multicast or broadcast forwarding.
-\item \textbf{multipath}: Execute one bucket in the group.  Packets are sent to a single bucket in the group, based on a switch-computed selection algorithm (e.g. hash on some user-configured tuple or simple round robin).  All configuration and state for the selection algorithm is external to OpenFlow.  When a port specified in a bucket in a multipath group goes down, the switch may restrict bucket selection to the remaining set (those with forwarding actions to live ports). This behavior may reduce the disruption of a downed link or switch.
-\item \textbf{indirect}: Execute the one defined bucket in this group.  Allows multiple flows or groups to point to a common group identifier, supporting faster, more efficient convergence (e.g. next hops for IP forwarding).  This group type is effectively identical to flood groups with one bucket.
+\item \textbf{all}: Execute all buckets in the group.  Packets directed out the ingress port are dropped by default.  If the controller writer wants to forward out the ingress port, the bucket(s) should include a forward action to the \verb|OFPP_IN_PORT| in each bucket where this is desired.  This group is used for multicast or broadcast forwarding.
+\item \textbf{select}: Execute one bucket in the group.  Packets are sent to a single bucket in the group, based on a switch-computed selection algorithm (e.g. hash on some user-configured tuple or simple round robin).  All configuration and state for the selection algorithm is external to OpenFlow.  When a port specified in a bucket in a select group goes down, the switch may restrict bucket selection to the remaining set (those with forwarding actions to live ports). This behavior may reduce the disruption of a downed link or switch.
+\item \textbf{indirect}: Execute the one defined bucket in this group.  Allows multiple flows or groups to point to a common group identifier, supporting faster, more efficient convergence (e.g. next hops for IP forwarding).  This group type is effectively identical to an all group with one bucket.
 \item \textbf{fast failover}: Execute the first live bucket.  Each action bucket is associated with a specific port and/or group that controls its liveness.  Enables the switch to change forwarding without requiring a round trip to the controller.  If no buckets are live, packets are dropped. This group type must implement a \textit{liveness mechanism}(see \ref{group_table:sec_chan:group_mod}).
 \end{itemize}
 
@@ -685,7 +685,7 @@ Group table modification messages can have the following types:
 
 The action set for each bucket must be validated using the same rules as those for flow mods (Section \ref{flow_table:sec_chan:flow_add}), with additional group-specific checks. If an action in one of the buckets is invalid or unsupported, the switch should return an \verb|ofp_error_msg| with \verb|OFPET_BAD_ACTION| type and code corresponding to the error (see \ref{flow_table:sec_chan:flow_add}).
 \\\\
-Groups may consist of zero or more buckets. A group with no buckets will not alter the action set associated with a packet. A group may also include buckets which themselves forward to other groups. For example, a fast reroute group may have two buckets, where each points to a multipath group. If a switch does not support groups of groups, it must send an \verb|ofp_error_msg| with \verb|OFPET_GROUP_MOD_FAILED| type and \verb|OFPGMFC_CHAINING_UNSUPPORTED| code.  If a group mod is sent such that a forwarding loop would be created, the switch should send an \verb|ofp_error_msg| with \verb|OFPET_GROUP_MOD_FAILED| type and \verb|OFPGMFC_LOOP| code.  If the switch does not support such checking, the forwarding behavior is undefined.
+Groups may consist of zero or more buckets. A group with no buckets will not alter the action set associated with a packet. A group may also include buckets which themselves forward to other groups. For example, a fast reroute group may have two buckets, where each points to a select group. If a switch does not support groups of groups, it must send an \verb|ofp_error_msg| with \verb|OFPET_GROUP_MOD_FAILED| type and \verb|OFPGMFC_CHAINING_UNSUPPORTED| code.  If a group mod is sent such that a forwarding loop would be created, the switch should send an \verb|ofp_error_msg| with \verb|OFPET_GROUP_MOD_FAILED| type and \verb|OFPGMFC_LOOP| code.  If the switch does not support such checking, the forwarding behavior is undefined.
 \\\\
 For ADD requests, if a group entry with the specified group identifier already resides in the group table, then the switch must refuse to add the group entry and must send an \verb|ofp_error_msg| with \verb|OFPET_GROUP_MOD_FAILED| type and \verb|OFPGMFC_GROUP_EXISTS| code.
 \\\\
@@ -693,7 +693,7 @@ For MODIFY requests, if a group entry with the specified group identifier alread
 \\\\
 If a specified group type is invalid (ie: includes fields such as \verb|weight| that are undefined for the specified group type) then the switch must refuse to add the group entry and must send an \verb|ofp_error_msg| with \verb|OFPET_GROUP_MOD_FAILED| type and \verb|OFPGMFC_INVALID_GROUP| code.
 \\\\
-If a switch does not support unequal load sharing with multipath groups (buckets with weight different than 1), it must refuse to add the group entry and must send an \verb|ofp_error_msg| with \verb|OFPET_GROUP_MOD_FAILED| type and \verb|OFPGMFC_WEIGHT_UNSUPPORTED| code.
+If a switch does not support unequal load sharing with select groups (buckets with weight different than 1), it must refuse to add the group entry and must send an \verb|ofp_error_msg| with \verb|OFPET_GROUP_MOD_FAILED| type and \verb|OFPGMFC_WEIGHT_UNSUPPORTED| code.
 \\\\
 If a switch cannot add the incoming group entry due to lack of space, the switch must send an \verb|ofp_error_msg| with \verb|OFPET_GROUP_MOD_FAILED| type and \verb|OFPGMFC_OUT_OF_GROUPS| code.
 \\\\

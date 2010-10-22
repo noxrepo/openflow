@@ -819,8 +819,8 @@ OFP_ASSERT(sizeof(struct ofp_group_mod) == 16);
 /* Group types.  Values in the range [128, 255] are reserved for experimental
  * use. */
 enum ofp_group_type {
-    OFPGT_FLOOD,    /* Flood group.  */
-    OFPGT_MPATH,    /* Multipath group. */
+    OFPGT_ALL,      /* All (multicast/broadcast) group.  */
+    OFPGT_SELECT,   /* Select group. */
     OFPGT_INDIRECT, /* Indirect group. */
     OFPGT_FF        /* Fast failover group. */
 };
@@ -831,7 +831,7 @@ struct ofp_bucket {
                                        this header and any padding to make it
                                        64-bit aligned. */
     uint16_t weight;                /* Relative weight of bucket.  Only
-                                       defined for multipath groups. */
+                                       defined for select groups. */
     uint32_t watch_port;            /* Port whose state affects whether this
                                        bucket is live.  Only required for fast
                                        failover groups. */
@@ -964,7 +964,7 @@ enum ofp_group_mod_failed_code {
     OFPGMFC_INVALID_GROUP,            /* Group not added because Group specified
                                        * is invalid. */
     OFPGMFC_WEIGHT_UNSUPPORTED,       /* Switch does not support unequal load
-                                       * sharing with multipath groups. */
+                                       * sharing with select groups. */
     OFPGMFC_OUT_OF_GROUPS,            /* The group table is full. */
     OFPGMFC_OUT_OF_BUCKETS,           /* The maximum number of action buckets
                                        * for a group has been exceeded. */
