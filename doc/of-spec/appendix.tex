@@ -333,7 +333,7 @@ The \verb|out_port| and \verb|out_group| fields optionally filter the scope of D
 The \verb|flags| field may include the follow flags:
 
 \input{enum/ofp_flow_mod_flags}
-When the \verb|OFPFF_SEND_FLOW_REM| flag is set, the switch must send a flow removed message when the flow expires.  The default is for the switch to not send flow removed messages for newly added flows.  
+When the \verb|OFPFF_SEND_FLOW_REM| flag is set, the switch must send a flow removed message when the flow expires.
 \\\\
 When the \verb|OFPFF_CHECK_OVERLAP| flag is set, the switch must check that there are no conflicting entries with the same priority. If there is one, the flow mod fails and an error code is returned.
 
