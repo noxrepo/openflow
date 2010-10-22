@@ -142,6 +142,7 @@ Metadata for the next table lookup can be written using the \verb|metadata| and 
 
 The \verb|OFPIT_WRITE_ACTIONS|, \verb|OFPIT_APPLY_ACTIONS|, and \verb|OFPIT_CLEAR_ACTIONS| instructions use the following structure and fields:
 \input{struct/ofp_instruction_actions}
+For the Apply-Actions instruction, the \verb|actions| field is treated as a list and the actions are applied to the packet \emph{in-order}. For the Write-Actions instruction, the \verb|actions| field is treated as a set and the actions are merged into the current action set.
 For the Clear-Actions instruction, the structure does not contain any actions.
 
 \subsubsection{Action Structures}

@@ -87,7 +87,7 @@ This section describes key OpenFlow specification terms:
 \item \textbf{Port}: is a physical or virtual port. Virtual ports include reserved ports defined by this specification as well as higher level abstractions that may be defined in the switch using non-OpenFlow methods (e.g. link aggregation groups, tunnels, loopback interfaces).
 \item \textbf{Match Field}: a field against which a packet is matched, including packet headers, the ingress port, and the metadata value.
 \item \textbf{Metadata}: a maskable register value that is used to carry information from one table to the next.
-\item \textbf{Instruction}: an operation that either contains a set of actions to add to the action set, contains a set of actions to apply immediately to the packet, or modifies pipeline processing.
+\item \textbf{Instruction}: an operation that either contains a \emph{set} of actions to add to the action set, contains a \emph{list} of actions to apply immediately to the packet, or modifies pipeline processing.
 \item \textbf{Action}: an operation that forwards the packet to a port or modifies the packet, such as decrementing the TTL field. Actions may be specified as part of the instruction set associated with a flow entry or in an action bucket associated with a group entry.
 \item \textbf{Action Set}: a set of actions associated with the packet that are accumulated while the packet is processed by each table and that are executed when the instruction set instructs the packet to exit the processing pipeline.
 \item \textbf{Group}: a list of action buckets and some means of choosing one or more of those buckets to apply on a per-packet basis.
@@ -322,7 +322,7 @@ Table \ref{table:counters} contains the set of counters.  Duration refers to the
 Each flow entry contains a set of instructions that are executed when a packet matches the entry. These instructions result in changes to the packet, action set and/or pipeline processing (see: \ref{ft:actionset}). Supported instructions include:
 \begin{itemize} 
 \item \textbf{Clear-Actions}: Clears all the actions in the action set immediately.
-\item \textbf{Apply-Actions \textit{action(s)}}: Applies the specific action(s) immediately, without any change to the Action Set. This instruction may be used to modify the packet between two tables or to execute multiple actions of the same type.
+\item \textbf{Apply-Actions \textit{action(s)}}: Applies the specific action(s) immediately, without any change to the Action Set. This instruction may be used to modify the packet between two tables or to execute multiple actions of the same type. The actions are specified as a \emph{list} and are applied in the order they are specified.
 \item \textbf{Write-Actions \textit{action(s)}}: Merges the specified action(s) into the current action set.  If an action of the given type exists in the current set, overwrite it, otherwise add it.
 \item \textbf{Write-Metadata \textit{metadata / mask}}: Writes the masked metadata value into the metadata field. The mask specifies which bits of the metadata register should be modified (i.e. new\_metadata = old\_metadata \& \~{}mask $|$ value \& mask).
 \item \textbf{Goto-Table \textit{next-table-id}}: Indicates the next table in the processing pipeline. The table-id must be greater than the current table-id. The flows of last table of the pipeline can not include this instruction (see \ref{sec:pipeline}).
