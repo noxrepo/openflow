@@ -155,18 +155,19 @@ A group table consists of group entries.  The ability for a flow to point to a \
 \\\\
 \begin{table}[hbp]
 \centering
-\begin{tabular}{|c|c|c|}
+\begin{tabular}{|c|c|c|c|}
 \hline
-Group Identifier & Group Type & Action Buckets\\
+Group Identifier & Group Type & Counters & Action Buckets\\
 \hline
 \end{tabular}
-\caption{A group entry consists of a group identifier, a group type, and a list of action buckets.}
+\caption{A group entry consists of a group identifier, a group type, counters, and a list of action buckets.}
 \label{table:group entry}
 \end{table}
 Each group entry (see Table \ref{table:group entry}) contains:
 \begin{itemize}
 \item \textbf{group identifier}: a 32 bit unsigned integer uniquely identifying the group
 \item \textbf{group type}: to determine group semantics (see Section~\ref{sec:group types})
+\item \textbf{counters}: updated when packets are processed by a group
 \item \textbf{action buckets}: an ordered list of action buckets, where each action bucket contains a set of actions to execute and associated parameters
 \end{itemize}
 
