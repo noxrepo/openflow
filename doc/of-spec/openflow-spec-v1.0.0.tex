@@ -176,7 +176,7 @@ Each group entry (see Table \ref{table:group entry}) contains:
 The following group types are defined:
 
 \begin{itemize}
-\item \textbf{all}: Execute all buckets in the group.  Packets directed out the ingress port are dropped by default.  If the controller writer wants to forward out the ingress port, the bucket(s) should include an output action to the \verb|OFPP_IN_PORT| in each bucket where this is desired.  This group is used for multicast or broadcast forwarding.
+\item \textbf{all}: Execute all buckets in the group.  Packets directed out the ingress port are dropped by default.  If the controller writer wants to forward out the ingress port, the bucket(s) should include a set-output-port action to the \verb|OFPP_IN_PORT| in each bucket where this is desired.  This group is used for multicast or broadcast forwarding.
 \item \textbf{select}: Execute one bucket in the group.  Packets are sent to a single bucket in the group, based on a switch-computed selection algorithm (e.g. hash on some user-configured tuple or simple round robin).  All configuration and state for the selection algorithm is external to OpenFlow.  When a port specified in a bucket in a select group goes down, the switch may restrict bucket selection to the remaining set (those with forwarding actions to live ports). This behavior may reduce the disruption of a downed link or switch.
 \item \textbf{indirect}: Execute the one defined bucket in this group.  Allows multiple flows or groups to point to a common group identifier, supporting faster, more efficient convergence (e.g. next hops for IP forwarding).  This group type is effectively identical to an all group with one bucket.
 \item \textbf{fast failover}: Execute the first live bucket.  Each action bucket is associated with a specific port and/or group that controls its liveness.  Enables the switch to change forwarding without requiring a round trip to the controller.  If no buckets are live, packets are dropped. This group type must implement a \textit{liveness mechanism}(see \ref{group_table:sec_chan:group_mod}).
@@ -332,23 +332,23 @@ A switch may reject a flow entry if it is unable to execute the instructions ass
 
 \subsection{Action Set}
 \label{ft:actionset}
-An action set is associated with each packet. This set is empty by default. A flow entry can modify the action set using instructions associated with a particular match. The action set is carried between flow tables. When an instruction set does not contain a \textit{Goto-Table} instruction, pipeline processing stops and the actions in the action set are executed. If the action set does not contain an output action, the packet will be dropped. The output action in the action set is executed last.
+An action set is associated with each packet. This set is empty by default. A flow entry can modify the action set using instructions associated with a particular match. The action set is carried between flow tables. When an instruction set does not contain a \textit{Goto-Table} instruction, pipeline processing stops and the actions in the action set are executed. If the action set does not contain a set-output-port action, the packet will be dropped. The set-output-port action in the action set is executed last.
 \\\\
-An action set contains a maximum of one action of each type, and may not simultaneously contain both Output and Group actions. When multiple actions of the same type are required, e.g. pushing multiple MPLS labels or popping multiple MPLS labels, the \emph{Apply-Actions} instruction may be used.
+An action set contains a maximum of one action of each type, and may not simultaneously contain both Set-Output-Port and Group actions. When multiple actions of the same type are required, e.g. pushing multiple MPLS labels or popping multiple MPLS labels, the \emph{Apply-Actions} instruction may be used.
 
 \subsection{Actions}
 \label{ft:actions}
 A switch is not required to support all action types --- just those marked ``Required Actions'' below. When connecting to the controller, a switch indicates which of the ``Optional Actions'' it supports.
 \\\\
-\textbf{Required Action:} \textit{Output}.
-The Output action forwards a packet to a specified port. OpenFlow switches must support forwarding to physical ports and the following virtual ones:
+\textbf{Required Action:} \textit{Set-Output-Port}.
+The Set-Output-Port action forwards a packet to a specified port. OpenFlow switches must support forwarding to physical ports and the following virtual ones:
 \begin{itemize}
 \item \textbf{ALL:} Send the packet out all physical ports and the \verb|LOCAL| port, but not to the ingress port or ports that are configured \verb|OFPPC_NO_FWD|.
 \item \textbf{CONTROLLER:} Encapsulate and send the packet to the controller.
 \item \textbf{TABLE:} Submit the packet to the first flow table so that the packet can be processed through the regular OpenFlow pipeline.  Only valid in the action set of a packet-out message.
 \item \textbf{IN\_PORT:} Send the packet out the ingress port. 
 \end{itemize}
-\textbf{Optional Action:} \textit{Output}.
+\textbf{Optional Action:} \textit{Set-Output-Port}.
 The switch may optionally support forwarding to the following virtual ports:
 \begin{itemize}
 \item \textbf{LOCAL:} Send the packet to the switch's local networking stack. The local port enables remote entities to interact with the switch via the OpenFlow network, rather than via a separate control network. With a suitable set of default rules it can be used to implement an in-band controller connection.
@@ -357,11 +357,11 @@ The switch may optionally support forwarding to the following virtual ports:
 
 \end{itemize}
 
-\emph{OpenFlow-only} switches do not support output actions to the \textbf{NORMAL} port and \textbf{FLOOD} port, while \emph{OpenFlow-hybrid} may support them. Forwarding packets to the \textbf{FLOOD} port depends on the switch implementation and configuration, forwarding using a \textbf{group} of type \textit{all} enables the controller to decide how flooding is done (see \ref{sec:group types}).
+\emph{OpenFlow-only} switches do not support set-output-port actions to the \textbf{NORMAL} port and \textbf{FLOOD} port, while \emph{OpenFlow-hybrid} switches may support them. Forwarding packets to the \textbf{FLOOD} port depends on the switch implementation and configuration, while forwarding using a \textbf{group} of type \textit{all} enables the controller to more flexibly implement flooding (see \ref{sec:group types}).
 \\\\
-\textbf{Optional Action:} \emph{Set-Queue}. The set-queue action sets the queue id for a packet. When the packet is forwarded to a port using the output action, the queue id determines which queue attached to this port is used for forwarding the packet. Forwarding behavior is dictated by the configuration of the queue and is used to provide basic Quality-of-Service (QoS) support (see section \ref{cts:qos}).
+\textbf{Optional Action:} \emph{Set-Queue}. The set-queue action sets the queue id for a packet. When the packet is forwarded to a port using the set-output-port action, the queue id determines which queue attached to this port is used for forwarding the packet. Forwarding behavior is dictated by the configuration of the queue and is used to provide basic Quality-of-Service (QoS) support (see section \ref{cts:qos}).
 \\\\
-\textbf{Required Action:} \emph{Drop}.  There is no explicit action to represent drops.  Instead, packets whose action sets have no output actions should be dropped.  This result could come from empty instruction sets or empty action buckets in the processing pipeline, or after executing a Clear-Actions instruction.
+\textbf{Required Action:} \emph{Drop}.  There is no explicit action to represent drops.  Instead, packets whose action sets have no set-output-port actions should be dropped.  This result could come from empty instruction sets or empty action buckets in the processing pipeline, or after executing a Clear-Actions instruction.
 \\\\
 \textbf{Optional Action:} \emph{Push-Tag/Pop-Tag}.  Switches may support the ability to push/pop tags as shown in Table \ref{table:push pop actions}.  To aid integration with existing networks, we suggest that the ability to push/pop VLAN tags be supported.
 
@@ -667,7 +667,7 @@ MODIFY and DELETE flow mod commands have corresponding \_STRICT versions.   With
 \\\\
 For non-strict MODIFY and DELETE commands that contain wildcards, a match will occur when a flow entry exactly matches or is more specific than the description in the flow\_mod command. For example, if a DELETE command says to delete all flows with a destination port of 80, then a flow entry that is all wildcards will not be deleted. However, a DELETE command that is all wildcards will delete an entry that matches all port 80 traffic.  This same interpretation of mixed wildcard and exact match fields also applies to individual and aggregate flows stats.  
 \\\\
-DELETE and DELETE\_STRICT commands can be optionally filtered by destination group or output port.  If the \verb|out_port| field contains a value other than \verb|OFPP_ANY|, it introduces a constraint when matching.  This constraint is that the rule must contain an output action directed at the specified group or port.  This field is ignored by ADD, MODIFY, and MODIFY\_STRICT messages.
+DELETE and DELETE\_STRICT commands can be optionally filtered by destination group or output port.  If the \verb|out_port| field contains a value other than \verb|OFPP_ANY|, it introduces a constraint when matching.  This constraint is that the rule must contain a set-output-port action directed at the specified group or port.  This field is ignored by ADD, MODIFY, and MODIFY\_STRICT messages.
 \\\\
 MODIFY, MODIFY\_STRICT, DELETE and DELETE\_STRICT commands can also be filtered by cookie value, if the \verb|cookie_mask| field contains a value other than 0. This constraint is that the bits specified by the \verb|cookie_mask| in both the \verb|cookie| field of the flow mod and a flow's \verb|cookie| value must be equal. In other words, (flow.cookie \& flow\_mod.cookie\_mask) == (flow\_mod.cookie \& flow\_mod.cookie\_mask).
 

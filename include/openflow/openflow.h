@@ -361,7 +361,7 @@ struct ofp_packet_in {
 OFP_ASSERT(sizeof(struct ofp_packet_in) == 24);
 
 enum ofp_action_type {
-    OFPAT_OUTPUT,           /* Output to switch port. */
+    OFPAT_SET_OUTPUT_PORT,  /* Set the output port for the packet. */
     OFPAT_SET_VLAN_VID,     /* Set the 802.1q VLAN id. */
     OFPAT_SET_VLAN_PCP,     /* Set the 802.1q priority. */
     OFPAT_SET_DL_SRC,       /* Ethernet source address. */
@@ -385,25 +385,25 @@ enum ofp_action_type {
     OFPAT_POP_VLAN,         /* Pop the outer VLAN tag */
     OFPAT_PUSH_MPLS,        /* Push a new MPLS tag */
     OFPAT_POP_MPLS,         /* Pop the outer MPLS tag */
-    OFPAT_SET_QUEUE,        /* Set queue id used by Output action. */
+    OFPAT_SET_QUEUE,        /* Set queue id when outputting to a port */
     OFPAT_GROUP,            /* Apply group. */
     OFPAT_SET_NW_TTL,       /* IP TTL. */
     OFPAT_DEC_NW_TTL,       /* Decrement IP TTL. */
     OFPAT_EXPERIMENTER = 0xffff
 };
 
-/* Action structure for OFPAT_OUTPUT, which sends packets out 'port'.
+/* Action structure for OFPAT_SET_OUTPUT_PORT, which sends packets out 'port'.
  * When the 'port' is the OFPP_CONTROLLER, 'max_len' indicates the max
  * number of bytes to send.  A 'max_len' of zero means no bytes of the
  * packet should be sent.*/
-struct ofp_action_output {
-    uint16_t type;                  /* OFPAT_OUTPUT. */
+struct ofp_action_set_output_port {
+    uint16_t type;                  /* OFPAT_SET_OUTPUT_PORT. */
     uint16_t len;                   /* Length is 16. */
     uint32_t port;                  /* Output port. */
     uint16_t max_len;               /* Max length to send to controller. */
     unit8_t pad[2];                 /* Pad to 32 bits. */
 };
-OFP_ASSERT(sizeof(struct ofp_action_output) == 16);
+OFP_ASSERT(sizeof(struct ofp_action_set_output_port) == 16);
 
 /* Action structure for OFPAT_SET_VLAN_VID. */
 struct ofp_action_vlan_vid {
@@ -918,7 +918,7 @@ enum ofp_bad_action_code {
     OFPBAC_BAD_LEN,            /* Length problem in actions. */
     OFPBAC_BAD_EXPERIMENTER,   /* Unknown experimenter id specified. */
     OFPBAC_BAD_EXPERIMENTER_TYPE, /* Unknown action type for experimenter id. */
-    OFPBAC_BAD_OUT_PORT,       /* Problem validating output action. */
+    OFPBAC_BAD_OUT_PORT,       /* Problem validating output port. */
     OFPBAC_BAD_ARGUMENT,       /* Bad action argument. */
     OFPBAC_EPERM,              /* Permissions error. */
     OFPBAC_TOO_MANY,           /* Can't handle this many actions. */
