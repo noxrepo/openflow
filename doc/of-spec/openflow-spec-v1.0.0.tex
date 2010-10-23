@@ -222,7 +222,7 @@ Table \ref{table:match fields} shows the match fields an incoming packet is comp
 \footnotesize
 \begin{tabularx}{\textwidth}{ |X|X|X|X| }
 \hline Field & Bits & When applicable & Notes \\
-\hline Ingress Port & 32 & All packets & Numerical representation of incoming port, starting at 1. This may be a physical or switch-defined virtual port as defined by the switch implementation. \\
+\hline Ingress Port & 32 & All packets & Numerical representation of incoming port, starting at 1. This may be a physical or switch-defined virtual port. \\
 \hline Metadata & 64 & Table 1 and above & \\
 \hline Ethernet source address & 48 & All packets on enabled ports & Can use arbitrary bitmask \\
 \hline Ethernet destination address & 48 & All packets on enabled ports & Can use arbitrary bitmask \\
