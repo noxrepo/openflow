@@ -357,7 +357,7 @@ The switch may optionally support forwarding to the following virtual ports:
 
 \end{itemize}
 
-\emph{OpenFlow-only} switches do not support output actions to the \textbf{NORMAL} port and \textbf{FLOOD} port, while \emph{OpenFlow-hybrid} may support them. Forwarding packets to the \textbf{FLOOD} port depends on the switch implementation and configuration, forwarding using a \textbf{group} of type flood enables the controller to decide how flooding is done (see \ref{sec:group types}).
+\emph{OpenFlow-only} switches do not support output actions to the \textbf{NORMAL} port and \textbf{FLOOD} port, while \emph{OpenFlow-hybrid} may support them. Forwarding packets to the \textbf{FLOOD} port depends on the switch implementation and configuration, forwarding using a \textbf{group} of type \textit{all} enables the controller to decide how flooding is done (see \ref{sec:group types}).
 \\\\
 \textbf{Optional Action:} \emph{Set-Queue}. The set-queue action sets the queue id for a packet. When the packet is forwarded to a port using the output action, the queue id determines which queue attached to this port is used for forwarding the packet. Forwarding behavior is dictated by the configuration of the queue and is used to provide basic Quality-of-Service (QoS) support (see section \ref{cts:qos}).
 \\\\
