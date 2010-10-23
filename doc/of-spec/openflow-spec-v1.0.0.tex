@@ -72,7 +72,7 @@ Matching starts at the first flow table and may continue to additional flow tabl
 \\\\
 Instructions associated with each flow entry describe packet forwarding, packet modification, group table processing, and pipeline processing (see \ref{ft:instructions}). Pipeline processing instructions allow packets to be sent to subsequent tables for further processing and allow information, in the form of metadata, to be communicated between tables. Table pipeline processing stops when the instruction set associated with a matching flow entry does not specify a next table; at this point the packet is usually modified and forwarded (see \ref{ft:actionset}).
 \\\\
-Flow entries may forward to a \emph{port}. This is usually a physical port, but it may also be a logical port defined by the switch or a virtual port defined by this specification. Virtual ports may specify generic forwarding actions such as sending to the controller, flooding, or forwarding using non-OpenFlow methods, such as ``normal'' switch processing (see \ref{ft:actions}), logical ports may specify link aggregation groups, tunnels or loopback interfaces (see \ref{ft:actions}).
+Flow entries may forward to a \emph{port}. This is usually a physical port, but it may also be a virtual port defined by the switch or a reserved virtual port defined by this specification. Reserved virtual ports may specify generic forwarding actions such as sending to the controller, flooding, or forwarding using non-OpenFlow methods, such as ``normal'' switch processing (see \ref{ft:actions}), while switch-defined virtual ports may specify link aggregation groups, tunnels or loopback interfaces (see \ref{ft:actions}).
 \\\\
 Flow entries may also point to a group, which specifies additional processing (see \ref{sec:group table}). Groups represent sets of actions for flooding, as well as more complex forwarding semantics (e.g. multipath, fast reroute, and link aggregation).  As a general layer of indirection, groups also enable multiple flows to forward to a single identifier (e.g. IP forwarding to a common next hop).  This abstraction allows common output actions across flows to be changed efficiently.
 \\\\
@@ -87,7 +87,7 @@ This section describes key OpenFlow specification terms:
 \item \textbf{Byte}: an 8-bit octet.
 \item \textbf{Packet}: an Ethernet frame, including header and payload.
 \item \textbf{Pipeline}: the set of linked tables that provide matching, forwarding, and packet modifications in an OpenFlow switch.
-\item \textbf{Port}: where packets enter and exit the OpenFlow pipeline. May be a physical port, a logical port defined by the switch or a virtual port defined by the OpenFlow protocol. Virtual ports are ports reserved ports by this specification (see \ref{ft:actions}). Logical ports are higher level abstractions that may be defined in the switch using non-OpenFlow methods (e.g. link aggregation groups, tunnels, loopback interfaces).
+\item \textbf{Port}: where packets enter and exit the OpenFlow pipeline. May be a physical port, a virtual port defined by the switch, or a virtual port defined by the OpenFlow protocol. Reserved virtual ports are ports reserved by this specification (see \ref{ft:actions}). Switch-defined virtual ports are higher level abstractions that may be defined in the switch using non-OpenFlow methods (e.g. link aggregation groups, tunnels, loopback interfaces).
 \item \textbf{Match Field}: a field against which a packet is matched, including packet headers, the ingress port, and the metadata value.
 \item \textbf{Metadata}: a maskable register value that is used to carry information from one table to the next.
 \item \textbf{Instruction}: an operation that either contains a \emph{set} of actions to add to the action set, contains a \emph{list} of actions to apply immediately to the packet, or modifies pipeline processing.
@@ -222,7 +222,7 @@ Table \ref{table:match fields} shows the match fields an incoming packet is comp
 \footnotesize
 \begin{tabularx}{\textwidth}{ |X|X|X|X| }
 \hline Field & Bits & When applicable & Notes \\
-\hline Ingress Port & 32 & All packets & Numerical representation of incoming port, starting at 1. This may be a physical or logical port as defined by the switch implementation. \\
+\hline Ingress Port & 32 & All packets & Numerical representation of incoming port, starting at 1. This may be a physical or switch-defined virtual port as defined by the switch implementation. \\
 \hline Metadata & 64 & Table 1 and above & \\
 \hline Ethernet source address & 48 & All packets on enabled ports & Can use arbitrary bitmask \\
 \hline Ethernet destination address & 48 & All packets on enabled ports & Can use arbitrary bitmask \\
@@ -362,7 +362,7 @@ The switch may support arbitrary action execution order through the action list 
 A switch is not required to support all action types --- just those marked ``Required Actions'' below. When connecting to the controller, a switch indicates which of the ``Optional Actions'' it supports.
 \\\\
 \textbf{Required Action:} \textit{Set-Output-Port}.
-The Set-Output-Port action forwards a packet to a specified port. OpenFlow switches must support forwarding to the physical ports and logical ports defined by the switch. Standard ports are defined as physical ports, logical ports and the \verb|LOCAL| port if supported (excluding other virtual ports). OpenFlow switches must support forwarding to the following virtual ports:
+The Set-Output-Port action forwards a packet to a specified port. OpenFlow switches must support forwarding to physical ports and switch-defined virtual ports. Standard ports are defined as physical ports, switch-defined virtual ports, and the \verb|LOCAL| port if supported (excluding other reserved virtual ports). OpenFlow switches must also support forwarding to the following reserved virtual ports:
 \begin{itemize}
 \item \textbf{ALL:} Send the packet out all standard ports, but not to the ingress port or ports that are configured \verb|OFPPC_NO_FWD|.
 \item \textbf{CONTROLLER:} Encapsulate and send the packet to the controller.
@@ -370,7 +370,7 @@ The Set-Output-Port action forwards a packet to a specified port. OpenFlow switc
 \item \textbf{IN\_PORT:} Send the packet out the ingress port. 
 \end{itemize}
 \textbf{Optional Action:} \textit{Set-Output-Port}.
-The switch may optionally support forwarding to the following virtual ports:
+The switch may optionally support forwarding to the following reserved virtual ports:
 \begin{itemize}
 \item \textbf{LOCAL:} Send the packet to the switch's local networking stack. The local port enables remote entities to interact with the switch via the OpenFlow network, rather than via a separate control network. With a suitable set of default rules it can be used to implement an in-band controller connection.
 \item \textbf{NORMAL:} Process the packet using the traditional non-OpenFlow pipeline of the switch (see \ref{sec:pipeline}). If the switch cannot forward packets from the OpenFlow pipeline to the normal pipeline, it must indicate that it does not support this action.
