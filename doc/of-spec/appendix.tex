@@ -16,12 +16,12 @@ The \verb|version| specifies the OpenFlow protocol version being used.  During t
 This section describes structures used by multiple messages.
 
 \subsubsection{Port Structures}
-The OpenFlow pipeline receives and sends packets on ports. The switch may define both physical ports and logical ports, and the OpenFlow specification defines some virtual ports.
+The OpenFlow pipeline receives and sends packets on ports. The switch may define physical and logical ports, and the OpenFlow specification defines some virtual ports.
 \\\\
 The physical ports, logical ports, and the \verb|OFPP_LOCAL| port are described with the following structure:
 
 \input{struct/ofp_port}
-The \verb|port_no| field uniquely identifies a port. The \verb|hw_addr| field typically is the MAC address for the port; \verb|OFP_MAX_ETH_ALEN| is 6.  The name field is a null-terminated string containing a human-readable name for the interface.  The value of \verb|OFP_MAX_PORT_NAME_LEN| is 16.
+The \verb|port_no| field uniquely identifies a port within a switch. The \verb|hw_addr| field typically is the MAC address for the port; \verb|OFP_MAX_ETH_ALEN| is 6.  The name field is a null-terminated string containing a human-readable name for the interface.  The value of \verb|OFP_MAX_PORT_NAME_LEN| is 16.
 \\\\
 The \verb|config| field describes port administrative settings, and has the following structure:
 
