@@ -346,13 +346,13 @@ The actions in an action set are applied in the order specified below, regardles
 \item \textbf{decrement TTL}: apply decrement TTL action to the packet
 \item \textbf{set}: apply all set-field actions to the packet
 \item \textbf{qos}: apply all QoS actions, such as set\_queue to the packet
-\item \textbf{update output port}: if there is an output action, set the packet output port
-\item \textbf{group}: apply the actions of the relevant group bucket (group dependant) in order specified by this list
+\item \textbf{set-output-port}: apply the set-output-port action to the packet
+\item \textbf{group}: apply the actions of the relevant group bucket(s) in the order specified by this list
 \end{enumerate}
 
-After applying all actions, including iteratively applying any group actions, the packet should be output on the port recorded in the most recent \emph{update output port} step listed above. If the \emph{update output port} step was never applied (ie. the action set and any associated groups did not contain any Forward actions) then the packet should be dropped.
+After applying all actions, including iteratively applying any group actions, the packet must exit the switch on the port specified by the most recently applied \emph{set-output-port} action.  If the \emph{set-output-port} action was never applied, the packet must be dropped.
 
-If the switch supports it, it is possible to execute actions in a different order by using a set of \textit{Apply-Actions} instructions.
+The switch may support arbitrary action execution order through the action list of the \textit{Apply-Actions} instruction. 
 
 \subsection{Actions}
 \label{ft:actions}
