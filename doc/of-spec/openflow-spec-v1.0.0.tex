@@ -68,7 +68,7 @@ An OpenFlow Switch consists of one or more \emph{flow tables} and a \emph{group 
 \\\\
 Each flow table in the switch contains a set of flow entries; each flow entry consists of \emph{match fields}, \emph{counters}, and a set of \emph{instructions} to apply to matching packets (see \ref{ft:flowtableentry}).
 \\\\
-Packets are received on \emph{ports}. Matching starts at the first flow table and may continue to additional flow tables (see \ref{sec:pipeline}). Flow entries match packets in priority order, with the first matching entry in each table being used (see \ref{sec:matching}). If a matching entry is found, the instructions associated with the specific flow entry are executed. If no match is found in a flow table, the outcome depends on switch configuration: the packet may be forwarded to the controller over the OpenFlow channel, dropped, or may continue to the next flow table (see \ref{sec:pipeline}).
+Matching starts at the first flow table and may continue to additional flow tables (see \ref{sec:pipeline}). Flow entries match packets in priority order, with the first matching entry in each table being used (see \ref{sec:matching}). If a matching entry is found, the instructions associated with the specific flow entry are executed. If no match is found in a flow table, the outcome depends on switch configuration: the packet may be forwarded to the controller over the OpenFlow channel, dropped, or may continue to the next flow table (see \ref{sec:pipeline}).
 \\\\
 Instructions associated with each flow entry describe packet forwarding, packet modification, group table processing, and pipeline processing (see \ref{ft:instructions}). Pipeline processing instructions allow packets to be sent to subsequent tables for further processing and allow information, in the form of metadata, to be communicated between tables. Table pipeline processing stops when the instruction set associated with a matching flow entry does not specify a next table; at this point the packet is usually modified and forwarded (see \ref{ft:actionset}).
 \\\\
@@ -86,7 +86,7 @@ This section describes key OpenFlow specification terms:
 \begin{itemize}
 \item \textbf{Byte}: an 8-bit octet.
 \item \textbf{Packet}: an Ethernet frame, including header and payload.
-\item \textbf{Pipeline}: how OpenFlow process packets.
+\item \textbf{Pipeline}: the set of linked tables that provide matching, forwarding, and packet modifications in an OpenFlow switch.
 \item \textbf{Port}: where packets enter and exit the OpenFlow pipeline. May be a physical port, a logical port defined by the switch or a virtual port defined by the OpenFlow protocol. Virtual ports are ports reserved ports by this specification (see \ref{ft:actions}). Logical ports are higher level abstractions that may be defined in the switch using non-OpenFlow methods (e.g. link aggregation groups, tunnels, loopback interfaces).
 \item \textbf{Match Field}: a field against which a packet is matched, including packet headers, the ingress port, and the metadata value.
 \item \textbf{Metadata}: a maskable register value that is used to carry information from one table to the next.
