@@ -200,10 +200,10 @@ The following group types are defined:
 \begin{sideways}VLAN priority \end{sideways} &
 \begin{sideways}MPLS label \end{sideways} &
 \begin{sideways}MPLS traffic class \end{sideways} &
-\begin{sideways}IP src \end{sideways} &
-\begin{sideways}IP dst \end{sideways} &
-\begin{sideways}IP proto / ARP opcode \end{sideways} &
-\begin{sideways}IP ToS bits \end{sideways} &
+\begin{sideways}IPv4 src \end{sideways} &
+\begin{sideways}IPv4 dst \end{sideways} &
+\begin{sideways}IPv4 proto / ARP opcode \end{sideways} &
+\begin{sideways}IPv4 ToS bits \end{sideways} &
 \begin{sideways}TCP/ UDP / SCTP src port \end{sideways} &
 \begin{sideways}ICMP Type \end{sideways} &
 \begin{sideways}TCP/ UDP / SCTP dst port \end{sideways} &
@@ -220,7 +220,7 @@ Table \ref{table:match fields} shows the match fields an incoming packet is comp
 \begin{table}[hbp]
 \centering
 \footnotesize
-\begin{tabularx}{\textwidth}{ |X|X|X|X| }
+\begin{tabularx}{\textwidth}{ |X|c|X|X| }
 \hline Field & Bits & When applicable & Notes \\
 \hline Ingress Port & 32 & All packets & Numerical representation of incoming port, starting at 1. This may be a physical or switch-defined virtual port. \\
 \hline Metadata & 64 & Table 1 and above & \\
@@ -231,10 +231,10 @@ Table \ref{table:match fields} shows the match fields an incoming packet is comp
 \hline VLAN priority & 3 & All packets with VLAN tags & VLAN PCP field of \emph{outermost} VLAN tag. \\
 \hline MPLS label & 20 & All packets with MPLS tags & Match on \emph{outermost} MPLS tag. \\
 \hline MPLS traffic class & 3 & All packets with MPLS tags & Match on \emph{outermost} MPLS tag. \\
-\hline IP source address & 32 & All IP and ARP packets & Can use subnet mask or arbitrary bitmask \\
-\hline IP destination address & 32 & All IP and ARP packets & Can use subnet mask or arbitrary bitmask \\
-\hline IP protocol / ARP opcode & 8 & All IP and IP over Ethernet, ARP packets & Only the lower 8 bits of the ARP opcode are used \\
-\hline IP ToS bits & 6 & All IP packets & Specify as 8-bit value and place ToS in upper 6 bits. \\
+\hline IPv4 source address & 32 & All IPv4 and ARP packets & Can use subnet mask or arbitrary bitmask \\
+\hline IPv4 destination address & 32 & All IPv4 and ARP packets & Can use subnet mask or arbitrary bitmask \\
+\hline IPv4 protocol / ARP opcode & 8 & All IPv4 and IPv4 over Ethernet, ARP packets & Only the lower 8 bits of the ARP opcode are used \\
+\hline IPv4 ToS bits & 6 & All IPv4 packets & Specify as 8-bit value and place ToS in upper 6 bits. \\
 \hline Transport source port / ICMP Type & 16 & All TCP, UDP, SCTP, and ICMP packets & Only lower 8 bits used for ICMP Type \\
 \hline Transport destination port / ICMP Code & 16 & All TCP, UDP, SCTP, and ICMP packets & Only lower 8 bits used for ICMP Code \\
 \hline
