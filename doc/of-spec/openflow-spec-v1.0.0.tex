@@ -605,7 +605,7 @@ Controller/switch messages are initiated by the controller and may or may not re
 \\\\
 \textbf{Read-State:} Read-State messages are used by the controller to collect statistics from the switch.
 \\\\\
-\textbf{Send-Packet}:  These are used by the controller to send packets out of a specified port on the switch.
+\textbf{Packet-out}:  These are used by the controller to send packets out of a specified port on the switch. The message may contains the full packet or a buffer ID referencing a packet stored in the switch. The message also contains a list of actions to be applied in the order they are specifed, an empty action list drops the packet.
 \\\\
 \textbf{Barrier}: Barrier request/reply messages are used by the controller to ensure message dependencies have been met or to receive notifications for completed operations.  
 
@@ -613,7 +613,7 @@ Controller/switch messages are initiated by the controller and may or may not re
 \label{sec:asynchronous}
 Asynchronous messages are sent without the controller soliciting them from a switch.  Switches send asynchronous messages to the controller to denote a packet arrival, switch state change, or error.  The four main asynchronous message types are described below.
 \\\\
-\textbf{Packet-in:} For all packets that do not have a matching flow entry, a packet-in event may be sent to the controller (depending on the table configuration). For all packets forwarded to the \textbf{CONTROLLER} virtual port, a packet-in event is always sent to the controller.  If the switch has sufficient memory to buffer packets that are sent to the controller, the packet-in events contain some fraction of the packet header (by default \input{define/OFP_DEFAULT_MISS_SEND_LEN} bytes) and a buffer ID to be used by the controller when it is ready for the switch to forward the packet.  Switches that do not support internal buffering (or have run out of internal buffering) must send the full packet to the controller as part of the event.
+\textbf{Packet-in:} For all packets that do not have a matching flow entry, a packet-in event may be sent to the controller (depending on the table configuration). For all packets forwarded to the \textbf{CONTROLLER} virtual port, a packet-in event is always sent to the controller.  If the switch has sufficient memory to buffer packets that are sent to the controller, the packet-in events contain some fraction of the packet header (by default \input{define/OFP_DEFAULT_MISS_SEND_LEN} bytes) and a buffer ID to be used by the controller when it is ready for the switch to forward the packet.  Switches that do not support internal buffering (or have run out of internal buffering) must send the full packet to the controller as part of the event. Buffered packets will usually be processed via a \textbf{Packet-out} message from the controller, or automatically expired after some time.
 \\\\
 \textbf{Flow-Removed:} When a flow entry is added to the switch by a flow modify message, an idle timeout value indicates when the entry should be removed due to a lack of activity, as well as a hard timeout value that indicates when the entry should be removed, regardless of activity.  The flow modify message also specifies whether the switch should send a flow removed message to the controller when the flow expires.  Flow modify messages which delete flows should generate flow removed messages for any flows with the \verb|OFPFF_SEND_FLOW_REM| flag set.
 \\\\
