@@ -314,7 +314,7 @@ struct ofp_port_status {
     uint8_t pad[7];          /* Align to 64-bits. */
     struct ofp_port desc;
 };
-OFP_ASSERT(sizeof(struct ofp_port_status) == 64);
+OFP_ASSERT(sizeof(struct ofp_port_status) == 80);
 
 /* Modify behavior of the physical port */
 struct ofp_port_mod {
@@ -332,7 +332,7 @@ struct ofp_port_mod {
 
     uint32_t advertise;     /* Bitmap of OFPPF_*.  Zero all bits to prevent
                                any action taking place. */
-    unit8_t pad3[4];        /* Pad to 64 bits. */
+    uint8_t pad3[4];        /* Pad to 64 bits. */
 };
 OFP_ASSERT(sizeof(struct ofp_port_mod) == 40);
 
@@ -401,7 +401,7 @@ struct ofp_action_set_output_port {
     uint16_t len;                   /* Length is 16. */
     uint32_t port;                  /* Output port. */
     uint16_t max_len;               /* Max length to send to controller. */
-    unit8_t pad[2];                 /* Pad to 32 bits. */
+    uint8_t pad[6];                 /* Pad to 64 bits. */
 };
 OFP_ASSERT(sizeof(struct ofp_action_set_output_port) == 16);
 
@@ -714,8 +714,9 @@ enum ofp_instruction_type {
 struct ofp_instruction {
     uint16_t type;                /* Instruction type */
     uint16_t len;                 /* Length of this struct in bytes. */
+    uint8_t pad[4];               /* Align to 64-bits */
 };
-OFP_ASSERT(sizeof(struct ofp_instruction) == 4);
+OFP_ASSERT(sizeof(struct ofp_instruction) == 8);
 
 /* Instruction structure for OFPIT_GOTO_TABLE */
 struct ofp_instruction_goto_table {
@@ -730,27 +731,29 @@ OFP_ASSERT(sizeof(struct ofp_instruction_goto_table) == 8);
 struct ofp_instruction_write_metadata {
     uint16_t type;                /* OFPIT_WRITE_METADATA */
     uint16_t len;                 /* Length of this struct in bytes. */
+    uint8_t pad[4];               /* Align to 64-bits */
     uint64_t metadata;            /* Metadata value to write */
     uint64_t metadata_mask;       /* Metadata write bitmask */
 };
-OFP_ASSERT(sizeof(struct ofp_instruction_write_metadata) == 20);
+OFP_ASSERT(sizeof(struct ofp_instruction_write_metadata) == 24);
 
 /* Instruction structure for OFPIT_WRITE/APPLY/CLEAR_ACTIONS */
 struct ofp_instruction_actions {
     uint16_t type;              /* One of OFPIT_*_ACTIONS */
     uint16_t len;               /* Length of this struct in bytes. */
+    uint8_t pad[4];             /* Align to 64-bits */
     struct ofp_action_header actions[0];  /* Actions associated with
                                              OFPIT_WRITE_ACTIONS and
                                              OFPIT_APPLY_ACTIONS */
 };
-OFP_ASSERT(sizeof(ofp_instruction_actions) == 12);
+OFP_ASSERT(sizeof(struct ofp_instruction_actions) == 8);
 
 /* Instruction structure for experimental instructions */
 struct ofp_instruction_experimenter {
     uint16_t type;		/* OFPIT_EXPERIMENTER */
     uint16_t len;               /* Length of this struct in bytes */
 };
-OFP_ASSERT(sizeof(ofp_instruction_experimenter) == 4);
+OFP_ASSERT(sizeof(struct ofp_instruction_experimenter) == 8);
 
 enum ofp_flow_mod_flags {
     OFPFF_SEND_FLOW_REM = 1 << 0,  /* Send flow removed message when flow
@@ -784,11 +787,11 @@ struct ofp_flow_mod {
                                      output group.  A value of OFPG_ANY
                                      indicates no restriction. */
     uint16_t flags;               /* One of OFPFF_*. */
-    uint8_t pad[6];
+    uint8_t pad[2];
     struct ofp_match match;       /* Fields to match */
     struct ofp_instruction instructions[0]; /* Instruction set */
 };
-OFP_ASSERT(sizeof(struct ofp_flow_mod) == 120);
+OFP_ASSERT(sizeof(struct ofp_flow_mod) == 136);
 
 /* Group numbering. Groups can use any number up to OFPG_MAX. */
 enum ofp_group {
@@ -803,6 +806,26 @@ enum ofp_group {
                                       group (including flows with no group).
                                       */
 };
+
+/* Bucket for use in groups. */
+struct ofp_bucket {
+    uint16_t len;                   /* Length the bucket in bytes, including
+                                       this header and any padding to make it
+                                       64-bit aligned. */
+    uint16_t weight;                /* Relative weight of bucket.  Only
+                                       defined for select groups. */
+    uint32_t watch_port;            /* Port whose state affects whether this
+                                       bucket is live.  Only required for fast
+                                       failover groups. */
+    uint32_t watch_group;           /* Group whose state affects whether this
+                                       bucket is live.  Only required for fast
+                                       failover groups. */
+    uint8_t pad[4];
+    struct ofp_action_header actions[0]; /* The action length is inferred
+                                           from the length field in the
+                                           header. */
+};
+OFP_ASSERT(sizeof(struct ofp_bucket) == 16);
 
 /* Group setup and teardown (controller -> datapath). */
 struct ofp_group_mod {
@@ -824,25 +847,6 @@ enum ofp_group_type {
     OFPGT_INDIRECT, /* Indirect group. */
     OFPGT_FF        /* Fast failover group. */
 };
-
-/* Bucket for use in groups. */
-struct ofp_bucket {
-    uint16_t len;                   /* Length the bucket in bytes, including
-                                       this header and any padding to make it
-                                       64-bit aligned. */
-    uint16_t weight;                /* Relative weight of bucket.  Only
-                                       defined for select groups. */
-    uint32_t watch_port;            /* Port whose state affects whether this
-                                       bucket is live.  Only required for fast
-                                       failover groups. */
-    uint32_t watch_group;           /* Group whose state affects whether this
-                                       bucket is live.  Only required for fast
-                                       failover groups. */
-    struct ofp_action_header actions[0]; /* The action length is inferred
-                                           from the length field in the
-                                           header. */
-};
-OFP_ASSERT(sizeof(struct ofp_action_header) == 8);
 
 /* Why was this flow removed? */
 enum ofp_flow_removed_reason {
@@ -869,7 +873,7 @@ struct ofp_flow_removed {
     uint64_t byte_count;
     struct ofp_match match;   /* Description of fields. */
 };
-OFP_ASSERT(sizeof(struct ofp_flow_removed) == 88);
+OFP_ASSERT(sizeof(struct ofp_flow_removed) == 136);
 
 /* Values for 'type' in ofp_error_message.  These values are immutable: they
  * will not change in future versions of the protocol (although new values may
@@ -1141,7 +1145,7 @@ struct ofp_flow_stats {
     struct ofp_match match;   /* Description of fields. */
     struct ofp_instruction instructions[0]; /* Instruction set. */
 };
-OFP_ASSERT(sizeof(struct ofp_flow_stats) == 88);
+OFP_ASSERT(sizeof(struct ofp_flow_stats) == 136);
 
 /* Body for ofp_stats_request of type OFPST_AGGREGATE. */
 struct ofp_aggregate_stats_request {
@@ -1177,7 +1181,7 @@ OFP_ASSERT(sizeof(struct ofp_aggregate_stats_reply) == 24);
 struct ofp_table_stats {
     uint8_t table_id;        /* Identifier of table.  Lower numbered tables
                                 are consulted first. */
-    uint8_t pad[3];          /* Align to 32-bits. */
+    uint8_t pad[7];          /* Align to 64-bits. */
     char name[OFP_MAX_TABLE_NAME_LEN];
     uint32_t wildcards;      /* Bitmap of OFPFW_* wildcards that are
                                 supported by the table. */
@@ -1194,7 +1198,7 @@ struct ofp_table_stats {
     uint64_t lookup_count;   /* Number of packets looked up in table. */
     uint64_t matched_count;  /* Number of packets that hit table. */
 };
-OFP_ASSERT(sizeof(struct ofp_table_stats) == 76)
+OFP_ASSERT(sizeof(struct ofp_table_stats) == 88);
 
 /* Body for ofp_stats_request of type OFPST_PORT. */
 struct ofp_port_stats_request {
@@ -1242,6 +1246,13 @@ OFP_ASSERT(sizeof(struct ofp_group_stats_request) == 8);
 /* All ones is used to indicate all groups on a switch. */
 #define OFPG_ALL      0xffffffff
 
+/* Used in group stats replies. */
+struct ofp_bucket_counter {
+    uint64_t packet_count;   /* Number of packets processed by bucket. */
+    uint64_t byte_count;     /* Number of bytes processed by bucket. */
+};
+OFP_ASSERT(sizeof(struct ofp_bucket_counter) == 16);
+
 /* Body of reply to OFPST_GROUP request. */
 struct ofp_group_stats {
     uint16_t length;         /* Length of this entry. */
@@ -1256,13 +1267,6 @@ struct ofp_group_stats {
 };
 OFP_ASSERT(sizeof(struct ofp_group_stats) == 32);
 
-/* Used in group stats replies. */
-struct ofp_bucket_counter {
-    uint64_t packet_count;   /* Number of packets processed by bucket. */
-    uint64_t byte_count;     /* Number of bytes processed by bucket. */
-};
-OFP_ASSERT(sizeof(struct ofp_bucket_counter) == 16);
-
 /* Body of reply to OFPST_GROUP_DESC request. */
 struct ofp_group_desc_stats {
     uint16_t length;              /* Length of this entry. */
@@ -1271,7 +1275,7 @@ struct ofp_group_desc_stats {
     uint32_t group_id;            /* Group identifier. */
     struct ofp_bucket buckets[0];
 };
-OFP_ASSERT(sizeof(struct ofp_group_desc_stats) == 16);
+OFP_ASSERT(sizeof(struct ofp_group_desc_stats) == 8);
 
 /* Experimenter extension. */
 struct ofp_experimenter_header {
