@@ -207,6 +207,7 @@ enum ofp_capabilities {
     OFPC_FLOW_STATS     = 1 << 0,  /* Flow statistics. */
     OFPC_TABLE_STATS    = 1 << 1,  /* Table statistics. */
     OFPC_PORT_STATS     = 1 << 2,  /* Port statistics. */
+    OFPC_GROUP_STATS    = 1 << 3,  /* Group statistics. */
     OFPC_IP_REASM       = 1 << 5,  /* Can reassemble IP fragments. */
     OFPC_QUEUE_STATS    = 1 << 6,  /* Queue statistics. */
     OFPC_ARP_MATCH_IP   = 1 << 7   /* Match IP addresses in ARP pkts. */
@@ -752,6 +753,11 @@ OFP_ASSERT(sizeof(struct ofp_instruction_actions) == 8);
 struct ofp_instruction_experimenter {
     uint16_t type;		/* OFPIT_EXPERIMENTER */
     uint16_t len;               /* Length of this struct in bytes */
+    uint32_t experimenter;      /* Experimenter ID:
+                                 * - MSB 0: low-order bytes are IEEE OUI.
+                                 * - MSB != 0: defined by OpenFlow
+                                 *   consortium. */
+    /* Experimenter-defined arbitrary additional data. */
 };
 OFP_ASSERT(sizeof(struct ofp_instruction_experimenter) == 8);
 
@@ -1177,15 +1183,35 @@ struct ofp_aggregate_stats_reply {
 };
 OFP_ASSERT(sizeof(struct ofp_aggregate_stats_reply) == 24);
 
+/* Flow match fields. */
+enum ofp_flow_match_fields {
+    OFPFMF_IN_PORT     = 1 << 0,  /* Switch input port. */
+    OFPFMF_DL_VLAN     = 1 << 1,  /* VLAN id. */
+    OFPFMF_DL_VLAN_PCP = 1 << 2,  /* VLAN priority. */
+    OFPFMF_DL_TYPE     = 1 << 3,  /* Ethernet frame type. */
+    OFPFMF_NW_TOS      = 1 << 4,  /* IP ToS (DSCP field, 6 bits). */
+    OFPFMF_NW_PROTO    = 1 << 5,  /* IP protocol. */
+    OFPFMF_TP_SRC      = 1 << 6,  /* TCP/UDP/SCTP source port. */
+    OFPFMF_TP_DST      = 1 << 7,  /* TCP/UDP/SCTP destination port. */
+    OFPFMF_MPLS_LABEL  = 1 << 8,  /* MPLS label. */
+    OFPFMF_MPLS_TC     = 1 << 9,  /* MPLS TC. */
+    OFPFMF_TYPE        = 1 << 10, /* Match type. */
+    OFPFMF_DL_SRC      = 1 << 11, /* Ethernet source address. */
+    OFPFMF_DL_DST      = 1 << 12, /* Ethernet destination address. */
+    OFPFMF_NW_SRC      = 1 << 13, /* IP source address. */
+    OFPFMF_NW_DST      = 1 << 14, /* IP destination address. */
+    OFPFMF_METADATA    = 1 << 15, /* Metadata passed between tables. */
+};
+
 /* Body of reply to OFPST_TABLE request. */
 struct ofp_table_stats {
     uint8_t table_id;        /* Identifier of table.  Lower numbered tables
                                 are consulted first. */
     uint8_t pad[7];          /* Align to 64-bits. */
     char name[OFP_MAX_TABLE_NAME_LEN];
-    uint32_t wildcards;      /* Bitmap of OFPFW_* wildcards that are
+    uint32_t wildcards;      /* Bitmap of OFPFMF_* wildcards that are
                                 supported by the table. */
-    uint32_t match;          /* Bitmap of OFPFW_* that indicate the fields
+    uint32_t match;          /* Bitmap of OFPFMF_* that indicate the fields
                                 the table can match on. */
     uint32_t instructions;   /* Bitmap of OFPIT_* values supported. */
     uint32_t write_actions;  /* Bitmap of OFPAT_* that are supported
