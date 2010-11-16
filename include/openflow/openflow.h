@@ -858,7 +858,8 @@ enum ofp_group_type {
 enum ofp_flow_removed_reason {
     OFPRR_IDLE_TIMEOUT,         /* Flow idle time exceeded idle_timeout. */
     OFPRR_HARD_TIMEOUT,         /* Time exceeded hard_timeout. */
-    OFPRR_DELETE                /* Evicted by a DELETE flow mod. */
+    OFPRR_DELETE,               /* Evicted by a DELETE flow mod. */
+    OFPRR_GROUP_DELETE          /* Group was removed. */
 };
 
 /* Flow removed (datapath -> controller). */
