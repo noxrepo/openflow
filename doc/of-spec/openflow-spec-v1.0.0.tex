@@ -729,7 +729,7 @@ To delete all groups with a single message, specify \verb|OFPG_ALL| as the group
 Fast failover group support requires liveness monitoring, to determine the specific bucket to execute. Other group types are not required to implement liveness monitoring, but may optionally implement it.  If a switch cannot implement liveness checking for any bucket in a group, it must refuse the group mod and return an error.  The rules for determining liveness include:
 \begin{itemize}
 \item A port is considered live if it has the \verb|OFPPS_LIVE| flag set in its port state.  Port liveness may be managed by code outside of the OpenFlow portion of a switch, defined outside of the OpenFlow spec (such as Spanning Tree or a KeepAlive mechanism).  At a minimum, the port should not be considered live if the port config bit \verb|OFPPC_PORT_DOWN| indicates the port is down, or if the port state bit \verb|OFPPS_LINK_DOWN| indicates the link is down.
-\item A bucket is considered live if either the port or the group watched by the bucket are live.
+\item A bucket is considered live if either \verb|watch_port| is not \verb|OFPP_ANY| and the port watched is live, or if \verb|watch_group| is not \verb|OFPG_ANY| and the group watched is live.
 \item A group is considered live if a least one of its buckets is live.
 \end{itemize}
 
