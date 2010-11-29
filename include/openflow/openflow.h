@@ -1270,9 +1270,6 @@ struct ofp_group_stats_request {
 };
 OFP_ASSERT(sizeof(struct ofp_group_stats_request) == 8);
 
-/* All ones is used to indicate all groups on a switch. */
-#define OFPG_ALL      0xffffffff
-
 /* Used in group stats replies. */
 struct ofp_bucket_counter {
     uint64_t packet_count;   /* Number of packets processed by bucket. */
