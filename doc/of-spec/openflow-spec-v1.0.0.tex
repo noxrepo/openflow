@@ -606,15 +606,15 @@ The OpenFlow protocol supports three message types, \emph{controller-to-switch},
 \subsubsection{Controller-to-Switch}
 Controller/switch messages are initiated by the controller and may or may not require a response from the switch.
 \\\\
-\textbf{Features:}  The controller may request the capabilities of a switch by sending a features request; the switch must respond with a features reply that specifies the capabilities of the switch. This is commonly performed upon establishment of the OpenFlow channel.
+\textbf{Features}:  The controller may request the capabilities of a switch by sending a features request; the switch must respond with a features reply that specifies the capabilities of the switch. This is commonly performed upon establishment of the OpenFlow channel.
 \\\\
-\textbf{Configuration:} The controller is able to set and query configuration parameters in the switch.  The switch only responds to a query from the controller.
+\textbf{Configuration}: The controller is able to set and query configuration parameters in the switch.  The switch only responds to a query from the controller.
 \\\\
-\textbf{Modify-State:} Modify-State messages are sent by the controller to manage state on the switches.  Their primary purpose is to add/delete and modify flows/groups in the OpenFlow tables and to set switch port properties.
+\textbf{Modify-State}: Modify-State messages are sent by the controller to manage state on the switches.  Their primary purpose is to add/delete and modify flows/groups in the OpenFlow tables and to set switch port properties.
 \\\\
-\textbf{Read-State:} Read-State messages are used by the controller to collect statistics from the switch.
-\\\\\
-\textbf{Packet-out}:  These are used by the controller to send packets out of a specified port on the switch. The message must contain the full packet or a buffer ID referencing a packet stored in the switch. The message must also contain a list of actions to be applied in the order they are specified; an empty action list drops the packet.
+\textbf{Read-State}: Read-State messages are used by the controller to collect statistics from the switch.
+\\\\
+\textbf{Packet-out}:  These are used by the controller to send packets out of a specified port on the switch, and to forward packets received via Packet-in messages. Packet-out messages must contain a full packet or a buffer ID referencing a packet stored in the switch. The message must also contain a list of actions to be applied in the order they are specified; an empty action list drops the packet.
 \\\\
 \textbf{Barrier}: Barrier request/reply messages are used by the controller to ensure message dependencies have been met or to receive notifications for completed operations.  
 

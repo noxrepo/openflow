@@ -484,7 +484,7 @@ Experimenter-specific stats messages are requested with the \verb|OFPST_EXPERIME
 \\\\
 The \verb|experimenter| field is a 32-bit value that uniquely identifies the experimenter. If the most significant byte is zero, the next three bytes are the experimenter's IEEE OUI. If experimenter does not have (or wish to use) their OUI, they should contact the OpenFlow consortium to obtain one. 
 
-\subsubsection{Send Packet Message}
+\subsubsection{Packet-Out Message}
 When the controller wishes to send a packet out through the datapath, it uses the \verb|OFPT_PACKET_OUT| message:
 
 \input{struct/ofp_packet_out}
