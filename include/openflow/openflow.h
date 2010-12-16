@@ -560,7 +560,7 @@ struct ofp_packet_out {
     uint32_t in_port;             /* Packet's input port (OFPP_ANY if none). */
     uint16_t actions_len;         /* Size of action array in bytes. */
     uint8_t pad[2];
-    struct ofp_action_header actions[0]; /* Actions. */
+    struct ofp_action_header actions[0]; /* Action list. */
     /* uint8_t data[0]; */        /* Packet data.  The length is inferred
                                      from the length field in the header.
                                      (Only meaningful if buffer_id == -1.) */
