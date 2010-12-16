@@ -557,7 +557,7 @@ OFP_ASSERT(sizeof(struct ofp_action_header) == 8);
 struct ofp_packet_out {
     struct ofp_header header;
     uint32_t buffer_id;           /* ID assigned by datapath (-1 if none). */
-    uint32_t in_port;             /* Packet's input port (OFPP_ANY if none). */
+    uint32_t in_port;             /* Packet's input port or OFPP_CONTROLLER. */
     uint16_t actions_len;         /* Size of action array in bytes. */
     uint8_t pad[2];
     struct ofp_action_header actions[0]; /* Action list. */
@@ -1376,7 +1376,7 @@ struct ofp_action_set_queue {
 OFP_ASSERT(sizeof(struct ofp_action_set_queue) == 8);
 
 struct ofp_queue_stats_request {
-    uint32_t port_no;        /* All ports if OFPT_ALL. */
+    uint32_t port_no;        /* All ports if OFPP_ANY. */
     uint32_t queue_id;       /* All queues if OFPQ_ALL. */
 };
 OFP_ASSERT(sizeof(struct ofp_queue_stats_request) == 8);

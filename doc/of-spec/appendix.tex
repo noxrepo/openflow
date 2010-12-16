@@ -454,16 +454,10 @@ The \verb|body| of the reply consists of an array of the following:
 The switch should return a value of -1 for unavailable counters.
 
 \paragraph{Queue Statistics}
-The \verb|OFPST_QUEUE| stats request message provides
-  queue statistics for one or more ports.
-  The request body consists of a \verb|port_no| field
-identifying the port and a \verb|queue_id|. \verb|OFPP_ALL|
-refers to all ports, while \verb|OFPQ_ALL| refers to all queues configured
-at a port.
+The \verb|OFPST_QUEUE| stats request message provides queue statistics for one or more ports and one or more queues. The request body contains a \verb|port_no| field identifying the OpenFlow port for which statistics are requested, or \verb|OFPP_ANY| to refer to all ports. The \verb|queue_id| field identifies one of the priority queues, or \verb|OFPQ_ALL| to refer to all queues configured at the specified port.
 
 \input{struct/ofp_queue_stats_request}
-The body of the reply consists of an array of
-the following structure:
+The body of the reply consists of an array of the following structure:
 
 \input{struct/ofp_queue_stats}
 \paragraph{Group Statistics}
@@ -494,7 +488,7 @@ When the controller wishes to send a packet out through the datapath, it uses th
 \input{struct/ofp_packet_out}
 The \verb|buffer_id| is the same given in the \verb|ofp_packet_in| message.  If the \verb|buffer_id| is -1, then the packet data is included in the data array.
 \\\\
-The \verb|action| field is an action list defining how the packet should be processed by the switch. It may include packet modification, group processing and an output port. The action list of a \verb|OFPT_PACKET_OUT| message can also specify the \verb|OFPP_TABLE| reserved virtual port as an output action to process the packet through the existing flow entries, starting at the first flow table. If \verb|OFPP_TABLE| is specified, the \verb|in_port| field is used as the ingress port in the flow table lookup.
+The \verb|action| field is an action list defining how the packet should be processed by the switch. It may include packet modification, group processing and an output port. The action list of an \verb|OFPT_PACKET_OUT| message can also specify the \verb|OFPP_TABLE| reserved virtual port as an output action to process the packet through the existing flow entries, starting at the first flow table. If \verb|OFPP_TABLE| is specified, the \verb|in_port| field is used as the ingress port in the flow table lookup.  The \verb|in_port| field must be set to either a valid switch port or \verb|OFPP_CONTROLLER|.
 
 \subsubsection{Barrier Message}
 When the controller wants to ensure message dependencies have been met or wants to receive notifications for completed operations, it may use an \verb|OFPT_BARRIER_REQUEST| message.  This message has no body.  Upon receipt, the switch must finish processing all previously-received messages before executing any messages beyond the Barrier Request.  When such processing is complete, the switch must send an \verb|OFPT_BARRIER_REPLY| message with the \verb|xid| of the original request.
