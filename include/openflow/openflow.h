@@ -362,7 +362,7 @@ struct ofp_packet_in {
 OFP_ASSERT(sizeof(struct ofp_packet_in) == 24);
 
 enum ofp_action_type {
-    OFPAT_SET_OUTPUT_PORT,  /* Set the output port for the packet. */
+    OFPAT_OUTPUT,           /* Output to switch port. */
     OFPAT_SET_VLAN_VID,     /* Set the 802.1q VLAN id. */
     OFPAT_SET_VLAN_PCP,     /* Set the 802.1q priority. */
     OFPAT_SET_DL_SRC,       /* Ethernet source address. */
@@ -393,18 +393,18 @@ enum ofp_action_type {
     OFPAT_EXPERIMENTER = 0xffff
 };
 
-/* Action structure for OFPAT_SET_OUTPUT_PORT, which sends packets out 'port'.
+/* Action structure for OFPAT_OUTPUT, which sends packets out 'port'.
  * When the 'port' is the OFPP_CONTROLLER, 'max_len' indicates the max
  * number of bytes to send.  A 'max_len' of zero means no bytes of the
  * packet should be sent.*/
-struct ofp_action_set_output_port {
-    uint16_t type;                  /* OFPAT_SET_OUTPUT_PORT. */
+struct ofp_action_output {
+    uint16_t type;                  /* OFPAT_OUTPUT. */
     uint16_t len;                   /* Length is 16. */
     uint32_t port;                  /* Output port. */
     uint16_t max_len;               /* Max length to send to controller. */
     uint8_t pad[6];                 /* Pad to 64 bits. */
 };
-OFP_ASSERT(sizeof(struct ofp_action_set_output_port) == 16);
+OFP_ASSERT(sizeof(struct ofp_action_output) == 16);
 
 /* Action structure for OFPAT_SET_VLAN_VID. */
 struct ofp_action_vlan_vid {
