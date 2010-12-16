@@ -624,7 +624,7 @@ Asynchronous messages are sent without the controller soliciting them from a swi
 \\\\
 \textbf{Packet-in:} For all packets that do not have a matching flow entry, a packet-in event may be sent to the controller (depending on the table configuration). For all packets forwarded to the \textbf{CONTROLLER} virtual port, a packet-in event is always sent to the controller.  If the switch has sufficient memory to buffer packets that are sent to the controller, the packet-in events contain some fraction of the packet header (by default \input{define/OFP_DEFAULT_MISS_SEND_LEN} bytes) and a buffer ID to be used by the controller when it is ready for the switch to forward the packet.  Switches that do not support internal buffering (or have run out of internal buffering) must send the full packet to the controller as part of the event. Buffered packets will usually be processed via a \textbf{Packet-out} message from the controller, or automatically expired after some time.
 \\\\
-\textbf{Flow-Removed:} When a flow entry is added to the switch by a flow modify message, an idle timeout value indicates when the entry should be removed due to a lack of activity, as well as a hard timeout value that indicates when the entry should be removed, regardless of activity.  The flow modify message also specifies whether the switch should send a flow removed message to the controller when the flow expires.  Flow modify messages which delete flows should generate flow removed messages for any flows with the \verb|OFPFF_SEND_FLOW_REM| flag set.
+\textbf{Flow-Removed:} When a flow entry is added to the switch by a flow modify message, an idle timeout value indicates when the entry should be removed due to a lack of activity, as well as a hard timeout value that indicates when the entry should be removed, regardless of activity.  The flow modify message also specifies whether the switch should send a flow removed message to the controller when the flow expires.  Flow delete requests should generate flow removed messages for any flows with the \verb|OFPFF_SEND_FLOW_REM| flag set.
 \\\\
 \textbf{Port-status:} The switch is expected to send port-status messages to the controller as port configuration state changes.  These events include change in port status events (for example, if it was brought down directly by a user).
 \\\\
@@ -667,7 +667,7 @@ Flow table modification messages can have the following types:
 \input{enum/ofp_flow_mod_command}
 For ADD requests with the \verb|OFPFF_CHECK_OVERLAP| flag set, the switch must first check for any overlapping flow entries.  Two flow entries overlap if a single packet may match both, and both entries have the same priority.  If an overlap conflict exists between an existing flow entry and the ADD request, the switch must refuse the addition and respond with an \verb|ofp_error_msg| with \verb|OFPET_FLOW_MOD_FAILED| type and \verb|OFPFMFC_OVERLAP| code.
 \\\\
-For valid (non-overlapping) ADD requests, or those with no overlap checking, the switch must insert the flow entry to the requested table.  If a flow entry with identical match fields and priority already resides in the requested table, then that entry, including its counters, must be removed, and the new flow entry added.
+For valid (non-overlapping) ADD requests, or those with no overlap checking, the switch must insert the flow entry to the requested table.  If a flow entry with identical match fields and priority already resides in the requested table, then that entry, including its counters, must be cleared from the table, and the new flow entry added. No flow-removed message is generated for the flow entry eliminated as part of an ADD request ; if the controller wants a flow-removed message it should explicitly send a DELETE\_STRICT for the old flow prior to adding the new one.
 \\\\
 If a switch cannot find any space in the requested table in which to add the incoming flow entry, the switch should send an \verb|ofp_error_msg| with \verb|OFPET_FLOW_MOD_FAILED| type and \verb|OFPFMFC_TABLE_FULL| code.
 \\\\
@@ -691,7 +691,7 @@ If an action in a flow mod message performs an operation which is inconsistent w
 \\\\
 If any other errors occur during the processing of the flow mod message, the switch may return an  \verb|ofp_error_msg| with \verb|OFPET_FLOW_MOD_FAILED| type and \verb|OFPFMC_UNKNOWN| code.
 \\\\
-For MODIFY requests, if a flow entry with identical match fields does not current reside in any table, the MODIFY acts like an ADD, and the new flow entry must be inserted with zeroed counters.  Otherwise, the actions field is changed on the existing entry and its counters, and idle time fields are left unchanged.
+For MODIFY requests, if a flow entry with identical match fields does not current reside in any table, the MODIFY acts like an ADD, and the new flow entry must be inserted with zeroed counters.  Otherwise, the actions field is changed on the existing entry, whereas its counters and idle time fields are left unchanged.
 \\\\
 For DELETE requests, if no flow entry matches, no error is recorded, and no flow table modification occurs.  If flow entries match, and must be deleted, then each entry with the \verb|OFPFF_SEND_FLOW_REM| flag set should generate a flow removed message.
 \\\\
