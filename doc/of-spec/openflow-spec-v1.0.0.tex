@@ -702,7 +702,9 @@ If an action in a flow mod message performs an operation which is inconsistent w
 If any other errors occur during the processing of the flow mod message, the switch may return an  \verb|ofp_error_msg| with \verb|OFPET_FLOW_MOD_FAILED| type and \verb|OFPFMC_UNKNOWN| code.
 \subsection{Flow Removal}
 
-Each flow entry has an \verb|idle_timeout| and a \verb|hard_timeout| associated with it.  If no packet has matched the rule in the last \verb|idle_timeout| seconds, or it has been \verb|hard_timeout| seconds since the flow was inserted, the switch removes the entry and sends a flow removed message.  In addition, the controller is able to actively remove entries by sending a flow message with the \verb|DELETE| or \verb|DELETE_STRICT| command.  Like the message used to add the entry, a removal message contains a description, which may include wild cards.
+Each flow entry has an \verb|idle_timeout| and a \verb|hard_timeout| associated with it.  If either value is non-zero, the switch must note the flow's arrival time, as it may need to evict the entry later.  A non-zero \verb|hard_timeout| field causes the flow entry to be removed after the given number of seconds, regardless of how many packets it has matched.  A non-zero \verb|idle_timeout| field causes the flow entry to be removed when it has matched no packets in the given number of seconds.  In addition, the controller may actively remove flow entries by sending DELETE or DELETE\_STRICT flow table modification messages.
+\\\\
+When a flow entry is removed, the switch must check the flow entry's \verb|OFPFF_SEND_FLOW_REM| flag.  If this flag is set, the switch must send a flow removed message to the controller.  Each flow removed message contains a complete description of the flow entry, the reason for removal (expiry or delete), the flow entry duration at the time of removal, and the flow statistics at time of removal.
 
 \subsection{Group Table Modification Messages}
 \label{group_table:sec_chan:group_mod}
