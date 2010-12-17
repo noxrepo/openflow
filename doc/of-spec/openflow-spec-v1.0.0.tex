@@ -331,7 +331,7 @@ Each flow entry contains a set of instructions that are executed when a packet m
 \item \textbf{Goto-Table \textit{next-table-id}}: Indicates the next table in the processing pipeline. The table-id must be greater than the current table-id. The flows of last table of the pipeline can not include this instruction (see \ref{sec:pipeline}).
 \end{itemize} 
 
-An instruction set contains a maximum of one instruction of each type. The instructions of the set executed in the order specified by this above list, in practice the only constraint is that the Clear-Actions instruction is executed before the Write-Actions instruction.
+An instruction set contains a maximum of one instruction of each type. The instructions of the set execute in the order specified by this above list.  In practice, the only constraint is that the Clear-Actions instruction is executed before the Write-Actions instruction.
 \\\\
 A switch may reject a flow entry if it is unable to execute the instructions associated with the flow entry. In this case, the switch must return an unsupported flow error.  Flow tables may not support every match and every instruction.
 \\\\
@@ -357,16 +357,16 @@ The actions in an action set are applied in the order specified below, regardles
 \item \textbf{output}: if no group action is specified, forward the packet on the port specified by the output action
 \end{enumerate}
 
-The output action in the action set is executed last. If both a output action and a group action are specified in an action set, the output action is ignored and the group action takes precedence. If no output action and no group action were specified in an action set, the packet is dropped. The execution of group is recursive ; a group bucket may specify an other group, in which case the execution of actions traverse all the groups specified by the group configuration.
+The output action in the action set is executed last. If both an output action and a group action are specified in an action set, the output action is ignored and the group action takes precedence. If no output action and no group action were specified in an action set, the packet is dropped. The execution of groups is recursive; a group bucket may specify another group, in which case the execution of actions traverses all the groups specified by the group configuration.
 
 \subsection{Action List}
 \label{ft:actionlist}
 
-The \textit{Apply-Action} instruction and the \textit{Packet-out} message include an action list. The semantic of the action list is identical to the OpenFlow 1.0 specification. The actions of an action list are executed in the order specified by the list, and are applied immediately to the packet.
+The \textit{Apply-Actions} instruction and the \textit{Packet-out} message include an action list. The semantic of the action list is identical to the OpenFlow 1.0 specification. The actions of an action list are executed in the order specified by the list, and are applied immediately to the packet.
 \\\\
 The execution of action start with the first action in the list and each action is executed on the packet in sequence. The effect of those actions is cumulative, if the action list contains two Push VLAN actions, two VLAN headers are added to the packet. If the action list list contains an output action, a copy of the packet is forwarded in its current state to the desired port. If the list contains a group actions, a copy of the packet in its current state is processed by the relevant group buckets.
 \\\\
-After the execution of the action list in a \textit{Apply-Action} instruction, pipeline execution continues, the packet may be matched by subsequent tables as needed and the packet instruction set is executed as needed. The instruction set is unchanged by the execution of the action list.
+After the execution of the action list in a \textit{Apply-Actions} instruction, pipeline execution continues, the packet may be matched by subsequent tables as needed and the packet instruction set is executed as needed. The instruction set is unchanged by the execution of the action list.
 
 \subsection{Actions}
 \label{ft:actions}
