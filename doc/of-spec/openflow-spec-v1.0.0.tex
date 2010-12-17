@@ -605,7 +605,7 @@ Controller/switch messages are initiated by the controller and may or may not re
 \\\\
 \textbf{Read-State:} Read-State messages are used by the controller to collect statistics from the switch.
 \\\\\
-\textbf{Packet-out}:  These are used by the controller to send packets out of a specified port on the switch. The message may contain the full packet or a buffer ID referencing a packet stored in the switch. The message also contains a list of actions to be applied in the order they are specified; an empty action list drops the packet.
+\textbf{Packet-out}:  These are used by the controller to send packets out of a specified port on the switch. The message must contain the full packet or a buffer ID referencing a packet stored in the switch. The message must also contain a list of actions to be applied in the order they are specified; an empty action list drops the packet.
 \\\\
 \textbf{Barrier}: Barrier request/reply messages are used by the controller to ensure message dependencies have been met or to receive notifications for completed operations.  
 
