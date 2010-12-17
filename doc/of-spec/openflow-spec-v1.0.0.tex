@@ -333,7 +333,7 @@ Each flow entry contains a set of instructions that are executed when a packet m
 
 A switch may reject a flow entry if it is unable to execute the instructions associated with the flow entry. In this case, the switch must return an unsupported flow error.  Flow tables may not support every match and every instruction.
 \\\\
-The instruction set associated with a flow entry contains a maximum of one instruction of each type. The order in which instructions are executed usually does not matter, the exception is that \emph{Clear-Actions} needs to be executed before \emph{Write-Actions}.
+The instruction set associated with a flow entry contains a maximum of one instruction of each type. The order in which instructions are executed usually does not matter; the exception is that \emph{Clear-Actions} needs to be executed before \emph{Write-Actions}.
 
 \subsection{Action Set}
 \label{ft:actionset}
