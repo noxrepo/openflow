@@ -667,7 +667,7 @@ Flow table modification messages can have the following types:
 \input{enum/ofp_flow_mod_command}
 For ADD requests with the \verb|OFPFF_CHECK_OVERLAP| flag set, the switch must first check for any overlapping flow entries.  Two flow entries overlap if a single packet may match both, and both entries have the same priority.  If an overlap conflict exists between an existing flow entry and the ADD request, the switch must refuse the addition and respond with an \verb|ofp_error_msg| with \verb|OFPET_FLOW_MOD_FAILED| type and \verb|OFPFMFC_OVERLAP| code.
 \\\\
-For valid (non-overlapping) ADD requests, or those with no overlap checking, the switch must insert the flow entry to the requested table.  If a flow entry with identical match fields and priority already resides in the requested table, then that entry, including its counters, must be cleared from the table, and the new flow entry added. No flow-removed message is generated for the flow entry eliminated as part of an ADD request ; if the controller wants a flow-removed message it should explicitly send a DELETE\_STRICT for the old flow prior to adding the new one.
+For valid (non-overlapping) ADD requests, or those with no overlap checking, the switch must insert the flow entry to the requested table.  If a flow entry with identical match fields and priority already resides in the requested table, then that entry, including its counters and duration, must be cleared from the table, and the new flow entry added. No flow-removed message is generated for the flow entry eliminated as part of an ADD request ; if the controller wants a flow-removed message it should explicitly send a DELETE\_STRICT for the old flow prior to adding the new one.
 \\\\
 If a switch cannot find any space in the requested table in which to add the incoming flow entry, the switch should send an \verb|ofp_error_msg| with \verb|OFPET_FLOW_MOD_FAILED| type and \verb|OFPFMFC_TABLE_FULL| code.
 \\\\
@@ -691,7 +691,7 @@ If an action in a flow mod message performs an operation which is inconsistent w
 \\\\
 If any other errors occur during the processing of the flow mod message, the switch may return an  \verb|ofp_error_msg| with \verb|OFPET_FLOW_MOD_FAILED| type and \verb|OFPFMC_UNKNOWN| code.
 \\\\
-For MODIFY requests, if a flow entry with identical match fields does not current reside in any table, the MODIFY acts like an ADD, and the new flow entry must be inserted with zeroed counters.  Otherwise, the actions field is changed on the existing entry, whereas its counters and idle time fields are left unchanged.
+For MODIFY requests, if a flow entry with identical match fields does not current reside in any table, the MODIFY acts like an ADD, and the new flow entry must be inserted with zeroed counters.  If a matching entry exist in the table, the timeout fields and actions field of this entry are changed the the new values, whereas its counters and duraction fields are left unchanged.
 \\\\
 For DELETE requests, if no flow entry matches, no error is recorded, and no flow table modification occurs.  If flow entries match, and must be deleted, then each entry with the \verb|OFPFF_SEND_FLOW_REM| flag set should generate a flow removed message.
 \\\\
