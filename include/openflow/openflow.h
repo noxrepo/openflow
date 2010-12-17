@@ -994,8 +994,11 @@ enum ofp_group_mod_failed_code {
 /* ofp_error_msg 'code' values for OFPET_PORT_MOD_FAILED.  'data' contains
  * at least the first 64 bytes of the failed request. */
 enum ofp_port_mod_failed_code {
-    OFPPMFC_BAD_PORT,            /* Specified port does not exist. */
-    OFPPMFC_BAD_HW_ADDR          /* Specified hardware address is wrong. */
+    OFPPMFC_BAD_PORT,            /* Specified port number does not exist. */
+    OFPPMFC_BAD_HW_ADDR,         /* Specified hardware address does not
+                                  * match the port number. */
+    OFPPMFC_BAD_CONFIG,          /* Specified config is invalid. */
+    OFPPMFC_BAD_ADVERTISE        /* Specified advertise is invalid. */
 };
 
 /* ofp_error_msg 'code' values for OFPET_TABLE_MOD_FAILED.  'data' contains
