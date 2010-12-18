@@ -566,8 +566,8 @@ Copy can be IP-to-IP, MPLS-to-MPLS, or MPLS-to-IP.
 \end{xtabular}
 
 \subsubsection{Default values for fields on push}
-\label{sec:push field defaults}
-Field values should be copied from existing outer headers to new outer headers when executing a push action. New fields without corresponding existing fields should be set to \emph{zero}. Table~\ref{table:push field copy} details the existing fields from which a new field may take it's value.
+\label{sec:push field defaults} 
+Field values for all fields specified in Table~\ref{table:push field copy} should be copied from existing outer headers to new outer headers when executing a push action. New fields listed in Table~\ref{table:push field copy} without corresponding existing fields should be set to zero.  Fields that cannot be modified via OpenFlow set-field actions should be initialized to appropriate protocol values.
 
 \begin{table}[hbp]
 \centering
