@@ -179,8 +179,8 @@ Each group entry (see Table \ref{table:group entry}) contains:
 The following group types are defined:
 
 \begin{itemize}
-\item \textbf{all}: Execute all buckets in the group.  Packets directed out the ingress port are dropped by default.  If the controller writer wants to forward out the ingress port, the bucket(s) should include a set-output-port action to the \verb|OFPP_IN_PORT| in each bucket where this is desired.  This group is used for multicast or broadcast forwarding.
-\item \textbf{select}: Execute one bucket in the group.  Packets are sent to a single bucket in the group, based on a switch-computed selection algorithm (e.g. hash on some user-configured tuple or simple round robin).  All configuration and state for the selection algorithm is external to OpenFlow.  When a port specified in a bucket in a select group goes down, the switch may restrict bucket selection to the remaining set (those with forwarding actions to live ports). This behavior may reduce the disruption of a downed link or switch.
+\item \textbf{all}: Execute all buckets in the group.  This group is used for multicast or broadcast forwarding.  The packet is effectively cloned for each bucket; one packet is processed for each bucket of the group.  If a bucket directs a packet explicitly out the ingress port, this packet clone is dropped.  If the controller writer wants to forward out the ingress port, the group should include an extra bucket which includes a set-output-port action to the \verb|OFPP_IN_PORT| virtual port.
+\item \textbf{select}: Execute one bucket in the group.  Packets are sent to a single bucket in the group, based on a switch-computed selection algorithm (e.g. hash on some user-configured tuple or simple round robin).  All configuration and state for the selection algorithm is external to OpenFlow.  When a port specified in a bucket in a select group goes down, the switch may restrict bucket selection to the remaining set (those with forwarding actions to live ports) instead of dropping packets destined to that port. This behavior may reduce the disruption of a downed link or switch.
 \item \textbf{indirect}: Execute the one defined bucket in this group.  Allows multiple flows or groups to point to a common group identifier, supporting faster, more efficient convergence (e.g. next hops for IP forwarding).  This group type is effectively identical to an all group with one bucket.
 \item \textbf{fast failover}: Execute the first live bucket.  Each action bucket is associated with a specific port and/or group that controls its liveness.  Enables the switch to change forwarding without requiring a round trip to the controller.  If no buckets are live, packets are dropped. This group type must implement a \textit{liveness mechanism}(see \ref{group_table:sec_chan:group_mod}).
 \end{itemize}
@@ -200,10 +200,10 @@ The following group types are defined:
 \begin{sideways}VLAN priority \end{sideways} &
 \begin{sideways}MPLS label \end{sideways} &
 \begin{sideways}MPLS traffic class \end{sideways} &
-\begin{sideways}IP src \end{sideways} &
-\begin{sideways}IP dst \end{sideways} &
-\begin{sideways}IP proto / ARP opcode \end{sideways} &
-\begin{sideways}IP ToS bits \end{sideways} &
+\begin{sideways}IPv4 src \end{sideways} &
+\begin{sideways}IPv4 dst \end{sideways} &
+\begin{sideways}IPv4 proto / ARP opcode \end{sideways} &
+\begin{sideways}IPv4 ToS bits \end{sideways} &
 \begin{sideways}TCP/ UDP / SCTP src port \end{sideways} &
 \begin{sideways}ICMP Type \end{sideways} &
 \begin{sideways}TCP/ UDP / SCTP dst port \end{sideways} &
@@ -220,7 +220,7 @@ Table \ref{table:match fields} shows the match fields an incoming packet is comp
 \begin{table}[hbp]
 \centering
 \footnotesize
-\begin{tabularx}{\textwidth}{ |X|X|X|X| }
+\begin{tabularx}{\textwidth}{ |X|c|X|X| }
 \hline Field & Bits & When applicable & Notes \\
 \hline Ingress Port & 32 & All packets & Numerical representation of incoming port, starting at 1. This may be a physical or switch-defined virtual port. \\
 \hline Metadata & 64 & Table 1 and above & \\
@@ -231,10 +231,10 @@ Table \ref{table:match fields} shows the match fields an incoming packet is comp
 \hline VLAN priority & 3 & All packets with VLAN tags & VLAN PCP field of \emph{outermost} VLAN tag. \\
 \hline MPLS label & 20 & All packets with MPLS tags & Match on \emph{outermost} MPLS tag. \\
 \hline MPLS traffic class & 3 & All packets with MPLS tags & Match on \emph{outermost} MPLS tag. \\
-\hline IP source address & 32 & All IP and ARP packets & Can use subnet mask or arbitrary bitmask \\
-\hline IP destination address & 32 & All IP and ARP packets & Can use subnet mask or arbitrary bitmask \\
-\hline IP protocol / ARP opcode & 8 & All IP and IP over Ethernet, ARP packets & Only the lower 8 bits of the ARP opcode are used \\
-\hline IP ToS bits & 6 & All IP packets & Specify as 8-bit value and place ToS in upper 6 bits. \\
+\hline IPv4 source address & 32 & All IPv4 and ARP packets & Can use subnet mask or arbitrary bitmask \\
+\hline IPv4 destination address & 32 & All IPv4 and ARP packets & Can use subnet mask or arbitrary bitmask \\
+\hline IPv4 protocol / ARP opcode & 8 & All IPv4 and IPv4 over Ethernet, ARP packets & Only the lower 8 bits of the ARP opcode are used \\
+\hline IPv4 ToS bits & 6 & All IPv4 packets & Specify as 8-bit value and place ToS in upper 6 bits. \\
 \hline Transport source port / ICMP Type & 16 & All TCP, UDP, SCTP, and ICMP packets & Only lower 8 bits used for ICMP Type \\
 \hline Transport destination port / ICMP Code & 16 & All TCP, UDP, SCTP, and ICMP packets & Only lower 8 bits used for ICMP Code \\
 \hline
@@ -332,12 +332,14 @@ Each flow entry contains a set of instructions that are executed when a packet m
 \end{itemize} 
 
 A switch may reject a flow entry if it is unable to execute the instructions associated with the flow entry. In this case, the switch must return an unsupported flow error.  Flow tables may not support every match and every instruction.
+\\\\
+The instruction set associated with a flow entry contains a maximum of one instruction of each type. The order in which instructions are executed usually does not matter; the exception is that \emph{Clear-Actions} needs to be executed before \emph{Write-Actions}.
 
 \subsection{Action Set}
 \label{ft:actionset}
 An action set is associated with each packet. This set is empty by default. A flow entry can modify the action set using instructions associated with a particular match. The action set is carried between flow tables. When an instruction set does not contain a \textit{Goto-Table} instruction, pipeline processing stops and the actions in the action set are executed. If the action set does not contain a set-output-port action, the packet will be dropped. The set-output-port action in the action set is executed last.
 \\\\
-An action set contains a maximum of one action of each type. When multiple actions of the same type are required, e.g. pushing multiple MPLS labels or popping multiple MPLS labels, the \emph{Apply-Actions} instruction may be used.
+An action set contains a maximum of one action of each type. When multiple actions of the same type are required, e.g. pushing multiple MPLS labels or popping multiple MPLS labels, the \emph{Apply-Actions} instruction may be used (see \ref{ft:instructions}). The actions of the \emph{Apply-Actions} instruction are executed while executing the instruction, and therefore prior to the execution of the action set.
 \\\\
 The actions in an action set are applied in the order specified below, regardless of the order that they were added to the set. If an action set contains a group action, the actions in the appropriate action bucket of the group are also applied in the order specified below.
 
@@ -603,7 +605,7 @@ Controller/switch messages are initiated by the controller and may or may not re
 \\\\
 \textbf{Read-State:} Read-State messages are used by the controller to collect statistics from the switch.
 \\\\\
-\textbf{Send-Packet}:  These are used by the controller to send packets out of a specified port on the switch.
+\textbf{Packet-out}:  These are used by the controller to send packets out of a specified port on the switch. The message must contain the full packet or a buffer ID referencing a packet stored in the switch. The message must also contain a list of actions to be applied in the order they are specified; an empty action list drops the packet.
 \\\\
 \textbf{Barrier}: Barrier request/reply messages are used by the controller to ensure message dependencies have been met or to receive notifications for completed operations.  
 
@@ -611,7 +613,7 @@ Controller/switch messages are initiated by the controller and may or may not re
 \label{sec:asynchronous}
 Asynchronous messages are sent without the controller soliciting them from a switch.  Switches send asynchronous messages to the controller to denote a packet arrival, switch state change, or error.  The four main asynchronous message types are described below.
 \\\\
-\textbf{Packet-in:} For all packets that do not have a matching flow entry, a packet-in event may be sent to the controller (depending on the table configuration). For all packets forwarded to the \textbf{CONTROLLER} virtual port, a packet-in event is always sent to the controller.  If the switch has sufficient memory to buffer packets that are sent to the controller, the packet-in events contain some fraction of the packet header (by default \input{define/OFP_DEFAULT_MISS_SEND_LEN} bytes) and a buffer ID to be used by the controller when it is ready for the switch to forward the packet.  Switches that do not support internal buffering (or have run out of internal buffering) must send the full packet to the controller as part of the event.
+\textbf{Packet-in:} For all packets that do not have a matching flow entry, a packet-in event may be sent to the controller (depending on the table configuration). For all packets forwarded to the \textbf{CONTROLLER} virtual port, a packet-in event is always sent to the controller.  If the switch has sufficient memory to buffer packets that are sent to the controller, the packet-in events contain some fraction of the packet header (by default \input{define/OFP_DEFAULT_MISS_SEND_LEN} bytes) and a buffer ID to be used by the controller when it is ready for the switch to forward the packet.  Switches that do not support internal buffering (or have run out of internal buffering) must send the full packet to the controller as part of the event. Buffered packets will usually be processed via a \textbf{Packet-out} message from the controller, or automatically expired after some time.
 \\\\
 \textbf{Flow-Removed:} When a flow entry is added to the switch by a flow modify message, an idle timeout value indicates when the entry should be removed due to a lack of activity, as well as a hard timeout value that indicates when the entry should be removed, regardless of activity.  The flow modify message also specifies whether the switch should send a flow removed message to the controller when the flow expires.  Flow modify messages which delete flows should generate flow removed messages for any flows with the \verb|OFPFF_SEND_FLOW_REM| flag set.
 \\\\
@@ -624,12 +626,12 @@ Symmetric messages are sent without solicitation, in either direction.
 \\\\
 \textbf{Hello:} Hello messages are exchanged between the switch and controller upon connection startup.
 \\\\
-\textbf{Echo:} Echo request/reply messages can be sent from either the switch or the controller, and must return an echo reply.  They can be used to indicate the latency, bandwidth, and/or liveness of a controller-switch connection.
+\textbf{Echo:} Echo request/reply messages can be sent from either the switch or the controller, and must return an echo reply.  They can be used to measure the latency or bandwidth of a controller-switch connection, as well as verify its liveness.
 \\\\
 \textbf{Experimenter:} Experimenter messages provide a standard way for OpenFlow switches to offer additional functionality within the OpenFlow message type space.  This is a staging area for features meant for future OpenFlow revisions.
 
 \subsection{Connection Setup}
-The switch must be able to establish communication with a controller at a user-configurable (but otherwise fixed) IP address, using a user-specified port.  Traffic to and from the OpenFlow channel is not run through the OpenFlow pipeline.  Therefore, the switch must identify incoming traffic as local before checking it against the flow tables.  Future versions of the protocol specification will describe a dynamic controller discovery protocol in which the IP address and port for communicating with the controller is determined at runtime.
+The switch must be able to establish communication with a controller at a user-configurable (but otherwise fixed) IP address, using a user-specified port.  If the switch knows the IP address of the controller, the switch initiates a standard TLS or TCP connection to the controller.  Traffic to and from the OpenFlow channel is not run through the OpenFlow pipeline.  Therefore, the switch must identify incoming traffic as local before checking it against the flow tables.  Future versions of the protocol specification will describe a dynamic controller discovery protocol in which the IP address and port for communicating with the controller is determined at runtime.
 \\\\
 When an OpenFlow connection is first established, each side of the connection must immediately send an \verb|OFPT_HELLO| message with the \verb|version| field set to the highest OpenFlow protocol version supported by the sender.  Upon receipt of this message, the recipient may calculate the OpenFlow protocol version to be used as the smaller of the version number that it sent and the one that it received.
 \\\\
@@ -638,7 +640,7 @@ If the negotiated version is supported by the recipient, then the connection pro
 \subsection{Connection Interruption}
 In the case that a switch loses contact with the current controller, as a result of an echo request timeout, TLS session timeout, or other disconnection, it should attempt to contact one or more backup controllers.  The ordering by which a switch contacts backup controllers is not specified by the protocol.
 \\\\
-The switch should \emph{immediately} enter either ``fail secure mode'' or ``fail standalone mode'' if it loses connection to the controller, depending upon the switch implementation and configuration. In ``fail secure mode'', the only change to switch behavior is that packets and messages destined to the current controller are dropped. Flows should continue to expire according to their timeouts in ``fail secure mode''. In ``fail standalone mode'', the switch processes all packets using the \verb|OFPP_NORMAL| port; in other words, the switch may as a legacy Ethernet switch or router.
+The switch should \emph{immediately} enter either ``fail secure mode'' or ``fail standalone mode'' if it loses connection to the controller, depending upon the switch implementation and configuration. In ``fail secure mode'', the only change to switch behavior is that packets and messages destined to the current controller are dropped. Flows should continue to expire according to their timeouts in ``fail secure mode''. In ``fail standalone mode'', the switch processes all packets using the \verb|OFPP_NORMAL| port; in other words, the switch acts as a legacy Ethernet switch or router.
 \\\\
 Upon connecting to a controller again, the existing flow entries remain.  The controller then has the option of deleting all flow entries, if desired.
 \\\\
@@ -688,7 +690,7 @@ MODIFY and DELETE flow mod commands have corresponding \_STRICT versions.   With
 \\\\
 For non-strict MODIFY and DELETE commands that contain wildcards, a match will occur when a flow entry exactly matches or is more specific than the description in the flow\_mod command. For example, if a DELETE command says to delete all flows with a destination port of 80, then a flow entry that is all wildcards will not be deleted. However, a DELETE command that is all wildcards will delete an entry that matches all port 80 traffic.  This same interpretation of mixed wildcard and exact match fields also applies to individual and aggregate flows stats.  
 \\\\
-DELETE and DELETE\_STRICT commands can be optionally filtered by destination group or output port.  If the \verb|out_port| field contains a value other than \verb|OFPP_ANY|, it introduces a constraint when matching.  This constraint is that the rule must contain a set-output-port action directed at the specified group or port.  This field is ignored by ADD, MODIFY, and MODIFY\_STRICT messages.
+DELETE and DELETE\_STRICT commands can be optionally filtered by destination group or output port.  If the \verb|out_port| field contains a value other than \verb|OFPP_ANY|, it introduces a constraint when matching.  This constraint is that each matching rule must contain a \emph{set-output-port} action directed at the specified port in the actions associated with that rule.  This constraint is limited to only the actions directly associated with the rule.  In other words, the switch must not recurse through the action sets of pointed-to groups, which may have matching \emph{set-output-port} actions.  The \verb|out_group|, if different from \verb|OFPG_ANY|, introduce a similar constraint on the \emph{group} action. Those fields are ignored by ADD, MODIFY, and MODIFY\_STRICT messages.
 \\\\
 MODIFY, MODIFY\_STRICT, DELETE and DELETE\_STRICT commands can also be filtered by cookie value, if the \verb|cookie_mask| field contains a value other than 0. This constraint is that the bits specified by the \verb|cookie_mask| in both the \verb|cookie| field of the flow mod and a flow's \verb|cookie| value must be equal. In other words, (flow.cookie \& flow\_mod.cookie\_mask) == (flow\_mod.cookie \& flow\_mod.cookie\_mask).
 
