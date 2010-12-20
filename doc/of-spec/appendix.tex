@@ -135,18 +135,19 @@ Flow instructions associated with a flow table entry are executed when a flow ma
 
 \input{enum/ofp_instruction_type}
 The instruction set is described in section \ref{ft:instructions}.  Flow tables may support a subset of instruction types.
-
+\\\\
 The \verb|OFPIT_GOTO_TABLE| instruction uses the following structure and fields:
 \input{struct/ofp_instruction_goto_table}
 \verb|table_id| indicates the next table in the packet processing pipeline.
-
+\\\\
 The \verb|OFPIT_WRITE_METADATA| instruction uses the following structure and fields:
 \input{struct/ofp_instruction_write_metadata}
 Metadata for the next table lookup can be written using the \verb|metadata| and the \verb|metadata_mask| in order to set specific bits on the match field.   If this instruction is not specified, the metadata is passed, unchanged.
-
+\\\\
 The \verb|OFPIT_WRITE_ACTIONS|, \verb|OFPIT_APPLY_ACTIONS|, and \verb|OFPIT_CLEAR_ACTIONS| instructions use the following structure and fields:
 \input{struct/ofp_instruction_actions}
 For the Apply-Actions instruction, the \verb|actions| field is treated as a list and the actions are applied to the packet \emph{in-order}. For the Write-Actions instruction, the \verb|actions| field is treated as a set and the actions are merged into the current action set.
+\\\\
 For the Clear-Actions instruction, the structure does not contain any actions.
 
 \subsubsection{Action Structures}
