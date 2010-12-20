@@ -325,9 +325,9 @@ Table \ref{table:counters} contains the set of counters.  Duration refers to the
 \subsection{Instructions}
 \label{ft:instructions}
 Each flow entry contains a set of instructions that are executed when a packet matches the entry. These instructions result in changes to the packet, action set and/or pipeline processing. Supported instructions include:
-\begin{itemize} 
-\item \textbf{Clear-Actions}: Clears all the actions in the action set immediately.
+\begin{itemize}
 \item \textbf{Apply-Actions \textit{action(s)}}: Applies the specific action(s) immediately, without any change to the Action Set. This instruction may be used to modify the packet between two tables or to execute multiple actions of the same type. The actions are specified as an action list (see \ref{ft:actionlist}).
+\item \textbf{Clear-Actions}: Clears all the actions in the action set immediately.
 \item \textbf{Write-Actions \textit{action(s)}}: Merges the specified action(s) into the current action set (see \ref{ft:actionset}).  If an action of the given type exists in the current set, overwrite it, otherwise add it.
 \item \textbf{Write-Metadata \textit{metadata / mask}}: Writes the masked metadata value into the metadata field. The mask specifies which bits of the metadata register should be modified (i.e. new\_metadata = old\_metadata \& \~{}mask $|$ value \& mask).
 \item \textbf{Goto-Table \textit{next-table-id}}: Indicates the next table in the processing pipeline. The table-id must be greater than the current table-id. The flows of last table of the pipeline can not include this instruction (see \ref{sec:pipeline}).
