@@ -339,7 +339,7 @@ A switch may reject a flow entry if it is unable to execute the instructions ass
 \label{ft:actionset}
 An action set is associated with each packet. This set is empty by default. A flow entry can modify the action set using a \textit{Write-Action} instruction or a \textit{Clear-Action} instruction associated with a particular match. The action set is carried between flow tables. When an instruction set does not contain a \textit{Goto-Table} instruction, pipeline processing stops and the actions in the action set are executed.
 \\\\
-An action set contains a maximum of one action of each type. When multiple actions of the same type are required, e.g. pushing multiple MPLS labels or popping multiple MPLS labels, the \emph{Apply-Actions} instruction may be used (see \ref{ft:instructions}). The actions of the \emph{Apply-Actions} instruction are executed while executing the instruction, and therefore prior to the execution of the action set.
+An action set contains a maximum of one action of each type. When multiple actions of the same type are required, e.g. pushing multiple MPLS labels or popping multiple MPLS labels, the \emph{Apply-Actions} instruction may be used (see \ref{ft:actionlist}).
 \\\\
 The actions in an action set are applied in the order specified below, regardless of the order that they were added to the set. If an action set contains a group action, the actions in the appropriate action bucket of the group are also applied in the order specified below. The switch may support arbitrary action execution order through the action list of the \textit{Apply-Actions} instruction.
 
