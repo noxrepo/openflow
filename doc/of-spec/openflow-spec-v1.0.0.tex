@@ -366,7 +366,7 @@ The \textit{Apply-Actions} instruction and the \textit{Packet-out} message inclu
 \\\\
 The execution of action start with the first action in the list and each action is executed on the packet in sequence. The effect of those actions is cumulative, if the action list contains two Push VLAN actions, two VLAN headers are added to the packet. If the action list list contains an output action, a copy of the packet is forwarded in its current state to the desired port. If the list contains a group actions, a copy of the packet in its current state is processed by the relevant group buckets.
 \\\\
-After the execution of the action list in a \textit{Apply-Actions} instruction, pipeline execution continues, the packet may be matched by subsequent tables as needed and the packet action set is executed as needed (see \ref{ft:actionset}). The action set of the packet is unchanged by the execution of the action list.
+After the execution of the action list in an \textit{Apply-Actions} instruction, pipeline execution continues on the modified packet (see \ref{sec:pipeline}). The action set of the packet is unchanged by the execution of the action list.
 
 \subsection{Actions}
 \label{ft:actions}
