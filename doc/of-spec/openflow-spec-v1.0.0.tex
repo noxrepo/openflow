@@ -270,6 +270,8 @@ If the packet is an Ethernet II frame, the Ethernet type of the Ethernet header 
 The switch should apply the instruction set and update the associated counters of \emph{only} the highest-priority flow entry matching the packet.  If there are multiple matching flow entries with the same highest priority, the matching flow entry is explicitly undefined.  This case can only arise when a controller writer never sets the \verb|CHECK_OVERLAP| bit on flow mod messages and adds overlapping entries.
 \\\\
 IP fragments must be reassembled before pipeline processing if the switch configuration contains the \verb|OFPC_FRAG_REASM| flag (see~\ref{sec:switch_config}).
+\\\\
+This version of the specification does \emph{not} define the expected behavior when a switch receives a malformed or corrupted packet. 
 
 
 \subsection{Counters}
