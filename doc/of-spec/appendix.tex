@@ -308,7 +308,7 @@ Modifications to the flow table from the controller are done with the \verb|OFPT
 \input{struct/ofp_flow_mod}
 The \verb|cookie| field is an opaque data value chosen by the controller.  This value appears in flow removed messages and flow statistics, and can also be used to filter flow statistics, flow modification and flow deletion (see \ref{sec:flow mod messages}). It is not used by the packet processing pipeline, and thus does not need to reside in hardware.  The value -1 (0xffffffffffffffff) is reserved and must not be used. When a flow is inserted in a table through an \verb|OFPC_ADD| message, its \verb|cookie| field is set to the provided value. When a flow is modified (\verb|OFPC_MODIFY| or \verb|OFPC_MODIFY_STRICT| messages), the \verb|cookie| field is ignored.
 \\\\
-If the \verb|cookie_mask| field is different from 0, it is used with the \verb|cookie| field to restrict flow matching when modifying or deleting flows. This field is ignored by \verb|OFPC_ADD| messages. The \verb|cookie_mask| field's behavior is explained in Section \ref{flow_table:sec_chan:flow_add}.
+If the \verb|cookie_mask| field is non-zero, it is used with the \verb|cookie| field to restrict flow matching while modifying or deleting flows.  When used in a modify, a non-zero \verb|cookie_mask| also prevents a new flow from getting inserted. This field is ignored by \verb|OFPC_ADD| messages. The \verb|cookie_mask| field's behavior is explained in Section \ref{flow_table:sec_chan:flow_add}.
 \\\\
 The \verb|table_id| field specifies the table into which the flow should be inserted.
 Table 0 signifies the first table in the pipeline. The behavior of \verb|table_id| value \verb|0xFF| is undefined.
