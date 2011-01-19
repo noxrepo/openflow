@@ -306,14 +306,9 @@ The \verb|OFPTC_TABLE_MISS_CONTINUE| flag directs unmatched packets to the next 
 Modifications to the flow table from the controller are done with the \verb|OFPT_FLOW_MOD| message:
 
 \input{struct/ofp_flow_mod}
-The \verb|cookie| field is an opaque data value that is set by the
-controller.  It is not used in any packet-matching functions, and thus does
-not need to reside in hardware.  The value -1 (0xffffffffffffffff) is
-reserved and must not be used.  It is required that when \verb|command| is
-\verb|OFPC_MODIFY| or \verb|OFPC_MODIFY_STRICT| that matched flows have
-their \verb|cookie| field updated with the new value.
+The \verb|cookie| field is an opaque data value chosen by the controller.  This value appears in flow removed messages and flow statistics, and can also be used to filter flow statistics, flow modification and flow deletion (see \ref{sec:flow mod messages}). It is not used by the packet processing pipeline, and thus does not need to reside in hardware.  The value -1 (0xffffffffffffffff) is reserved and must not be used. When a flow is inserted in a table through an \verb|OFPC_ADD| message, its \verb|cookie| field is set to the provided value. When a flow is modified (\verb|OFPC_MODIFY| or \verb|OFPC_MODIFY_STRICT| messages), the \verb|cookie| field is ignored.
 \\\\
-The \verb|cookie_mask| field's behavior is explained in Section \ref{flow_table:sec_chan:flow_add}. It is used only to filter flows, then discarded.
+If the \verb|cookie_mask| field is different from 0, it is used with the \verb|cookie| field to restrict flow matching when modifying or deleting flows. This field is ignored by \verb|OFPC_ADD| messages. The \verb|cookie_mask| field's behavior is explained in Section \ref{flow_table:sec_chan:flow_add}.
 \\\\
 The \verb|table_id| field specifies the table into which the flow should be inserted.
 Table 0 signifies the first table in the pipeline. The behavior of \verb|table_id| value \verb|0xFF| is undefined.
@@ -321,19 +316,19 @@ Table 0 signifies the first table in the pipeline. The behavior of \verb|table_i
 The \verb|command| field must be one of the following:
 
 \input{enum/ofp_flow_mod_command}
-The differences between \verb|OFPFC_MODIFY| and \verb|OFPFC_MODIFY_STRICT| are explained in Section \ref{flow_table:sec_chan:flow_mod} and differences between \verb|OFPFC_DELETE| and \verb|OFPFC_DELETE_STRICT| are explained in Section \ref{flow_table:sec_chan:flow_removal}. 
+The differences between \verb|OFPFC_MODIFY| and \verb|OFPFC_MODIFY_STRICT| are explained in Section \ref{flow_table:sec_chan:flow_mod} and differences between \verb|OFPFC_DELETE| and \verb|OFPFC_DELETE_STRICT| are explained in Section \ref{flow_table:sec_chan:flow_removal}.
 \\\\
-The \verb|idle_timeout| and \verb|hard_timeout| fields control how quickly flows expire.  
+The \verb|idle_timeout| and \verb|hard_timeout| fields control how quickly flows expire. When a flow is inserted in a table, its \verb|idle_timeout| and \verb|hard_timeout| fields are set with the values from the message. When a flow is modified (\verb|OFPC_MODIFY| or \verb|OFPC_MODIFY_STRICT| messages), the \verb|idle_timeout| and \verb|hard_timeout| fields are ignored.
 \\\\
 If the \verb|idle_timeout| is set and the \verb|hard_timeout| is zero, the entry must expire after \verb|idle_timeout| seconds with no received traffic.  If the \verb|idle_timeout| is zero and the \verb|hard_timeout| is set, the entry must expire in \verb|hard_timeout| seconds regardless of whether or not packets are hitting the entry.
 \\\\
 If both \verb|idle_timeout| and \verb|hard_timeout| are set, the flow will timeout after \verb|idle_timeout| seconds with no traffic, or \verb|hard_timeout| seconds, whichever comes first.  If both \verb|idle_timeout| and \verb|hard_timeout| are zero, the entry is considered permanent and will never time out.  It can still be removed with a \verb|flow_mod| message of type \verb|OFPFC_DELETE|. 
 \\\\
-The \verb|priority| indicates priority within the specified flow table table. Higher numbers indicate higher priorities.
+The \verb|priority| indicates priority within the specified flow table table. Higher numbers indicate higher priorities. This field is used only for \verb|OFPC_ADD|, \verb|OFPC_MODIFY| or \verb|OFPC_MODIFY_STRICT| messages.
 \\\\
-The \verb|buffer_id| refers to a buffered packet sent by the \verb|OFPT_PACKET_IN| message.
+The \verb|buffer_id| refers to a packet buffered at the switch and sent to the controller by a \verb|OFPT_PACKET_IN| message.  The packet in the switch referenced by the \verb|buffer_id| should be processed by the flow inserted or modified by a following \verb|OFPT_FLOW_MOD| message. This field is ignored by \verb|OFPC_DELETE| and \verb|OFPC_DELETE_STRICT| messages.
 \\\\
-The \verb|out_port| and \verb|out_group| fields optionally filter the scope of DELETE and DELETE\_STRICT messages by output port and group.  If either \verb|out_port| or \verb|out_group| contains a value other than \verb|OFPP_ANY| or \verb|OFPG_ANY| respectively, it introduces a constraint when matching.  This constraint is that the rule must contain an output action directed at that port or group.  Other constraints such as \verb|ofp_match| structs and priorities are still used; this is purely an \emph{additional} constraint.  Note that to disable output filtering, both \verb|out_port| and \verb|out_group| must be set to \verb|OFPP_ANY| and \verb|OFPG_ANY| respectively.  This field is ignored by ADD, MODIFY, and MODIFY\_STRICT messages.
+The \verb|out_port| and \verb|out_group| fields optionally filter the scope of  \verb|OFPC_DELETE| and \verb|OFPC_DELETE_STRICT| messages by output port and group.  If either \verb|out_port| or \verb|out_group| contains a value other than \verb|OFPP_ANY| or \verb|OFPG_ANY| respectively, it introduces a constraint when matching.  This constraint is that the rule must contain an output action directed at that port or group.  Other constraints such as \verb|ofp_match| structs and priorities are still used; this is purely an \emph{additional} constraint.  Note that to disable output filtering, both \verb|out_port| and \verb|out_group| must be set to \verb|OFPP_ANY| and \verb|OFPG_ANY| respectively.  This field is ignored by \verb|OFPC_ADD|, \verb|OFPC_MODIFY| or \verb|OFPC_MODIFY_STRICT| messages.
 \\\\
 The \verb|flags| field may include the follow flags:
 
@@ -341,6 +336,8 @@ The \verb|flags| field may include the follow flags:
 When the \verb|OFPFF_SEND_FLOW_REM| flag is set, the switch must send a flow removed message when the flow expires.
 \\\\
 When the \verb|OFPFF_CHECK_OVERLAP| flag is set, the switch must check that there are no conflicting entries with the same priority. If there is one, the flow mod fails and an error code is returned.
+\\\\
+When a flow is inserted in a table, its \verb|flags| field is set with the values from the message. When a flow is matched and modified (\verb|OFPC_MODIFY| or \verb|OFPC_MODIFY_STRICT| messages), the \verb|flags| field is ignored.
 \\\\
 The \verb|instructions| field contains the instruction set for the flow entry when adding or modifying entries. The switch should return an error with \verb|OFPET_BAD_ACTION| and \verb|OFPBAC_UNSUPPORTED_ORDER| type and code if the instruction set contains an Apply-Actions instruction and the action list contains an action order that the switch cannot support.
 
