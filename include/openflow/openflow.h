@@ -246,7 +246,7 @@ enum ofp_port_features {
     OFPPF_40GB_FD    = 1 << 7,  /* 40 Gb full-duplex rate support. */
     OFPPF_100GB_FD   = 1 << 8,  /* 100 Gb full-duplex rate support. */
     OFPPF_1TB_FD     = 1 << 9,  /* 1 Tb full-duplex rate support. */
-    OFPPF_LUDICROUS  = 1 << 10, /* Ludicrous rate either full or half duplex */
+    OFPPF_OTHER      = 1 << 10  /* Other rate, not in the list. */
 
     OFPPF_COPPER     = 1 << 11, /* Copper medium. */
     OFPPF_FIBER      = 1 << 12, /* Fiber medium. */
