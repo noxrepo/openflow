@@ -315,7 +315,7 @@ their \verb|cookie| field updated with the new value.
 The \verb|cookie_mask| field's behavior is explained in Section \ref{flow_table:sec_chan:flow_add}. It is used only to filter flows, then discarded.
 \\\\
 The \verb|table_id| field specifies the table into which the flow should be inserted.
-Table 0 signifies the first table in the pipeline.
+Table 0 signifies the first table in the pipeline. The behavior of \verb|table_id| value \verb|0xFF| is undefined.
 \\\\
 The \verb|command| field must be one of the following:
 

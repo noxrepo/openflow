@@ -683,7 +683,7 @@ DELETE and DELETE\_STRICT commands can be optionally filtered by destination gro
 \\\\
 MODIFY, MODIFY\_STRICT, DELETE and DELETE\_STRICT commands can also be filtered by cookie value, if the \verb|cookie_mask| field contains a value other than 0. This constraint is that the bits specified by the \verb|cookie_mask| in both the \verb|cookie| field of the flow mod and a flow's \verb|cookie| value must be equal. In other words, (flow.cookie \& flow\_mod.cookie\_mask) == (flow\_mod.cookie \& flow\_mod.cookie\_mask).
 \\\\
-If the flow modification message specifies an invalid table, the switch should send an \verb|ofp_error_msg| with \verb|OFPET_FLOW_MOD_FAILED| type and \verb|OFPFMFC_BAD_TABLE_ID| code.
+If the flow modification message specifies an invalid table or \verb|0xFF|, the switch should send an \verb|ofp_error_msg| with \verb|OFPET_FLOW_MOD_FAILED| type and \verb|OFPFMFC_BAD_TABLE_ID| code.
 \\\\
 If a switch cannot find any space in the requested table in which to add the incoming flow entry, the switch should send an \verb|ofp_error_msg| with \verb|OFPET_FLOW_MOD_FAILED| type and \verb|OFPFMFC_TABLE_FULL| code.
 \\\\
