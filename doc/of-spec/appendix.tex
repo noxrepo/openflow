@@ -90,7 +90,7 @@ There are also four match field masks: \verb|dl_src_mask|, \verb|dl_dst_mask|, \
 \\\\
 If no wildcards are set and the \verb|_mask| fields are all zero, then the \verb|ofp_match| exactly describes a flow, over the entire OpenFlow n-tuple.  On the other extreme, if all the wildcard flags and \verb|_mask| fields are set, then every flow will match.
 \\\\
-Setting the \verb|OFPFW_DL_VLAN| or \verb|OFPFW_MPLS_LABEL| bits in the \verb|wildcards| field specifies that flow should match packets regardless of whether they contain the corresponding tag. Special values are defined for the VLAN tag and MPLS label to allow the matching of packets without a tag, or packets with a tag independent of the tag's value. The special values defined for \verb|dl_vlan| are:
+Setting the \verb|OFPFW_DL_VLAN| or \verb|OFPFW_MPLS_LABEL| bits in the \verb|wildcards| field specifies that a flow should match packets regardless of whether they contain the corresponding tag. Special values are defined below for the VLAN tag and MPLS label to allow the matching of packets with any tag, independent of the tag's value.  Another special value supports matching packets without a VLAN tag, but there is no corresponding value for MPLS packets, since the ethertype can identify whether packets contain an MPLS header. The special values defined for \verb|dl_vlan| include:
 \input{enum/ofp_vlan_id}
 The special values defined for \verb|mpls_label| are:
 \input{enum/ofp_mpls_label}
@@ -120,8 +120,6 @@ Wildcard bit & \verb|dl_vlan| value & Matching packets \\
 Wildcard bit & \verb|mpls_label| value & Matching packets \\
 \hline
 \verb|OFPFW_MPLS_LABEL| & * & Packets with and without a MPLS shim header \\
-\hline
-- & \verb|OFPML_NONE| & Only packets \emph{without} a MPLS shim header \\
 \hline
 - & \verb|OFPML_ANY| & Only packets \emph{with} a MPLS shim header regardless of it's value \\
 \hline

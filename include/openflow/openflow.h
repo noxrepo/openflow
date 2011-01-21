@@ -636,7 +636,6 @@ enum ofp_mpls_label {
     OFPML_ANY  = 0xfffffe, /* Indicate that a MPLS label is set but don't care
                               about it's value. Note: only valid when
                               specifying the MPLS tag in a match */
-    OFPML_NONE = 0xffffff, /* No MPLS tag was set. */
 };
 
 /* The match type indicates the match structure (set of fields that compose the
