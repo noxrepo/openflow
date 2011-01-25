@@ -559,13 +559,13 @@ struct ofp_packet_out {
     uint32_t buffer_id;           /* ID assigned by datapath (-1 if none). */
     uint32_t in_port;             /* Packet's input port or OFPP_CONTROLLER. */
     uint16_t actions_len;         /* Size of action array in bytes. */
-    uint8_t pad[2];
+    uint8_t pad[6];
     struct ofp_action_header actions[0]; /* Action list. */
     /* uint8_t data[0]; */        /* Packet data.  The length is inferred
                                      from the length field in the header.
                                      (Only meaningful if buffer_id == -1.) */
 };
-OFP_ASSERT(sizeof(struct ofp_packet_out) == 20);
+OFP_ASSERT(sizeof(struct ofp_packet_out) == 24);
 
 enum ofp_flow_mod_command {
     OFPFC_ADD,              /* New flow. */
@@ -1085,9 +1085,10 @@ struct ofp_stats_request {
     struct ofp_header header;
     uint16_t type;              /* One of the OFPST_* constants. */
     uint16_t flags;             /* OFPSF_REQ_* flags (none yet defined). */
+    uint8_t pad[4];
     uint8_t body[0];            /* Body of the request. */
 };
-OFP_ASSERT(sizeof(struct ofp_stats_request) == 12);
+OFP_ASSERT(sizeof(struct ofp_stats_request) == 16);
 
 enum ofp_stats_reply_flags {
     OFPSF_REPLY_MORE  = 1 << 0  /* More replies to follow. */
@@ -1097,9 +1098,10 @@ struct ofp_stats_reply {
     struct ofp_header header;
     uint16_t type;              /* One of the OFPST_* constants. */
     uint16_t flags;             /* OFPSF_REPLY_* flags. */
+    uint8_t pad[4];
     uint8_t body[0];            /* Body of the reply. */
 };
-OFP_ASSERT(sizeof(struct ofp_stats_reply) == 12);
+OFP_ASSERT(sizeof(struct ofp_stats_reply) == 16);
 
 #define DESC_STR_LEN   256
 #define SERIAL_NUM_LEN 32
@@ -1310,9 +1312,10 @@ struct ofp_experimenter_header {
                                  * - MSB 0: low-order bytes are IEEE OUI.
                                  * - MSB != 0: defined by OpenFlow
                                  *   consortium. */
+    uint8_t pad[4];
     /* Experimenter-defined arbitrary additional data. */
 };
-OFP_ASSERT(sizeof(struct ofp_experimenter_header) == 12);
+OFP_ASSERT(sizeof(struct ofp_experimenter_header) == 16);
 
 /* All ones is used to indicate all queues in a port (for stats retrieval). */
 #define OFPQ_ALL      0xffffffff
@@ -1357,8 +1360,9 @@ struct ofp_queue_get_config_request {
     struct ofp_header header;
     uint32_t port;         /* Port to be queried. Should refer
                               to a valid physical port (i.e. < OFPP_MAX) */
+    uint8_t pad[4];
 };
-OFP_ASSERT(sizeof(struct ofp_queue_get_config_request) == 12);
+OFP_ASSERT(sizeof(struct ofp_queue_get_config_request) == 16);
 
 /* Queue configuration for a given port. */
 struct ofp_queue_get_config_reply {
