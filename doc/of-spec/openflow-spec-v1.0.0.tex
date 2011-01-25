@@ -689,7 +689,7 @@ If a switch cannot find any space in the requested table in which to add the inc
 \\\\
 If the match fields requested in a flow mod message are unsupported in the table, the switch must return an \verb|ofp_error_msg| with \verb|OFPET_FLOW_MOD_FAILED| type and \verb|OFPFMC_BAD_MATCH| code.
 \\\\
-If the instructions requested in a flow mod message are unsupported, the switch must return an \verb|ofp_error_msg| with \verb|OFPET_FLOW_MOD_FAILED| type and \verb|OFPFMC_BAD_INSTRUCTION| code.
+If the instructions requested in a flow mod message are unsupported, or if the instructions contain a Goto-Table and the next-table-id refers to an invalid table, the switch must return an \verb|ofp_error_msg| with \verb|OFPET_FLOW_MOD_FAILED| type and \verb|OFPFMC_BAD_INSTRUCTION| code.
 \\\\
 If the match in a flow mod specifies an arbitrary bitmask for either the datalink or network addresses which the switch cannot support, the switch must return an \verb|ofp_error_msg| with \verb|OFPET_FLOW_MOD_FAILED| type and either \verb|OFPFMFC_BAD_DL_ADDR_MASK| or \verb|OFPFMFC_BAD_NW_ADDR_MASK|. (If the bitmasks specified in \emph{both} the datalink and network addresses are not supported then \verb|OFPFMFC_BAD_DL_ADDR_MASK| should be used.)
 \\\\
