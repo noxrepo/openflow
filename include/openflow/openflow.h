@@ -888,13 +888,14 @@ enum ofp_error_type {
     OFPET_HELLO_FAILED,         /* Hello protocol failed. */
     OFPET_BAD_REQUEST,          /* Request was not understood. */
     OFPET_BAD_ACTION,           /* Error in action description. */
+    OFPET_BAD_INSTRUCTION,      /* Error in instruction list. */
+    OFPET_BAD_MATCH,            /* Error in match. */
     OFPET_FLOW_MOD_FAILED,      /* Problem modifying flow entry. */
     OFPET_GROUP_MOD_FAILED,     /* Problem modifying group entry. */
     OFPET_PORT_MOD_FAILED,      /* Port mod request failed. */
     OFPET_TABLE_MOD_FAILED,     /* Table mod request failed. */
     OFPET_QUEUE_OP_FAILED,      /* Queue operation failed. */
     OFPET_SWITCH_CONFIG_FAILED, /* Switch config request failed. */
-    OFPET_BAD_INSTRUCTION,      /* Error in instruction list. */
 };
 
 /* ofp_error_msg 'code' values for OFPET_HELLO_FAILED.  'data' contains an
@@ -938,6 +939,41 @@ enum ofp_bad_action_code {
     OFPBAC_MATCH_INCONSISTENT, /* Action can't apply for this match. */
     OFPBAC_UNSUPPORTED_ORDER,  /* Action order is unsupported for the action
 				  list in an Apply-Actions instruction */
+    OFPBAC_BAD_TAG,            /* Actions uses an unsupported
+                                  tag/encap. */
+};
+
+/* ofp_error_msg 'code' values for OFPET_BAD_INSTRUCTION.  'data' contains at least
+ * the first 64 bytes of the failed request. */
+enum ofp_bad_instruction_code {
+    OFPBIC_UNKNOWN_INST,       /* Unknown instruction. */
+    OFPBIC_UNSUP_INST,         /* Switch or table does not support the
+                                  instruction. */
+    OFPBIC_BAD_TABLE_ID,       /* Invalid Table-ID specified. */
+    OFPBIC_UNSUP_METADATA,     /* Metadata value unsupported by datapath. */
+    OFPBIC_UNSUP_METADATA_MASK,/* Metadata mask value unsupported by
+                                  datapath. */
+    OFPBIC_UNSUP_EXP_INST,     /* Specific experimenter instruction
+                                  unsupported. */
+};
+
+/* ofp_error_msg 'code' values for OFPET_BAD_MATCH.  'data' contains at least
+ * the first 64 bytes of the failed request. */
+enum ofp_bad_match_code {
+    OFPBMC_BAD_TYPE,            /* Unsupported match type specified by the
+                                   match */
+    OFPBMC_BAD_LEN,             /* Length problem in match. */
+    OFPBMC_BAD_TAG,             /* Match uses an unsupported tag/encap. */
+    OFPBMC_BAD_DL_ADDR_MASK,    /* Unsupported datalink addr mask - switch does
+                                   not support arbitrary datalink address
+                                   mask. */
+    OFPBMC_BAD_NW_ADDR_MASK,    /* Unsupported network addr mask - switch does
+                                   not support arbitrary network address
+                                   mask. */
+    OFPBMC_BAD_WILDCARDS,       /* Unsupported wildcard specified in the
+                                   match. */
+    OFPBMC_BAD_FIELD,		/* Unsupported field in the match. */
+    OFPBMC_BAD_VALUE,		/* Unsupported value in a match field. */
 };
 
 /* ofp_error_msg 'code' values for OFPET_FLOW_MOD_FAILED.  'data' contains
@@ -952,18 +988,6 @@ enum ofp_flow_mod_failed_code {
     OFPFMFC_BAD_TIMEOUT,        /* Flow not added because of unsupported
                                    idle/hard timeout. */
     OFPFMFC_BAD_COMMAND,        /* Unsupported or unknown command. */
-    OFPFMFC_BAD_MATCH,          /* Unsupported match specified by the
-                                   flow mod. */
-    OFPFMFC_BAD_MATCH_TYPE,     /* Unsupported match type specified by the
-                                   flow mod */
-    OFPFMFC_BAD_TAG,            /* Instruction set uses an unsupported
-                                   tag/encap. */
-    OFPFMFC_BAD_DL_ADDR_MASK,   /* Unsupported datalink addr mask - switch does
-                                   not support arbitrary datalink address
-                                   mask. */
-    OFPFMFC_BAD_NW_ADDR_MASK,   /* Unsupported network addr mask - switch does
-                                   not support arbitrary network address
-                                   mask. */
 };
 
 /* ofp_error_msg 'code' values for OFPET_GROUP_MOD_FAILED.  'data' contains
@@ -1019,20 +1043,6 @@ enum ofp_queue_op_failed_code {
 enum ofp_switch_config_failed_code {
     OFPSCFC_BAD_FLAGS,           /* Specified flags is invalid. */
     OFPSCFC_BAD_LEN              /* Specified len is invalid. */
-};
-
-/* ofp_error_msg 'code' values for OFPET_BAD_INSTRUCTION.  'data' contains at least
- * the first 64 bytes of the failed request. */
-enum ofp_bad_instruction_code {
-    OFPBIC_UNKNOWN_INST,       /* Unknown instruction. */
-    OFPBIC_UNSUP_INST,         /* Switch or table does not support the
-                                  instruction. */
-    OFPBIC_BAD_TABLE_ID,       /* Invalid Table-ID specified. */
-    OFPBIC_UNSUP_METADATA,     /* Metadata value unsupported by datapath. */
-    OFPBIC_UNSUP_METADATA_MASK,/* Metadata mask value unsupported by
-                                  datapath. */
-    OFPBIC_UNSUP_EXP_INST,     /* Specific experimenter instruction
-                                  unsupported. */
 };
 
 /* OFPT_ERROR: Error message (datapath -> controller). */

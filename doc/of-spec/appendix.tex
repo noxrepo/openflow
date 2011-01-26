@@ -562,6 +562,14 @@ For the \verb|OFPET_BAD_ACTION| error \verb|type|, the following \verb|code|s ar
 
 \input{enum/ofp_bad_action_code}
 
+For the \verb|OFPET_BAD_INSTRUCTION| error \verb|type|, the following \verb|code|s are currently defined:
+
+\input{enum/ofp_bad_instruction_code}
+
+For the \verb|OFPET_BAD_MATCH| error \verb|type|, the following \verb|code|s are currently defined:
+
+\input{enum/ofp_bad_match_code}
+
 For the \verb|OFPET_FLOW_MOD_FAILED| error \verb|type|, the following \verb|code|s are currently defined:
 
 \input{enum/ofp_flow_mod_failed_code}
@@ -586,11 +594,7 @@ For the \verb|OFPET_SWITCH_CONFIG_FAILED| error \verb|type|, the following \verb
 
 \input{enum/ofp_switch_config_failed_code}
 
-For the \verb|OFPET_BAD_INSTRUCTION| error \verb|type|, the following \verb|code|s are currently defined:
-
-\input{enum/ofp_bad_instruction_code}
-
-If the error message is in response to a specific message from the controller, e.g., \verb|OFPET_BAD_REQUEST|, \verb|OFPET_BAD_ACTION|, \verb|OFPET_BAD_INSTRUCTION|, or \verb|OFPET_FLOW_MOD_FAILED|, then the \verb|xid| field of the header should match that of the offending message.
+If the error message is in response to a specific message from the controller, e.g., \verb|OFPET_BAD_REQUEST|, \verb|OFPET_BAD_ACTION|, \verb|OFPET_BAD_INSTRUCTION|, \verb|OFPET_BAD_MATCH|, or \verb|OFPET_FLOW_MOD_FAILED|, then the \verb|xid| field of the header should match that of the offending message.
 
 \subsection{Symmetric Messages}
 \subsubsection{Hello}
