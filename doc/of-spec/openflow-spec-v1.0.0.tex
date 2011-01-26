@@ -275,10 +275,14 @@ This version of the specification does \emph{not} define the expected behavior w
 
 
 \subsection{Counters}
+\label{ft:counters}
 
-Counters may be maintained for each table, flow, port, queue, group, and bucket.  OpenFlow-compliant counters may be implemented in software and maintained by polling hardware counters with more limited ranges.
+Counters may be maintained for each table, flow, port, queue, group, and bucket.  OpenFlow-compliant counters may be implemented in software and maintained by polling hardware counters with more limited ranges. Table \ref{table:counters} contains the set of counters defined by the OpenFlow specification.
 \\\\
-Table \ref{table:counters} contains the set of counters.  Duration refers to the amount of time the flow has been installed in the switch.  The Receive Errors field is the total of all receive and collision errors defined in Table \ref{table:counters}, as well as any others not called out in the table.  Counters wrap around with no overflow indicator.
+Duration refers to the amount of time the flow has been installed in the switch.  The Receive Errors field is the total of all receive and collision errors defined in Table \ref{table:counters}, as well as any others not called out in the table.
+\\\\
+Counters wrap around with no overflow indicator. If a specific numeric counter is not available in the switch, its value should be set to -1.
+
 \begin{table}[!hbp]
 \centering
 \footnotesize

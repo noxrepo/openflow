@@ -387,11 +387,13 @@ While the system is running, the datapath may be queried about its current state
 The switch responds with one or more \verb|OFPT_STATS_REPLY| messages:
 
 \input{struct/ofp_stats_reply}
-The only value defined for \verb|flags| in a reply is whether more replies will follow this one - this has the value \verb|0x0001|.  To ease implementation, the switch is allowed to send replies with no additional entries.  However, it must always send another reply following a message with the �more� flag set.  The transaction ids (xid) of replies must always match the request that prompted them.
+The only value defined for \verb|flags| in a reply is whether more replies will follow this one - this has the value \verb|0x0001|.  To ease implementation, the switch is allowed to send replies with no additional entries.  However, it must always send another reply following a message with the \emph{more} flag set.  The transaction ids (xid) of replies must always match the request that prompted them.
 \\\\
 In both the request and response, the \verb|type| field specifies the kind of information being passed and determines how the \verb|body| field is interpreted:
 
 \input{enum/ofp_stats_types}
+
+In all types of statistics reply, if a specific numeric counter is not available in the switch, its value should be set to -1. Counters wrap around with no overflow indicator.
 
 \paragraph{Description Statistics}
 Information about the switch manufacturer, hardware revision, software revision, serial number, and a description field is available from the \verb|OFPST_DESC| stats request type:
@@ -450,7 +452,6 @@ The \verb|port_no| field optionally filters the stats request to the given port.
 The \verb|body| of the reply consists of an array of the following:
 
 \input{struct/ofp_port_stats}
-The switch should return a value of -1 for unavailable counters.
 
 \paragraph{Queue Statistics}
 The \verb|OFPST_QUEUE| stats request message provides queue statistics for one or more ports and one or more queues. The request body contains a \verb|port_no| field identifying the OpenFlow port for which statistics are requested, or \verb|OFPP_ANY| to refer to all ports. The \verb|queue_id| field identifies one of the priority queues, or \verb|OFPQ_ALL| to refer to all queues configured at the specified port.
@@ -459,6 +460,7 @@ The \verb|OFPST_QUEUE| stats request message provides queue statistics for one o
 The body of the reply consists of an array of the following structure:
 
 \input{struct/ofp_queue_stats}
+
 \paragraph{Group Statistics}
 The \verb|OFPST_GROUP| stats request message provides statistics for one or more groups.  The request body consists of a \verb|group_id| field, which can be set to \verb|OFPG_ALL| to refer to all groups on the switch.
 
@@ -469,7 +471,7 @@ The body of the reply consists of an array of the following structure:
 The \verb|bucket_stats| field consists of an array of \verb|ofp_bucket_counter| structs:
 
 \input{struct/ofp_bucket_counter}
-The switch should return a value of -1 for unavailable counters.
+
 \paragraph{Group Description Statistics}
 The \verb|OFPST_GROUP_DESC| stats request message provides a way to list the set of groups on a switch, along with their corresponding bucket actions.  The request body is empty, while the reply body is an array of the following structure:
 
@@ -526,7 +528,7 @@ The \verb|idle_timeout| field is directly copied from the flow mod that created 
 \\\\
 With the above three fields, one can find both the amount of time the flow was active, as well as the amount of time the flow received traffic.
 \\\\
-The \verb|packet_count| and \verb|byte_count| indicate the number of packets and bytes that were associated with this flow, respectively. 
+The \verb|packet_count| and \verb|byte_count| indicate the number of packets and bytes that were associated with this flow, respectively. The switch should return a value of -1 for unavailable counters.
  
 \subsubsection{Port Status Message}
 As ports are added, modified, and removed from the datapath, the controller needs to be informed with the \verb|OFPT_PORT_STATUS| message:
