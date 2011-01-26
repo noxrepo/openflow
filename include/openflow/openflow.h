@@ -629,15 +629,6 @@ enum ofp_vlan_id {
 /* Define for compatibility */
 #define OFP_VLAN_NONE      OFPVID_NONE
 
-/* The MPLS label is 20-bits, so we can use the entire 24/32 bits to indicate
- * special conditions.
- */
-enum ofp_mpls_label {
-    OFPML_ANY  = 0xfffffe, /* Indicate that a MPLS label is set but don't care
-                              about it's value. Note: only valid when
-                              specifying the MPLS tag in a match */
-};
-
 /* The match type indicates the match structure (set of fields that compose the
  * match) in use. The match type is placed in the type field at the beginning
  * of all match structures. The "standard" type corresponds to ofp_match and
