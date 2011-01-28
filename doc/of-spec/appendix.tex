@@ -223,14 +223,14 @@ A \emph{Copy TTL inwards} action takes no arguments and consists only of a gener
 A \emph{Push VLAN header} action and \emph{Push MPLS header} action use the following structure and fields:
 
 \input{struct/ofp_action_push}
-The \verb|ethertype| indicates the Ethertype of the new tag. It is used when pushing any new VLAN tags and the bottom of stack MPLS header.
+The \verb|ethertype| indicates the Ethertype of the new tag. It is used when pushing a new VLAN tag or new MPLS header.
 \\\\
 A \emph{Pop VLAN header} action takes no arguments and consists only of a generic \verb|ofp_action_header|. The action pops the outermost VLAN tag from the packet.
 \\\\
 A \emph{Pop MPLS header} action uses the following structure and fields:
 
 \input{struct/ofp_action_pop_mpls}
-The \verb|ethertype| indicates the Ethertype of the payload and is only used when popping the bottom of stack.
+The \verb|ethertype| indicates the Ethertype of the payload.
 \\\\
 An \emph{Experimenter} action uses the following structure and fields:
 

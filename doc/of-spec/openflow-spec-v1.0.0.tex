@@ -441,14 +441,14 @@ Push MPLS header &
 Ethertype &
 Push a new MPLS shim header onto the packet.
 
-The Ethertype is used as the Ethertype for the header only if the new tag being pushed is the bottom of stack. Only Ethertype 0x8847 and 0x8848 should be used.
+The Ethertype is used as the Ethertype for the tag. Only Ethertype 0x8847 and 0x8848 should be used.
 \\
 \hline
 Pop MPLS header &
 Ethertype &
 Pop the outer-most MPLS tag or shim header from the packet.
 
-The Ethertype is only used when popping the bottom of stack and indicates the Ethertype of the payload.
+The Ethertype is used as the Ethertype for the resulting packet (Ethertype for the MPLS payload).
 \\
 \hline
 \end{tabularx}
