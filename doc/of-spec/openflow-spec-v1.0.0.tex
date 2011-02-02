@@ -677,7 +677,7 @@ Controllers are free to drop messages, but should respond to hello and echo mess
 \\\\
 \textbf{Message Ordering}: Ordering can be ensured through the use of \emph{barrier} messages.  In the absence of barrier messages, switches may arbitrarily reorder messages to maximize performance; hence, controllers should not depend on a specific processing order. In particular, flows may be inserted in tables in an order different than that of flow mod messages received by the switch.  Messages must not be reordered across a barrier message and the barrier message must be processed only when all prior messages have been processed.  More precisely:
 \begin{enumerate}
-\item messages before a barrier must be fully processed before the barrier, including any resulting replies or errors
+\item messages before a barrier must be fully processed before the barrier, including sending any resulting replies or errors
 \item the barrier must then be processed and a barrier reply sent
 \item messages after the barrier may then begin processing
 \end{enumerate}
