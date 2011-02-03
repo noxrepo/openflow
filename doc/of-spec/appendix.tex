@@ -93,6 +93,8 @@ If no wildcards are set and the \verb|_mask| fields are all zero, then the \verb
 \\\\
 Setting the \verb|OFPFW_DL_VLAN| bit in the \verb|wildcards| field specifies that a flow should match packets regardless of whether they contain the corresponding tag. Special values are defined below for the VLAN tag to allow matching of packets with any tag, independent of the tag's value, and to supports matching packets without a VLAN tag. The special values defined for \verb|dl_vlan| are:
 \input{enum/ofp_vlan_id}
+The \verb|dl_vlan_pcp| field must be ignored when the \verb|OFPFW_DL_VLAN| wildcard bit is set or when the \verb|dl_vlan| value is set to \verb|OFPVID_NONE|.
+\\\\
 Table~\ref{table:vlan wildcards} summarizes the combinations of wildcard bits and field values for particular matches.
 
 \begin{table}[hbp]
