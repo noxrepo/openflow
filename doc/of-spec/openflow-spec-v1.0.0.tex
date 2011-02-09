@@ -12,6 +12,9 @@
 \usepackage{calc}
 \usepackage{appendix}
 \usepackage{subfigure}
+\usepackage{fullpage} % smaller margins
+% \usepackage{palatino} % readable font
+\usepackage{mathpazo} % readable font
 
 \hbadness=10000 % No "underfull hbox" messages
 
@@ -33,14 +36,15 @@
 \setlength{\atdescwidth}{0.45\textwidth - 2 \tabcolsep}
 
 \pagestyle{fancy}
-\fancyhead{}
-\lhead{OpenFlow Switch Specification}
-\rhead{Version \ofversion}
+\fancyhead[L]{OpenFlow Switch Specification}
+\fancyhead[R]{Version \ofversion}
+\setlength{\headheight}{12pt} % prevent overlap
+\setlength{\headsep}{9pt} % space below header
 \renewcommand{\headrulewidth}{0.4pt}
 \renewcommand{\footrulewidth}{0.4pt}
 
-\fontfamily{cmr} % what about cmss?
-\selectfont
+% \fontfamily{cmr} % what about cmss?
+% \selectfont
 
 \title{OpenFlow Switch Specification}
 \author{Version \ofversion{} ( Wire Protocol \input{define/OFP_VERSION})}
