@@ -13,12 +13,18 @@
 \usepackage{appendix}
 \usepackage{subfigure}
 \usepackage{fullpage} % smaller margins
-% \usepackage{palatino} % readable font
-\usepackage{mathpazo} % readable font
+%\usepackage{palatino} % readable font
+%\usepackage{mathpazo} % readable font
+
+% Hyphenate \texttt{}
+% \usepackage[htt]{hyphenat}
 
 \hbadness=10000 % No "underfull hbox" messages
 
 \begin{document}
+
+% This will prevent going into the margin by stretching text...
+\begin{sloppypar}
 
 %\lstset{language=C}
 
@@ -43,8 +49,8 @@
 \renewcommand{\headrulewidth}{0.4pt}
 \renewcommand{\footrulewidth}{0.4pt}
 
-% \fontfamily{cmr} % what about cmss?
-% \selectfont
+\fontfamily{cmr} % what about cmss?
+\selectfont
 
 \title{OpenFlow Switch Specification}
 \author{Version \ofversion{} ( Wire Protocol \input{define/OFP_VERSION})}
@@ -111,7 +117,7 @@ This section describes the components of flow tables and group tables, along wit
 
 A flow table consists of flow entries.
 
-\begin{table}[hbp]
+\begin{table}[htb]
 \centering
 \begin{tabular}{|c|c|c|}
 \hline	
@@ -132,7 +138,7 @@ Each flow table entry (see Table \ref{table:flow entry}) contains:
 \subsubsection{Pipeline Processing}
 \label{sec:pipeline}
 
-\begin{figure}[htbp]
+\begin{figure}[htb]
 \centering
 \subfigure[Packets are matched against multiple tables in the pipeline]{
 \includegraphics[width=\textwidth]{pipeline_flow_overview}
@@ -160,7 +166,7 @@ If the packet does not match a flow entry in a flow table, this is a table miss.
 \label{sec:group table}
 A group table consists of group entries.  The ability for a flow to point to a \emph{group} enables OpenFlow to represent additional methods of forwarding (e.g. select and all).
 \\\\
-\begin{table}[hbp]
+\begin{table}[htb]
 \centering
 \begin{tabular}{|c|c|c|c|}
 \hline
@@ -190,7 +196,7 @@ The following group types are defined:
 \end{itemize}
 
 \subsection{Match Fields}
-\begin{table}[hbp]
+\begin{table}[htb]
 \centering
 \footnotesize
 \begin{tabularx}{\textwidth}{ |X|X|X|X|X|X|X|X|X|X|X|X|X|XX|XX| }
@@ -221,7 +227,7 @@ The following group types are defined:
 
 Table \ref{table:match fields} shows the match fields an incoming packet is compared against. Each entry contains a specific value, or ANY, which matches any value. If the switch supports arbitrary bitmasks on the Ethernet source and/or destinations fields, or on the IP source and/or destination fields, these masks can more precisely specify matches.  The fields in the OpenFlow tuple are listed in Table \ref{table:match fields} and details on the properties of each field are described in Table \ref{table:header field details}. In addition to packet headers, matches can also be performed against the ingress port and metadata fields. Metadata may be used to pass information between tables in a switch.
 \\\\
-\begin{table}[hbp]
+\begin{table}[htbp]
 \centering
 \footnotesize
 \begin{tabularx}{\textwidth}{ |X|c|X|X| }
@@ -256,7 +262,7 @@ Table \ref{table:match fields} shows the match fields an incoming packet is comp
 \label{fig:packet_flow}
 \end{figure}
 
-\begin{figure}[!htb]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=\textwidth]{header_parsing_flowchart}
 \caption{Flowchart showing how match fields are parsed for matching.}
@@ -287,7 +293,7 @@ Duration refers to the amount of time the flow has been installed in the switch.
 \\\\
 Counters wrap around with no overflow indicator. If a specific numeric counter is not available in the switch, its value should be set to -1.
 
-\begin{table}[!hbp]
+\begin{table}[htb]
 \centering
 \footnotesize
 %\begin{tabularx}{\textwidth}{ |X|X| }
@@ -405,6 +411,8 @@ The switch may optionally support forwarding to the following reserved virtual p
 \\\\
 \textbf{Required Action:} \emph{Drop}.  There is no explicit action to represent drops.  Instead, packets whose action sets have no output actions should be dropped.  This result could come from empty instruction sets or empty action buckets in the processing pipeline, or after executing a Clear-Actions instruction.
 \\\\
+\textbf{Required Action:} \emph{Group}.  Process the packet through the specified group.  The exact interpretation depends on group type. 
+\\\\
 \textbf{Optional Action:} \emph{Push-Tag/Pop-Tag}.  Switches may support the ability to push/pop tags as shown in Table \ref{table:push pop actions}.  To aid integration with existing networks, we suggest that the ability to push/pop VLAN tags be supported.
 
 The ordering of header fields/tags is:
@@ -418,12 +426,8 @@ Ethernet & VLAN & MPLS & ARP/IP & TCP/UDP/SCTP (IP-only) \\
 Newly pushed tags should \emph{always} be inserted as the outermost tag in this ordering. When a new VLAN tag is pushed, it should be the outermost VLAN tag inserted immediately after the Ethernet header. Likewise, when a new MPLS tag is pushed, it should be the outermost MPLS tag, inserted as a shim header after any VLAN tags.
 \\\\
 Note: Refer to section~\ref{sec:push field defaults} for information on default field values.
-\\\\
-\textbf{Optional Action:} \emph{Set-Field}.  The various Set-Field actions modify the values of the respective header field in the packet. While not strictly required, the actions shown in Table \ref{table:set-field actions}  greatly increase the usefulness of an OpenFlow implementation.  To aid integration with existing networks, we suggest that VLAN modification actions be supported. Set-Field actions should \emph{always} be applied to the outermost-possible header (e.g.~a ``Set VLAN ID'' action always sets the ID of the outermost VLAN tag).
-\\\\
-\textbf{Required Action:} \emph{Group}.  Process the packet through the specified group.  The exact interpretation depends on group type. 
 
-\begin{table}[hbp]
+\begin{table}[htb]
 \centering
 \footnotesize
 \begin{tabularx}{\textwidth}{ |l|c|X| }
@@ -459,6 +463,8 @@ The Ethertype is used as the Ethertype for the resulting packet (Ethertype for t
 \caption{Push/pop tag actions.}
 \label{table:push pop actions}
 \end{table}
+
+\textbf{Optional Action:} \emph{Set-Field}.  The various Set-Field actions modify the values of the respective header field in the packet. While not strictly required, the actions shown in Table \ref{table:set-field actions}  greatly increase the usefulness of an OpenFlow implementation.  To aid integration with existing networks, we suggest that VLAN modification actions be supported. Set-Field actions should \emph{always} be applied to the outermost-possible header (e.g.~a ``Set VLAN ID'' action always sets the ID of the outermost VLAN tag).
 
 \bottomcaption{Set-Field actions.}
 \label{table:set-field actions}
@@ -581,7 +587,7 @@ Copy can be IP-to-IP, MPLS-to-MPLS, or MPLS-to-IP.
 \label{sec:push field defaults} 
 Field values for all fields specified in Table~\ref{table:push field copy} should be copied from existing outer headers to new outer headers when executing a push action. New fields listed in Table~\ref{table:push field copy} without corresponding existing fields should be set to zero.  Fields that cannot be modified via OpenFlow set-field actions should be initialized to appropriate protocol values.
 
-\begin{table}[hbp]
+\begin{table}[htb]
 \centering
 \begin{tabular}{lcl}
 \textbf{New Fields} & & \textbf{Existing Field(s)} \\
@@ -795,4 +801,5 @@ The controller can infer the liveness state of the group by monitoring the state
 \input{credits}
 \end{appendices}
  
+\end{sloppypar}
 \end{document} 
