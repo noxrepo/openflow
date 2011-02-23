@@ -211,6 +211,7 @@ enum ofp_capabilities {
     OFPC_IP_REASM       = 1 << 5,  /* Can reassemble IP fragments. */
     OFPC_QUEUE_STATS    = 1 << 6,  /* Queue statistics. */
     OFPC_ARP_MATCH_IP   = 1 << 7   /* Match IP addresses in ARP pkts. */
+    OFPC_PORT_BLOCKED   = 1 << 8,  /* Switch will block looping ports. */
 };
 
 /* Flags to indicate behavior of the physical port.  These flags are
