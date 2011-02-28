@@ -865,7 +865,7 @@ struct ofp_flow_removed {
     uint32_t duration_nsec;   /* Time flow was alive in nanoseconds beyond
                                  duration_sec. */
     uint16_t idle_timeout;    /* Idle timeout from original flow mod. */
-    uint8_t pad2[2];          /* Align to 64-bits. */
+    uint16_t idle_timeout;    /* Hard timeout from original flow mod. */
     uint64_t packet_count;
     uint64_t byte_count;
     struct ofp_match match;   /* Description of fields. */
