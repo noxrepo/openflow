@@ -509,7 +509,7 @@ The \verb|reason| field is one of the following:
 \input{enum/ofp_flow_removed_reason}
 The \verb|duration_sec| and \verb|duration_nsec| fields are described in Section \ref{flow_duration_info}.
 \\\\
-The \verb|idle_timeout| field is directly copied from the flow mod that created this entry. 
+The \verb|idle_timeout| and \verb|hard_timeout| fields are directly copied from the flow mod that created this entry. 
 \\\\
 With the above three fields, one can find both the amount of time the flow was active, as well as the amount of time the flow received traffic.
 \\\\
