@@ -1075,12 +1075,12 @@ enum ofp_stats_types {
     OFPST_PORT,
 
     /* Queue statistics for a port
-     * The request body defines the port
+     * The request body is struct ofp_queue_stats_request.
      * The reply body is an array of struct ofp_queue_stats */
     OFPST_QUEUE,
 
     /* Group counter statistics.
-     * The request body is empty.
+     * The request body is struct ofp_group_stats_request.
      * The reply is struct ofp_group_stats. */
     OFPST_GROUP,
 
