@@ -1081,12 +1081,12 @@ enum ofp_stats_types {
 
     /* Group counter statistics.
      * The request body is struct ofp_group_stats_request.
-     * The reply is struct ofp_group_stats. */
+     * The reply is is an array of struct ofp_group_stats. */
     OFPST_GROUP,
 
     /* Group description statistics.
      * The request body is empty.
-     * The reply body is struct ofp_group_desc_stats. */
+     * The reply body is is an array of struct ofp_group_desc_stats. */
     OFPST_GROUP_DESC,
 
     /* Experimenter extension.
