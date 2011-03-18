@@ -831,8 +831,8 @@ struct ofp_group_mod {
     uint8_t type;                 /* One of OFPGT_*. */
     uint8_t pad;                  /* Pad to 64 bits. */
     uint32_t group_id;            /* Group identifier. */
-    struct ofp_bucket buckets[0]; /* The bucket length is inferred from the
-                                     length field in the header. */
+    struct ofp_bucket buckets[0]; /* The length of the bucket array is inferred
+                                     from the length field in the header. */
 };
 OFP_ASSERT(sizeof(struct ofp_group_mod) == 16);
 
