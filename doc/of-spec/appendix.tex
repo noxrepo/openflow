@@ -255,9 +255,8 @@ The \verb|n_tables| field describes the number of tables supported by the switch
 The \verb|capabilities| field uses the following flags:
 
 \input{enum/ofp_capabilities} 
+
 The \verb|OFPC_PORT_BLOCKED| bit indicates that a switch protocol outside of OpenFlow, such as 802.1D Spanning Tree, will detect topology loops and block ports to prevent packet loops. If this bit is not set, in most cases the controller should implement a mechanism to prevent packet loops.
-\\\\
-The \verb|actions| field is a bitmap of actions supported by the switch.  The list of actions is found in Section~\ref{ft:actions}; all actions marked Required must be supported. Experimenter actions should \emph{not} be reported via this bitmask. The bitmask uses the values from \verb|ofp_action_type| as the number of bits to shift left for an associated action. For example, \verb|OFPAT_SET_DL_VLAN| would use the flag \verb|0x00000002|.
 \\\\
 The \verb|ports| field is an array of \verb|ofp_port| structures that describe all the ports in the system that support OpenFlow.  The number of port elements is inferred from the length field in the OpenFlow header. 
 
