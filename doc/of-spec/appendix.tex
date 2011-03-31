@@ -272,7 +272,7 @@ The configuration flags include the following:
 \input{enum/ofp_config_flags}
 The \verb|OFPC_FRAG_*| flags indicate whether IP fragments should be treated normally, dropped, or reassembled.  ``Normal" handling of fragments means that an attempt should be made to pass the fragments through the OpenFlow tables. If any field is not present (e.g., the TCP/UDP ports didn't fit), then the packet should not match any entry that has that field set.
 \\\\
-The \verb|OFPC_INVALID_TTL_TO_CONTROLLER| flag indicates whether packets with invalid IP TTL or MPLS TTL should be dropped or sent to the controller.  The flag is cleared by default, causing invalid packets to get dropped.
+The \verb|OFPC_INVALID_TTL_TO_CONTROLLER| flag indicates whether packets with invalid IP TTL or MPLS TTL should be dropped or sent to the controller for processing using a \verb|OFPT_PACKET_IN| message with reason \verb|OFPR_INVALID_TTL|.  The flag is cleared by default, causing invalid packets to get dropped.
 \\\\
 The \verb|miss_send_len| field defines the number of bytes of each packet sent to the controller as a result of both flow table misses and flow table hits with the controller as the destination.  If this field equals 0, the switch must send a zero-size \verb|packet_in| message.
 
@@ -282,7 +282,7 @@ The controller can configure and query table state in the switch with the \verb|
 \input{struct/ofp_table_mod}
 The \verb|table_id| chooses the table to which the configuration change should be applied. If the \verb|table_id| is \verb|0xFF|, the configuration is applied to all tables in the switch.
 
-The \verb|config| field is a bitmap that is used to configure the default behavior of unmatched packets.  By default, any packet that does not match a table is sent to the controller for processing using a \verb|OFPT_PACKET_IN| message.  This behavior can be modified by using the following flags:
+The \verb|config| field is a bitmap that is used to configure the default behavior of unmatched packets. By default, any packet that does not match a table is sent to the controller for processing using a \verb|OFPT_PACKET_IN| message with reason \verb|OFPR_NO_MATCH|. This behavior can be modified by using the following flags:
 
 \input{enum/ofp_table_config}
 The \verb|OFPTC_TABLE_MISS_CONTINUE| flag directs unmatched packets to the next table in the pipeline, except for the last table of the pipeline where unmatched packets are sent to the controller.  This behavior is similar to the multiple table match process in the OpenFlow 1.0 specification. The \verb|OFPTC_TABLE_MISS_DROP| flag drops unmatched packets.
