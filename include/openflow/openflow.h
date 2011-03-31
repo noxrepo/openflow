@@ -340,7 +340,8 @@ OFP_ASSERT(sizeof(struct ofp_port_mod) == 40);
 /* Why is this packet being sent to the controller? */
 enum ofp_packet_in_reason {
     OFPR_NO_MATCH,          /* No matching flow. */
-    OFPR_ACTION             /* Action explicitly output to controller. */
+    OFPR_ACTION,            /* Action explicitly output to controller. */
+    OFPR_INVALID_TTL        /* Packet has invalid TTL */
 };
 
 /* Packet received on port (datapath -> controller). */
