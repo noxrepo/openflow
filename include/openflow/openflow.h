@@ -1221,6 +1221,9 @@ enum ofp_flow_match_fields {
     OFPFMF_NW_SRC      = 1 << 13, /* IP source address. */
     OFPFMF_NW_DST      = 1 << 14, /* IP destination address. */
     OFPFMF_METADATA    = 1 << 15, /* Metadata passed between tables. */
+
+    /* Support all fields. */
+    OFPFMF_ALL         = ((1 << 16) - 1)
 };
 
 /* Body of reply to OFPST_TABLE request. */
