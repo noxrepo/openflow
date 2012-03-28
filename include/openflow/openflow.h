@@ -38,6 +38,15 @@
 
 #ifdef __KERNEL__
 #include <linux/types.h>
+#elif _WIN32
+typedef __int8 int8_t;
+typedef __int16 int16_t;
+typedef __int32 int32_t;
+typedef __int64 int64_t;
+typedef unsigned __int8 uint8_t;
+typedef unsigned __int16 uint16_t;
+typedef unsigned __int32 uint32_t;
+typedef unsigned __int64 uint64_t;
 #else
 #include <stdint.h>
 #endif
@@ -934,7 +943,10 @@ struct ofp_queue_get_config_reply {
     struct ofp_header header;
     uint16_t port;
     uint8_t pad[6];
+#ifndef _WIN32
+	/* Visual C++ 2008 can't handle this. */
     struct ofp_packet_queue queues[0]; /* List of configured queues. */
+#endif
 };
 OFP_ASSERT(sizeof(struct ofp_queue_get_config_reply) == 16);
 
