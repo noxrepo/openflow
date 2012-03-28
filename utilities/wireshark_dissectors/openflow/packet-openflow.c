@@ -10,6 +10,10 @@
  * Defines a Wireshark 1.0.0+ dissector for the OpenFlow protocol version 0x98.
  */
 
+#ifdef _WIN32
+extern "C" {
+#endif
+
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
@@ -25,7 +29,17 @@
 #include <epan/etypes.h>
 #include <epan/addr_resolv.h>
 #include <string.h>
+#ifdef _WIN32
+#include <winsock.h>
+typedef unsigned __int8 guint8;
+typedef unsigned __int16 guint16;
+typedef unsigned __int32 guint32;
+typedef unsigned __int64 guint64;
+#define snprintf _snprintf
+#pragma warning (disable:4200)
+#else
 #include <arpa/inet.h>
+#endif
 #include <openflow/openflow.h>
 
 /** the version of openflow this dissector was written for */
@@ -774,7 +788,7 @@ void proto_reg_handoff_openflow()
 
 /** Returns newly allocated string with two spaces in front of str. */
 static inline char* indent( char* str ) {
-    char* ret = malloc( strlen(str) + 3 );
+    char* ret = (char *)malloc( strlen(str) + 3 );
     ret[0] = ' ';
     ret[1] = ' ';
     memcpy( &ret[2], str, strlen(str) + 1 );
@@ -3002,7 +3016,7 @@ static void dissect_openflow_message(tvbuff_t *tvb, packet_info *pinfo, proto_tr
                 proto_tree_add_uint(sf_port_tree, ofp_switch_features_ports_num, tvb, offset, num_ports*sizeof(struct ofp_phy_port), num_ports);
 
                 dissect_phy_ports(sf_port_tree, sf_port_item, tvb, pinfo, &offset, num_ports);
-                if( num_ports * sizeof(struct ofp_phy_port) < sz ) {
+                if( num_ports * sizeof(struct ofp_phy_port) < (guint)sz ) {
                     snprintf(str, STR_LEN, "%uB were leftover at end of packet", sz - num_ports*sizeof(struct ofp_phy_port));
                     add_child_str(sf_port_tree, ofp_switch_features_ports_warn, tvb, &offset, 0, str);
                 }
@@ -3424,3 +3438,7 @@ static void dissect_openflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     /* have wireshark reassemble our PDUs; call dissect_openflow_when full PDU assembled */
     tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 4, get_openflow_message_len, dissect_openflow_message);
 }
+
+#ifdef _WIN32
+}
+#endif
