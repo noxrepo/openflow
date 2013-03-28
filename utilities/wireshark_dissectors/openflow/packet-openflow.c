@@ -28,10 +28,17 @@
 #include <arpa/inet.h>
 #include <openflow/openflow.h>
 
+#define NO_STRINGS NULL
+
+#define DISSECTOR_OPENFLOW_DST_PORT_TYPE_LIST	0
+#define DISSECTOR_OPENFLOW_DST_PORT_TYPE_RANGE	1
+#define DISSECTOR_OPENFLOW_DST_PORT_TYPE_SINGLE 2
+
 /** the version of openflow this dissector was written for */
 #define DISSECTOR_OPENFLOW_MIN_VERSION OFP_VERSION
 #define DISSECTOR_OPENFLOW_MAX_VERSION OFP_VERSION
 #define DISSECTOR_OPENFLOW_VERSION_DRAFT_THRESHOLD OFP_VERSION
+
 
 /** if 0, padding bytes will not be shown in the dissector */
 #define SHOW_PADDING 0
@@ -45,7 +52,10 @@ static void dissect_openflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 /* traffic will arrive with TCP port OPENFLOW_DST_TCP_PORT */
 #define TCP_PORT_FILTER "tcp.port"
-static int global_openflow_proto = OPENFLOW_DST_TCP_PORT;
+
+//static int global_openflow_proto = OPENFLOW_DST_TCP_PORT;
+//static int global_openflow_proto_start = OPENFLOW_DST_TCP_PORT_START;
+//static int global_openflow_proto_end = OPENFLOW_DST_TCP_PORT_END;
 
 /* try to find the ethernet dissector to dissect encapsulated Ethernet data */
 static dissector_handle_t data_ethernet;
@@ -765,8 +775,47 @@ static gint ett_ofp_error_msg_data = -1;
 
 void proto_reg_handoff_openflow()
 {
+    int i, start_port, end_port;
+    char* port_list, token;
+    const char* buffer;
+    int tcp_dest_port;
+
     openflow_handle = create_dissector_handle(dissect_openflow, proto_openflow);
-    dissector_add(TCP_PORT_FILTER, global_openflow_proto, openflow_handle);
+    int type = OPENFLOW_DST_TCP_PORT_TYPE;
+
+    if(type == DISSECTOR_OPENFLOW_DST_PORT_TYPE_SINGLE)
+    {
+	tcp_dest_port = OPENFLOW_DST_TCP_PORT;
+	dissector_add_uint(TCP_PORT_FILTER, tcp_dest_port, openflow_handle);
+    }
+    else if(type == DISSECTOR_OPENFLOW_DST_PORT_TYPE_RANGE)
+    {
+	start_port = OPENFLOW_DST_TCP_PORT_START;
+	end_port = OPENFLOW_DST_TCP_PORT_END;
+
+	for( tcp_dest_port = start_port; tcp_dest_port <= end_port; tcp_dest_port++)
+		dissector_add_uint(TCP_PORT_FILTER, tcp_dest_port, openflow_handle);
+    }
+    /*else if(type == DISSECTOR_OPENFLOW_DST_PORT_TYPE_LIST)
+    {
+	buffer = OPENFLOW_DST_TCP_PORT_LIST;
+	port_list = malloc( strlen(buffer) + 1);
+	strcpy(port_list, buffer);
+	port_list[ (int)strlen(buffer) - 1 ] = '\0';
+	token = strtok(port_list, ",");
+	do
+	{
+		tcp_dest_port = atoi(token);
+		dissector_add_uint(TCP_PORT_FILTER, tcp_dest_port, openflow_handle);
+	}
+	while( (token = strtok(NULL, ",")) != NULL);
+    }*/
+    //dissector_add_uint(TCP_PORT_FILTER, global_openflow_proto, openflow_handle);
+    //int i;
+    //for(i = global_openflow_proto_start; i <= global_openflow_proto_end; i++)
+	//dissector_add_uint(TCP_PORT_FILTER, i, openflow_handle);
+    /*dissector_add_uint(TCP_PORT_FILTER, 6631, openflow_handle);
+    dissector_add_uint(TCP_PORT_FILTER, 6632, openflow_handle);*/
 }
 
 #define NO_STRINGS NULL
